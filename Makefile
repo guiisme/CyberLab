@@ -6,22 +6,24 @@ format:
 lint:
 	uv run ruff check .
 
-.PHONY: typecheck
-typecheck:
-	uv run mypy src
-
 .PHONY: test
 test:
 	uv run pytest
 
+.PHONY: typecheck
+typecheck:
+	uv run mypy src
+
 .PHONY: verify
 verify:
+	uv run ruff check --fix .
+	uv run ruff format .
+	uv run mypy src
+	uv run pytest
+
+.PHONY: ci
+ci:
 	uv run ruff check .
 	uv run ruff format --check .
 	uv run mypy src
 	uv run pytest
-
-.PHONY: fix
-fix:
-	uv run ruff check --fix .
-	uv run ruff format .
