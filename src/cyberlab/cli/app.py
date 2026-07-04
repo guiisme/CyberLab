@@ -2,4 +2,17 @@ from __future__ import annotations
 
 import typer
 
-app = typer.Typer(help="CyberLab Framework")
+from cyberlab.cli.registry import register_commands
+
+
+def create_app() -> typer.Typer:
+    """Create the CyberLab CLI application."""
+
+    app = typer.Typer(
+        name="cyberlab",
+        help="CyberLab - Reproducible Cybersecurity Labs",
+    )
+
+    register_commands(app)
+
+    return app

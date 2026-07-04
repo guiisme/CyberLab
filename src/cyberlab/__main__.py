@@ -1,10 +1,8 @@
-from __future__ import annotations
-
-from cyberlab.cli.app import app
+from cyberlab.cli.app import create_app
 
 
 def main() -> None:
-    app()
+    create_app()()
 
 
 if __name__ == "__main__":

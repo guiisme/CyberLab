@@ -27,3 +27,9 @@ ci:
 	uv run ruff format --check .
 	uv run mypy src
 	uv run pytest
+
+.PHONY:  preflight
+preflight:
+	make format
+	make verify
+	git status
