@@ -1,5 +1,10 @@
+from __future__ import annotations
+
 import pytest
 
+from cyberlab.application.use_cases.lab_validation_use_case import (
+    LabValidationUseCase,
+)
 from cyberlab.domain.models.check_result import CheckResult
 from cyberlab.domain.models.lab_validation_report import (
     LabValidationReport,
@@ -27,11 +32,11 @@ def _create_report() -> LabValidationReport:
                 success=True,
                 message="Found",
             ),
-        ),
+        )
     )
 
 
-def test_validate_returns_report() -> None:
+def test_execute_returns_validation_report() -> None:
     # Arrange
     report = _create_report()
 
@@ -41,14 +46,18 @@ def test_validate_returns_report() -> None:
         }
     )
 
+    use_case = LabValidationUseCase(
+        validator,
+    )
+
     # Act
-    result = validator.validate("xss-basic")
+    result = use_case.execute("xss-basic")
 
     # Assert
     assert result == report
 
 
-def test_validate_records_requested_lab_id() -> None:
+def test_execute_records_requested_lab_id() -> None:
     # Arrange
     report = _create_report()
 
@@ -58,8 +67,12 @@ def test_validate_records_requested_lab_id() -> None:
         }
     )
 
+    use_case = LabValidationUseCase(
+        validator,
+    )
+
     # Act
-    validator.validate("xss-basic")
+    use_case.execute("xss-basic")
 
     # Assert
     assert validator.requested_lab_ids == [
@@ -67,13 +80,17 @@ def test_validate_records_requested_lab_id() -> None:
     ]
 
 
-def test_validate_raises_assertion_error_for_unknown_lab() -> None:
+def test_execute_propagates_validator_error() -> None:
     # Arrange
     validator = FakeLabValidator({})
+
+    use_case = LabValidationUseCase(
+        validator,
+    )
 
     # Act / Assert
     with pytest.raises(
         AssertionError,
         match="Unexpected lab id: unknown",
     ):
-        validator.validate("unknown")
+        use_case.execute("unknown")
