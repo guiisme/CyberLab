@@ -89,3 +89,48 @@ docs/
 * **Overview** describes the current system architecture.
 
 Together, these documents provide a complete picture of the project's evolution.
+
+## Environment Doctor
+
+O CyberLab fornece o comando `doctor` para validar se o ambiente possui os requisitos necessários para executar os laboratórios.
+
+### Uso
+
+```bash
+cyberlab doctor
+```
+
+O comando executa uma série de verificações e apresenta um relatório resumido do ambiente.
+
+Exemplo:
+
+```text
+✔ Python
+✔ Git
+✔ Docker
+
+Environment OK
+```
+
+### Arquitetura
+
+O fluxo segue a arquitetura oficial do projeto:
+
+```text
+CLI
+    ↓
+DoctorUseCase
+    ↓
+CommandRunnerProtocol
+    ↓
+CommandRunner
+```
+
+Cada camada possui responsabilidade única:
+
+* **CLI**: recebe argumentos e renderiza a saída.
+* **Application**: orquestra as verificações.
+* **Infrastructure**: executa comandos do sistema operacional.
+* **Domain**: representa os resultados das verificações.
+
+O `DoctorUseCase` retorna um `DoctorReport`, que agrega todos os `CheckResult` produzidos durante a execução.

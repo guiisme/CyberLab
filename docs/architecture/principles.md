@@ -1,237 +1,257 @@
-# CyberLab Architecture Principles
+# CyberLab Engineering Principles
 
-> These principles define how the CyberLab project is designed, implemented and evolved.
->
-> Every contribution should respect these principles unless a documented Architecture Decision Record (ADR) explicitly states otherwise.
+## Purpose
 
----
+O CyberLab é um framework para criação de laboratórios reproduzíveis de Cybersecurity.
 
-# 1. Architecture First
-
-Architecture is considered a product feature.
-
-Every implementation must preserve the architectural integrity of the project.
-
-Short-term convenience must never compromise long-term maintainability.
+Este documento define os princípios de engenharia que orientam toda a evolução do projeto. Alterações nestes princípios devem ser raras e justificadas por meio de uma ADR.
 
 ---
 
-# 2. Layered Architecture
+# Core Principles
 
-The project follows a layered architecture.
+## Simplicidade
+
+Preferimos soluções simples antes de introduzir abstrações.
+
+Toda abstração deve resolver um problema existente, não um problema hipotético.
+
+Aplicamos o princípio **YAGNI (You Aren't Gonna Need It)** sempre que possível.
+
+---
+
+## Evolução Incremental
+
+O projeto evolui por meio de pequenos commits e Pull Requests.
+
+Cada commit deve introduzir apenas um novo conceito.
+
+Cada Pull Request deve possuir um objetivo claro e bem definido.
+
+---
+
+## Clean Architecture
+
+As dependências sempre apontam para o centro da aplicação.
+
+Fluxo oficial:
 
 ```text
 CLI
-    ↓
-Application
-    ↓
-Domain
-    ↑
+│
+▼
+Application (Use Cases)
+│
+▼
+Application Interfaces (Protocols)
+▲
+│
 Infrastructure
+│
+▼
+Domain
 ```
 
-Responsibilities:
+Regras:
 
-* **CLI** provides the user interface.
-* **Application** orchestrates use cases.
-* **Domain** models business concepts.
-* **Infrastructure** integrates with external systems.
-
-Dependencies must always point toward lower-level abstractions.
-
-Lower layers must never depend on upper layers.
+* Domain não depende de nenhuma camada.
+* Application depende apenas do Domain e de Protocols.
+* Infrastructure implementa os Protocols.
+* CLI adapta entrada e saída, sem conter regras de negócio.
 
 ---
 
-# 3. Single Responsibility
+# Domain First
 
-Every module should have one clear responsibility.
+O Domain representa apenas conceitos do negócio.
 
-Examples:
+Não deve conhecer:
 
-* CLI renders output.
-* Application coordinates workflows.
-* Infrastructure executes external operations.
-* Domain models concepts.
+* subprocess
+* Docker
+* Typer
+* sistema de arquivos
+* variáveis de ambiente
+* bibliotecas externas
 
----
+Os modelos do domínio devem ser preferencialmente:
 
-# 4. Domain-Centric Design
+* imutáveis;
+* pequenos;
+* previsíveis.
 
-Business concepts belong to the Domain layer.
-
-Infrastructure exists only to support the domain.
-
-The domain must remain independent from frameworks and external technologies.
-
----
-
-# 5. Infrastructure Has No Business Rules
-
-Infrastructure may:
-
-* execute commands;
-* access the filesystem;
-* communicate with Docker;
-* invoke Git;
-* read configuration.
-
-Infrastructure must never decide whether a result is acceptable.
-
-Business decisions belong to the Application layer.
-
----
-
-# 6. Value Objects Are Immutable
-
-All Value Objects follow ADR-0002.
-
-Default implementation:
+Sempre que possível:
 
 ```python
 @dataclass(frozen=True, slots=True)
 ```
 
-Value Objects:
+---
 
-* have no identity;
-* represent values;
-* are immutable;
-* are comparable by value.
+# Use Cases
+
+Toda regra de negócio deve estar em um Use Case.
+
+Convenção oficial:
+
+```python
+class SomeUseCase:
+
+    def __init__(...)
+
+    def execute(...)
+```
+
+`execute()` é o único método público.
+
+Toda lógica auxiliar permanece privada.
 
 ---
 
-# 7. Test-Driven Development
+# Dependency Injection
 
-New functionality follows the TDD cycle.
+Use Cases nunca instanciam dependências diretamente.
+
+Todas as integrações são recebidas pelo construtor.
+
+Exemplo:
+
+```python
+DoctorUseCase(CommandRunnerProtocol)
+```
+
+Essa abordagem reduz o acoplamento e facilita testes.
+
+---
+
+# Protocols
+
+Interfaces entre Application e Infrastructure devem utilizar Protocols (PEP 544).
+
+Preferimos Protocols a classes abstratas sempre que apenas um contrato é necessário.
+
+---
+
+# Reports
+
+Casos de uso retornam objetos de domínio que representam o resultado da operação.
+
+Evitamos retornar:
+
+* dict
+* tuple
+* list
+
+Preferimos Reports explícitos, como:
+
+* DoctorReport
+* PackageReport
+* LabReport
+
+---
+
+# Testing Strategy
+
+Cada camada testa apenas sua responsabilidade.
+
+## Domain
+
+Testa regras de negócio.
+
+## Application
+
+Testa orquestração.
+
+## Infrastructure
+
+Testa integração com tecnologias externas.
+
+## CLI
+
+Testa entrada, saída e adaptação.
+
+---
+
+# Fakes over Mocks
+
+Preferimos Fakes a Mocks.
+
+Fakes:
+
+* são determinísticos;
+* implementam os mesmos Protocols da Infrastructure;
+* tornam os testes mais legíveis;
+* reduzem acoplamento aos detalhes de implementação.
+
+O uso de `unittest.mock` deve ser exceção, não regra.
+
+---
+
+# Commit Philosophy
+
+Todo desenvolvimento segue o fluxo:
 
 ```text
+Design Review
+↓
 RED
-
 ↓
-
 GREEN
-
 ↓
-
 REFACTOR
+↓
+Code Review
+↓
+Commit
 ```
 
-No production code should be introduced without corresponding automated tests.
+Todos os commits seguem o padrão Conventional Commits.
 
 ---
 
-# 8. Small, Atomic Commits
+# Definition of Ready
 
-Each commit should represent a single logical change.
+Antes de iniciar uma implementação:
 
-Commits should be:
-
-* understandable;
-* reversible;
-* independently reviewable.
-
-Conventional Commits are mandatory.
+* problema compreendido;
+* escopo definido;
+* arquitetura definida;
+* contrato definido;
+* estratégia de testes planejada.
 
 ---
 
-# 9. Automated Quality
+# Definition of Done
 
-Every contribution must pass the project's quality gate.
-
-Minimum requirements:
-
-* Ruff
-* Ruff Format
-* MyPy
-* Pytest
-
-The canonical validation command is:
+Antes de concluir qualquer Pull Request:
 
 ```bash
+make format
+
 make verify
+
+git status
+
+git show --stat HEAD
 ```
 
----
+Além disso:
 
-# 10. Explicit APIs
-
-Public APIs should be intentional.
-
-Names should communicate purpose.
-
-Prefer:
-
-* `get_version()`
-* `run()`
-* `validate_environment()`
-
-Avoid generic names when they reduce readability.
+* todos os testes devem estar verdes;
+* nenhuma camada deve violar a arquitetura oficial;
+* todas as dependências devem ser injetadas;
+* a documentação deve estar atualizada quando houver mudanças de arquitetura ou comportamento.
 
 ---
 
-# 11. Simplicity Before Flexibility
+# Long-term Vision
 
-The project follows the YAGNI principle.
+O CyberLab deve permanecer:
 
-Features are introduced only when justified by real use cases.
+* simples de compreender;
+* fácil de testar;
+* desacoplado;
+* evolutivo;
+* consistente entre todas as funcionalidades.
 
-Premature abstractions should be avoided.
-
----
-
-# 12. Composition Over Coupling
-
-Modules communicate through well-defined contracts.
-
-Whenever possible:
-
-* compose;
-* inject dependencies;
-* isolate responsibilities.
-
-Avoid hidden dependencies.
-
----
-
-# 13. Developer Experience Matters
-
-Developer productivity is considered part of product quality.
-
-The project should provide:
-
-* fast feedback;
-* predictable tooling;
-* consistent formatting;
-* reliable automated checks.
-
----
-
-# 14. Documentation Is Part of the Architecture
-
-Architecture is documented continuously.
-
-The project maintains:
-
-* ADRs for architectural decisions;
-* architecture principles;
-* contributor guidelines;
-* project roadmap.
-
-Documentation evolves together with the codebase.
-
----
-
-# 15. Build for the Long Term
-
-CyberLab is designed as a reusable framework rather than a collection of scripts.
-
-Design decisions should prioritize:
-
-* maintainability;
-* extensibility;
-* readability;
-* testability;
-* consistency.
-
-Long-term quality always takes precedence over short-term convenience.
+Novas funcionalidades devem seguir estes princípios, preservando a arquitetura estabelecida para a série v0.x.
