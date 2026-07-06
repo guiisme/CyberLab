@@ -8,12 +8,12 @@ from cyberlab.infrastructure.process.process_result import ProcessResult
 def test_process_result_creation() -> None:
     result = ProcessResult(
         exit_code=0,
-        stdout="ok",
+        stdout="git version 2.49.0",
         stderr="",
     )
 
     assert result.exit_code == 0
-    assert result.stdout == "ok"
+    assert result.stdout == "git version 2.49.0"
     assert result.stderr == ""
 
 
@@ -29,7 +29,16 @@ def test_process_result_is_immutable() -> None:
 
 
 def test_process_result_equality() -> None:
-    left = ProcessResult(0, "ok", "")
-    right = ProcessResult(0, "ok", "")
+    left = ProcessResult(
+        exit_code=0,
+        stdout="ok",
+        stderr="",
+    )
+
+    right = ProcessResult(
+        exit_code=0,
+        stdout="ok",
+        stderr="",
+    )
 
     assert left == right
