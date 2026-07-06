@@ -50,3 +50,26 @@
 - Added unit tests for lab repository.
 - Added unit tests for lab use case.
 - Added CLI tests for lab listing.
+
+## [0.5.0] - 2026-06-06
+
+### Added
+
+- Added `LabManifest` domain model.
+- Added `LabManifestLoaderProtocol`.
+- Added `YamlLabManifestLoader`.
+- Added `FakeLabManifestLoader`.
+- Added `LabInfoUseCase`.
+- Added `cyberlab lab info` command.
+
+### Changed
+
+- Extended the CLI Composition Root to inject the manifest loader.
+- Standardized metadata loading through application protocols.
+
+### Tests
+
+- Added unit tests for the YAML manifest loader.
+- Added unit tests for the fake manifest loader.
+- Added unit tests for `LabInfoUseCase`.
+- Added CLI tests for `lab info`.
