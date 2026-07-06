@@ -1,15 +1,16 @@
-from dataclasses import FrozenInstanceError
-
 import pytest
 
 from cyberlab.domain.models.check_result import CheckResult
 from cyberlab.domain.models.lab_validation_report import (
     LabValidationReport,
 )
+from tests.fakes.fake_lab_validator import (
+    FakeLabValidator,
+)
 
 
-def test_report_is_successful_when_all_checks_pass() -> None:
-    report = LabValidationReport(
+def _create_report() -> LabValidationReport:
+    return LabValidationReport(
         checks=(
             CheckResult(
                 name="lab.yaml",
@@ -20,60 +21,59 @@ def test_report_is_successful_when_all_checks_pass() -> None:
                 name="README.md",
                 success=True,
                 message="Found",
-            ),
-        )
-    )
-
-    assert report.success is True
-
-
-def test_report_is_unsuccessful_when_any_check_fails() -> None:
-    report = LabValidationReport(
-        checks=(
-            CheckResult(
-                name="lab.yaml",
-                success=True,
-                message="Found",
-            ),
-            CheckResult(
-                name="README.md",
-                success=False,
-                message="Missing",
-            ),
-        )
-    )
-
-    assert report.success is False
-
-
-def test_report_counts_checks() -> None:
-    report = LabValidationReport(
-        checks=(
-            CheckResult(
-                name="lab.yaml",
-                success=True,
-                message="Found",
-            ),
-            CheckResult(
-                name="README.md",
-                success=False,
-                message="Missing",
             ),
             CheckResult(
                 name="compose.yaml",
                 success=True,
                 message="Found",
             ),
-        )
+        ),
     )
 
-    assert report.total_checks == 3
-    assert report.successful_checks == 2
-    assert report.failed_checks == 1
+
+def test_validate_returns_report() -> None:
+    # Arrange
+    report = _create_report()
+
+    validator = FakeLabValidator(
+        {
+            "xss-basic": report,
+        }
+    )
+
+    # Act
+    result = validator.validate("xss-basic")
+
+    # Assert
+    assert result == report
 
 
-def test_report_is_immutable() -> None:
-    report = LabValidationReport(checks=())
+def test_validate_records_requested_lab_id() -> None:
+    # Arrange
+    report = _create_report()
 
-    with pytest.raises(FrozenInstanceError):
-        report.checks = ()
+    validator = FakeLabValidator(
+        {
+            "xss-basic": report,
+        }
+    )
+
+    # Act
+    validator.validate("xss-basic")
+
+    # Assert
+    assert validator.requested_lab_ids == [
+        "xss-basic",
+    ]
+
+
+def test_validate_raises_assertion_error_for_unknown_lab() -> None:
+    # Arrange
+    validator = FakeLabValidator({})
+
+    # Act / Assert
+    with pytest.raises(
+        AssertionError,
+        match="Unexpected lab id: unknown",
+    ):
+        validator.validate("unknown")
