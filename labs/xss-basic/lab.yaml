@@ -1,0 +1,6 @@
+id: xss-basic
+name: Basic XSS
+description: Basic reflected XSS laboratory.
+category: web
+difficulty: easy
+version: 1.0.0
