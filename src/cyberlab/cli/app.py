@@ -13,6 +13,11 @@ def create_app() -> typer.Typer:
         help="CyberLab - Reproducible Cybersecurity Labs",
     )
 
+    @app.callback()
+    def main() -> None:
+        """CyberLab command line interface."""
+        pass
+
     register_commands(app)
 
     return app
