@@ -28,3 +28,25 @@
 
 * Revisão da organização da PR #003 seguindo o fluxo RED → GREEN → REFACTOR.
 * Consolidação das decisões arquiteturais da série v0.x.
+
+## [0.4.0] - 2026-06-06
+
+### Added
+
+- Introduced the `Lab` domain model.
+- Added `LabRepositoryProtocol`.
+- Implemented `FilesystemLabRepository`.
+- Added `FakeLabRepository` for unit tests.
+- Added `ListLabsUseCase`.
+- Added `cyberlab lab list` CLI command.
+
+### Changed
+
+- Standardized application use cases around the `execute()` convention.
+- Improved CLI dependency composition.
+
+### Tests
+
+- Added unit tests for lab repository.
+- Added unit tests for lab use case.
+- Added CLI tests for lab listing.

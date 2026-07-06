@@ -134,3 +134,19 @@ Cada camada possui responsabilidade única:
 * **Domain**: representa os resultados das verificações.
 
 O `DoctorUseCase` retorna um `DoctorReport`, que agrega todos os `CheckResult` produzidos durante a execução.
+
+## Listing available laboratories
+
+```bash
+cyberlab lab list
+```
+
+Example:
+
+```text
+Available laboratories:
+
+- csrf-basic
+- sqli-basic
+- xss-basic
+```
