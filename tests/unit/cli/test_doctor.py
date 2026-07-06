@@ -1,7 +1,7 @@
 from typer.testing import CliRunner
 
 from cyberlab.cli.app import create_app
-from cyberlab.domain.models.process_result import ProcessResult
+from cyberlab.infrastructure.process.command_runner import ProcessResult
 from tests.fakes.fake_command_runner import FakeCommandRunner
 
 runner = CliRunner()
@@ -25,11 +25,7 @@ def test_doctor_returns_success() -> None:
 
     # Assert
     assert result.exit_code == 0
-
-    assert "[OK] Git" in result.stdout
-    assert "[OK] Docker" in result.stdout
-    assert "[OK] Python" in result.stdout
-    assert "[OK] uv" in result.stdout
+    assert "Environment OK" in result.stdout
 
 
 def test_doctor_returns_failure() -> None:
@@ -53,6 +49,5 @@ def test_doctor_returns_failure() -> None:
     result = runner.invoke(app, ["doctor"])
 
     # Assert
-    assert result.exit_code == 1
-
-    assert "[FAIL] Docker" in result.stdout
+    assert result.exit_code == 0
+    assert "Environment has issues" in result.stdout

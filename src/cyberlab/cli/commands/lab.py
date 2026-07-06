@@ -15,19 +15,17 @@ from cyberlab.infrastructure.filesystem.filesystem_lab_repository import (
 def register_lab(app: typer.Typer) -> None:
     """Register lab commands."""
 
-    lab_app = typer.Typer(
-        help="Manage CyberLab laboratories.",
-    )
-
-    @lab_app.command("list")
-    def list_labs() -> None:
-        """List available laboratories."""
+    @app.command("lab-list")
+    def lab_list() -> None:
+        """List available CyberLab laboratories."""
 
         repository = FilesystemLabRepository(
             labs_root=Path("labs"),
         )
 
-        use_case = ListLabsUseCase(repository)
+        use_case = ListLabsUseCase(
+            repository=repository,
+        )
 
         labs = use_case.execute()
 
@@ -40,8 +38,3 @@ def register_lab(app: typer.Typer) -> None:
 
         for lab in labs:
             typer.echo(f"- {lab.name}")
-
-    app.add_typer(
-        lab_app,
-        name="lab",
-    )

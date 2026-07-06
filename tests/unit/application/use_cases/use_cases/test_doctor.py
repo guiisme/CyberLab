@@ -1,4 +1,4 @@
-from cyberlab.application.use_cases.doctor import DoctorUseCase
+from cyberlab.application.use_cases.doctor_use_case import DoctorUseCase
 from cyberlab.domain.models.process_result import ProcessResult
 from tests.fakes.fake_command_runner import FakeCommandRunner
 

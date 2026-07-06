@@ -2,16 +2,18 @@ from __future__ import annotations
 
 import typer
 
-from cyberlab.application.use_cases.version import (
-    get_version as get_application_version,
+from cyberlab.application.use_cases.version_use_case import (
+    VersionUseCase,
 )
 
 
-def register(app: typer.Typer) -> None:
-    """Register the version command."""
+def register_version(
+    app: typer.Typer,
+) -> None:
+    """Register version commands."""
 
-    @app.command("version")
+    @app.command()
     def version() -> None:
-        """Show the current CyberLab version."""
-
-        typer.echo(get_application_version())
+        typer.echo(
+            VersionUseCase().execute(),
+        )
