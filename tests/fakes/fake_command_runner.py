@@ -7,13 +7,14 @@ from cyberlab.domain.models.process_result import ProcessResult
 
 
 class FakeCommandRunner(CommandRunnerProtocol):
-    """In-memory implementation of CommandRunnerProtocol for tests."""
+    """Fake implementation of CommandRunnerProtocol for tests."""
 
     def __init__(
         self,
         responses: dict[tuple[str, ...], ProcessResult],
     ) -> None:
         self._responses = responses
+        self.commands: list[tuple[str, ...]] = []
 
     def run(
         self,
@@ -22,6 +23,8 @@ class FakeCommandRunner(CommandRunnerProtocol):
         timeout: float | None = None,
     ) -> ProcessResult:
         key = tuple(command)
+
+        self.commands.append(key)
 
         if key not in self._responses:
             raise AssertionError(f"Unexpected command: {command}")
