@@ -255,3 +255,18 @@ O CyberLab deve permanecer:
 * consistente entre todas as funcionalidades.
 
 Novas funcionalidades devem seguir estes princípios, preservando a arquitetura estabelecida para a série v0.x.
+
+## Fake Objects
+
+The project adopts Fakes as the preferred test double strategy.
+
+Every Fake should:
+
+- implement the corresponding Protocol;
+- be fully in-memory;
+- receive its initial state through the constructor;
+- record relevant interactions performed by the system under test;
+- fail explicitly when receiving unexpected input;
+- never depend on the filesystem, network or subprocesses.
+
+Fakes should remain simple and deterministic.
