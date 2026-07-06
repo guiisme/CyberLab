@@ -24,6 +24,7 @@ def test_create_lab_manifest() -> None:
 
 
 def test_lab_manifest_is_immutable() -> None:
+    # Arrange
     manifest = LabManifest(
         id="xss-basic",
         name="Basic XSS",
@@ -33,9 +34,8 @@ def test_lab_manifest_is_immutable() -> None:
         version="1.0.0",
     )
 
+    # Act / Assert
     with pytest.raises(FrozenInstanceError):
-        # use setattr to avoid static analyzers complaining about assigning to a
-        # frozen dataclass attribute while still triggering the runtime error
         manifest.name = "New Name"
 
 
