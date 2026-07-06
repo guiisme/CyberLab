@@ -2,7 +2,7 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from cyberlab.infrastructure.process.process_result import ProcessResult
+from cyberlab.domain.models.process_result import ProcessResult
 
 
 def test_process_result_creation() -> None:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import subprocess
 
-from cyberlab.infrastructure.process.process_result import ProcessResult
+from cyberlab.domain.models.process_result import ProcessResult
 
 
 class CommandRunner:
