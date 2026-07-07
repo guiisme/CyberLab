@@ -1,47 +1,54 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import typer
 
-from cyberlab.application.use_cases.list_labs_use_case import (
-    ListLabsUseCase,
+from cyberlab.application.interfaces.command_runner_protocol import (
+    CommandRunnerProtocol,
 )
-from cyberlab.infrastructure.filesystem.filesystem_lab_repository import (
-    FilesystemLabRepository,
+from cyberlab.application.interfaces.lab_manifest_loader_protocol import (
+    LabManifestLoaderProtocol,
+)
+from cyberlab.application.interfaces.lab_repository_protocol import (
+    LabRepositoryProtocol,
+)
+from cyberlab.application.interfaces.lab_runner_protocol import (
+    LabRunnerProtocol,
+)
+from cyberlab.application.interfaces.lab_validator_protocol import (
+    LabValidatorProtocol,
+)
+from cyberlab.cli.commands.doctor import (
+    register_doctor,
+)
+from cyberlab.cli.commands.lab import (
+    register_lab,
+)
+from cyberlab.cli.commands.version import (
+    register_version,
 )
 
 
-def register_lab(app: typer.Typer) -> None:
-    """Register lab commands."""
+def register_commands(
+    app: typer.Typer,
+    runner: CommandRunnerProtocol,
+    repository: LabRepositoryProtocol,
+    manifest_loader: LabManifestLoaderProtocol,
+    validator: LabValidatorProtocol,
+    lab_runner: LabRunnerProtocol,
+) -> None:
+    """Register all CLI commands."""
 
-    lab_app = typer.Typer(
-        help="Manage CyberLab laboratories.",
+    register_version(app)
+
+    register_doctor(
+        app,
+        runner,
     )
 
-    @lab_app.command("list")
-    def list_labs() -> None:
-        """List available laboratories."""
-
-        repository = FilesystemLabRepository(
-            labs_root=Path("labs"),
-        )
-
-        use_case = ListLabsUseCase(repository)
-
-        labs = use_case.execute()
-
-        if not labs:
-            typer.echo("No laboratories found.")
-            return
-
-        typer.echo("Available laboratories:")
-        typer.echo()
-
-        for lab in labs:
-            typer.echo(f"- {lab.name}")
-
-    app.add_typer(
-        lab_app,
-        name="lab",
+    register_lab(
+        app,
+        repository,
+        manifest_loader,
+        validator,
+        lab_runner,
     )

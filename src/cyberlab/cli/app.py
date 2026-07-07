@@ -10,29 +10,53 @@ from cyberlab.application.interfaces.command_runner_protocol import (
 from cyberlab.application.interfaces.lab_manifest_loader_protocol import (
     LabManifestLoaderProtocol,
 )
-from cyberlab.application.interfaces.lab_validator_protocol import LabValidatorProtocol
-from cyberlab.cli.commands.doctor import register_doctor
-from cyberlab.cli.commands.lab import register_lab
-from cyberlab.cli.commands.version import register_version
-from cyberlab.infrastructure.filesystem.filesystem_lab_validator import FilesystemLabValidator
+from cyberlab.application.interfaces.lab_repository_protocol import (
+    LabRepositoryProtocol,
+)
+from cyberlab.application.interfaces.lab_runner_protocol import (
+    LabRunnerProtocol,
+)
+from cyberlab.application.interfaces.lab_validator_protocol import (
+    LabValidatorProtocol,
+)
+from cyberlab.cli.commands.registry import (
+    register_commands,
+)
+from cyberlab.infrastructure.filesystem.filesystem_lab_repository import (
+    FilesystemLabRepository,
+)
+from cyberlab.infrastructure.filesystem.filesystem_lab_validator import (
+    FilesystemLabValidator,
+)
 from cyberlab.infrastructure.filesystem.yaml_lab_manifest_loader import (
     YamlLabManifestLoader,
 )
-from cyberlab.infrastructure.process.command_runner import CommandRunner
+from cyberlab.infrastructure.process.command_runner import (
+    CommandRunner,
+)
+from cyberlab.infrastructure.runner.noop_lab_runner import (
+    NoOpLabRunner,
+)
 
 
 def create_app(
-    runner: CommandRunnerProtocol | None = None,
+    command_runner: CommandRunnerProtocol | None = None,
+    repository: LabRepositoryProtocol | None = None,
     manifest_loader: LabManifestLoaderProtocol | None = None,
     validator: LabValidatorProtocol | None = None,
+    lab_runner: LabRunnerProtocol | None = None,
 ) -> typer.Typer:
     """Create the CyberLab CLI application."""
 
     app = typer.Typer(
-        help="CyberLab - Reproducible Cybersecurity Labs",
+        help="CyberLab command-line interface.",
     )
 
-    runner = runner or CommandRunner()
+    command_runner = command_runner or CommandRunner()
+
+    repository = repository or FilesystemLabRepository(
+        labs_root=Path("labs"),
+    )
 
     manifest_loader = manifest_loader or YamlLabManifestLoader(
         labs_root=Path("labs"),
@@ -42,19 +66,18 @@ def create_app(
         labs_root=Path("labs"),
     )
 
-    register_version(app)
-    register_doctor(app, runner)
-    register_lab(
-        app,
-        manifest_loader,
-        validator,
+    lab_runner = lab_runner or NoOpLabRunner()
+
+    register_commands(
+        app=app,
+        runner=command_runner,
+        repository=repository,
+        manifest_loader=manifest_loader,
+        validator=validator,
+        lab_runner=lab_runner,
     )
 
     return app
 
 
 app = create_app()
-
-
-def main() -> None:
-    app()

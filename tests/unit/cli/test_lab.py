@@ -2,10 +2,16 @@ from typer.testing import CliRunner
 
 from cyberlab.cli.app import create_app
 from cyberlab.domain.models.check_result import CheckResult
+from cyberlab.domain.models.lab_execution_report import (
+    LabExecutionReport,
+)
 from cyberlab.domain.models.lab_manifest import LabManifest
 from cyberlab.domain.models.lab_validation_report import LabValidationReport
 from tests.fakes.fake_lab_manifest_loader import (
     FakeLabManifestLoader,
+)
+from tests.fakes.fake_lab_runner import (
+    FakeLabRunner,
 )
 from tests.fakes.fake_lab_validator import FakeLabValidator
 
@@ -47,6 +53,14 @@ def test_lab_info_displays_manifest() -> None:
     assert "web" in result.stdout
     assert "easy" in result.stdout
     assert "1.0.0" in result.stdout
+
+
+def _create_execution_report() -> LabExecutionReport:
+    return LabExecutionReport(
+        lab_id="xss-basic",
+        success=True,
+        message="Laboratory started successfully.",
+    )
 
 
 def _create_validation_report() -> LabValidationReport:
@@ -102,3 +116,33 @@ def test_lab_validate_displays_validation_report() -> None:
     assert "compose.yaml" in result.stdout
 
     assert "Laboratory is valid." in result.stdout
+
+
+def test_lab_run_displays_execution_report() -> None:
+    # Arrange
+    app = create_app(
+        manifest_loader=FakeLabManifestLoader({}),
+        validator=FakeLabValidator({}),
+        lab_runner=FakeLabRunner(
+            {
+                "xss-basic": _create_execution_report(),
+            }
+        ),
+    )
+
+    # Act
+    result = runner.invoke(
+        app,
+        [
+            "lab",
+            "run",
+            "xss-basic",
+        ],
+    )
+
+    # Assert
+    assert result.exit_code == 0
+
+    assert 'Running laboratory "xss-basic"...' in result.stdout
+
+    assert "✔ Laboratory started successfully." in result.stdout

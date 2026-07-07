@@ -1,14 +1,16 @@
+from __future__ import annotations
+
 from typing import Protocol
 
 from cyberlab.domain.models.lab_manifest import LabManifest
 
 
 class LabManifestLoaderProtocol(Protocol):
-    """Load laboratory metadata."""
+    """Load a laboratory manifest."""
 
     def load(
         self,
         lab_id: str,
     ) -> LabManifest:
-        """Load a laboratory manifest."""
+        """Load the manifest for a laboratory."""
         ...

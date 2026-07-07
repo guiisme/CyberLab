@@ -1,6 +1,6 @@
 [project]
 name = "cyberlab"
-version = "0.1.0"
+version = "0.7.0"
 description = "Framework for building reproducible cybersecurity laboratories."
 readme = "README.md"
 license = { file = "LICENSE" }
