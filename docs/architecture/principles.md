@@ -270,3 +270,40 @@ Every Fake should:
 - never depend on the filesystem, network or subprocesses.
 
 Fakes should remain simple and deterministic.
+
+## Validation Reports
+
+Validation operations should return immutable Report objects.
+
+Reports expose derived information such as:
+
+* success
+* total_checks
+* successful_checks
+* failed_checks
+
+Individual validations should be represented by `CheckResult`.
+
+---
+
+## Validators
+
+Validators are Infrastructure services responsible for verifying external resources.
+
+Validators:
+
+* implement an Application Protocol;
+* return domain Reports;
+* never render output;
+* never interact with the CLI;
+* may depend on external resources such as the filesystem.
+
+---
+
+## CLI Rendering
+
+CLI commands are responsible only for rendering.
+
+Whenever multiple commands render the same domain model, the rendering logic should be extracted into reusable helper functions.
+
+The CLI must never contain business rules.

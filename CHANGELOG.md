@@ -73,3 +73,27 @@
 - Added unit tests for the fake manifest loader.
 - Added unit tests for `LabInfoUseCase`.
 - Added CLI tests for `lab info`.
+
+## [0.6.0] - 2026-07-06
+
+### Added
+
+* Added `LabValidationReport`.
+* Added `LabValidatorProtocol`.
+* Added `FilesystemLabValidator`.
+* Added `FakeLabValidator`.
+* Added `LabValidationUseCase`.
+* Added `cyberlab lab validate` command.
+
+### Changed
+
+* Introduced a shared CLI rendering function for validation checks.
+* Standardized laboratory validation through Application Protocols.
+* Added support for reusable validation reports based on `CheckResult`.
+
+### Tests
+
+* Added unit tests for `FilesystemLabValidator`.
+* Added unit tests for `FakeLabValidator`.
+* Added unit tests for `LabValidationUseCase`.
+* Added CLI tests for `lab validate`.

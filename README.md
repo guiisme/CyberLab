@@ -295,6 +295,25 @@ version: 1.0.0
 
 The manifest is the single source of truth for laboratory metadata.
 
+# Laboratory Validation
+
+Every laboratory must have `lab.yaml`, `README.md` and `compose.yaml`
+
+```bash
+uv run cyberlab lab validate <lab-id>
+```
+
+Example
+
+```bash
+uv run cyberlab lab validate xss-basic
+```
+
+Output:
+
+✔ lab.yaml
+✔ README.md
+✔ compose.yaml
 ---
 
 # Laboratory Layout
