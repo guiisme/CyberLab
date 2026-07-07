@@ -5,9 +5,8 @@ import typer
 from cyberlab.application.interfaces.command_runner_protocol import (
     CommandRunnerProtocol,
 )
-from cyberlab.application.use_cases.doctor_use_case import (
-    DoctorUseCase,
-)
+from cyberlab.application.use_cases.doctor_use_case import DoctorUseCase
+from cyberlab.cli.rendering.checks import render_checks
 
 
 def register_doctor(
@@ -18,12 +17,17 @@ def register_doctor(
 
     @app.command()
     def doctor() -> None:
-        report = DoctorUseCase(runner).execute()
+        """Validate the local environment."""
 
-        for check in report.checks:
-            icon = "✔" if check.success else "✘"
-            typer.echo(f"{icon} {check.name}")
+        report = DoctorUseCase(
+            runner,
+        ).execute()
+
+        render_checks(report.checks)
 
         typer.echo()
 
-        typer.echo("Environment OK" if report.success else "Environment has issues")
+        if report.success:
+            typer.echo("Environment OK")
+        else:
+            typer.echo("Environment has issues")

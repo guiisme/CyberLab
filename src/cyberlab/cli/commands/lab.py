@@ -7,12 +7,15 @@ import typer
 from cyberlab.application.interfaces.lab_manifest_loader_protocol import (
     LabManifestLoaderProtocol,
 )
+from cyberlab.application.interfaces.lab_validator_protocol import LabValidatorProtocol
 from cyberlab.application.use_cases.lab_info_use_case import (
     LabInfoUseCase,
 )
+from cyberlab.application.use_cases.lab_validation_use_case import LabValidationUseCase
 from cyberlab.application.use_cases.list_labs_use_case import (
     ListLabsUseCase,
 )
+from cyberlab.cli.rendering.checks import render_checks
 from cyberlab.infrastructure.filesystem.filesystem_lab_repository import (
     FilesystemLabRepository,
 )
@@ -21,6 +24,7 @@ from cyberlab.infrastructure.filesystem.filesystem_lab_repository import (
 def register_lab(
     app: typer.Typer,
     manifest_loader: LabManifestLoaderProtocol,
+    validator: LabValidatorProtocol,
 ) -> None:
     """Register lab commands."""
 
@@ -75,3 +79,24 @@ def register_lab(
         lab_app,
         name="lab",
     )
+
+    @lab_app.command("validate")
+    def validate(
+        lab_id: str,
+    ) -> None:
+        """Validate a laboratory."""
+
+        report = LabValidationUseCase(
+            validator,
+        ).execute(
+            lab_id,
+        )
+
+        render_checks(report.checks)
+
+        typer.echo()
+
+        if report.success:
+            typer.echo("Laboratory is valid.")
+        else:
+            typer.echo("Laboratory validation failed.")
