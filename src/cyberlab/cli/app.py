@@ -22,6 +22,12 @@ from cyberlab.application.interfaces.lab_validator_protocol import (
 from cyberlab.cli.commands.registry import (
     register_commands,
 )
+from cyberlab.infrastructure.docker.docker_compose_lab_runner import (
+    DockerComposeLabRunner,
+)
+from cyberlab.infrastructure.docker.docker_compose_service import (
+    DockerComposeService,
+)
 from cyberlab.infrastructure.filesystem.filesystem_lab_repository import (
     FilesystemLabRepository,
 )
@@ -33,9 +39,6 @@ from cyberlab.infrastructure.filesystem.yaml_lab_manifest_loader import (
 )
 from cyberlab.infrastructure.process.command_runner import (
     CommandRunner,
-)
-from cyberlab.infrastructure.runner.noop_lab_runner import (
-    NoOpLabRunner,
 )
 
 
@@ -68,7 +71,14 @@ def create_app(
         labs_root=labs_root,
     )
 
-    lab_runner = lab_runner or NoOpLabRunner()
+    docker_compose_service = DockerComposeService(
+        command_runner,
+    )
+
+    lab_runner = lab_runner or DockerComposeLabRunner(
+        compose_service=docker_compose_service,
+        labs_root=labs_root,
+    )
 
     register_commands(
         app=app,
