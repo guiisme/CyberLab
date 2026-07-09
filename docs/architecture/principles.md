@@ -1,309 +1,182 @@
-# CyberLab Engineering Principles
+# CyberLab Architecture Principles
 
 ## Purpose
 
-O CyberLab é um framework para criação de laboratórios reproduzíveis de Cybersecurity.
+This document defines the architectural principles that govern the design and evolution of CyberLab.
 
-Este documento define os princípios de engenharia que orientam toda a evolução do projeto. Alterações nestes princípios devem ser raras e justificadas por meio de uma ADR.
+These principles establish the engineering rules that every contribution must respect, ensuring consistency, maintainability and long-term evolution.
 
----
-
-# Core Principles
-
-## Simplicidade
-
-Preferimos soluções simples antes de introduzir abstrações.
-
-Toda abstração deve resolver um problema existente, não um problema hipotético.
-
-Aplicamos o princípio **YAGNI (You Aren't Gonna Need It)** sempre que possível.
+Architectural decisions are documented in the project's ADRs. This document defines the enduring principles that guide those decisions.
 
 ---
 
-## Evolução Incremental
+# Principle 1 — Clean Architecture
 
-O projeto evolui por meio de pequenos commits e Pull Requests.
+CyberLab follows the principles of Clean Architecture.
 
-Cada commit deve introduzir apenas um novo conceito.
+Business rules must remain independent from infrastructure, frameworks and presentation technologies.
 
-Cada Pull Request deve possuir um objetivo claro e bem definido.
+The architecture must ensure that technical details can evolve without impacting business logic.
 
----
+### Objectives
 
-## Clean Architecture
-
-As dependências sempre apontam para o centro da aplicação.
-
-Fluxo oficial:
-
-```text
-CLI
-│
-▼
-Application (Use Cases)
-│
-▼
-Application Interfaces (Protocols)
-▲
-│
-Infrastructure
-│
-▼
-Domain
-```
-
-Regras:
-
-* Domain não depende de nenhuma camada.
-* Application depende apenas do Domain e de Protocols.
-* Infrastructure implementa os Protocols.
-* CLI adapta entrada e saída, sem conter regras de negócio.
+* Preserve business independence.
+* Minimize coupling.
+* Maximize maintainability.
+* Support long-term evolution.
 
 ---
 
-# Domain First
+# Principle 2 — Dependency Inversion
 
-O Domain representa apenas conceitos do negócio.
+Dependencies must always point toward stable abstractions.
 
-Não deve conhecer:
+Concrete implementations must never dictate business behavior.
 
-* subprocess
-* Docker
-* Typer
-* sistema de arquivos
-* variáveis de ambiente
-* bibliotecas externas
+Abstractions define the system contracts, while technical implementations fulfill those contracts.
 
-Os modelos do domínio devem ser preferencialmente:
+### Rules
 
-* imutáveis;
-* pequenos;
-* previsíveis.
-
-Sempre que possível:
-
-```python
-@dataclass(frozen=True, slots=True)
-```
+* Business logic never depends on technical implementations.
+* External behavior is accessed through abstractions.
+* Concrete implementations are assembled only at the application's composition boundary.
 
 ---
 
-# Use Cases
+# Principle 3 — Single Responsibility
 
-Toda regra de negócio deve estar em um Use Case.
+Every architectural element must have a single primary responsibility.
 
-Convenção oficial:
+Responsibilities must not overlap.
 
-```python
-class SomeUseCase:
+A responsibility should exist in only one place within the architecture.
 
-    def __init__(...)
-
-    def execute(...)
-```
-
-`execute()` é o único método público.
-
-Toda lógica auxiliar permanece privada.
+Changes to one responsibility should have minimal impact on unrelated components.
 
 ---
 
-# Dependency Injection
+# Principle 4 — Explicit Architectural Boundaries
 
-Use Cases nunca instanciam dependências diretamente.
+Architectural boundaries must remain explicit.
 
-Todas as integrações são recebidas pelo construtor.
+Communication between architectural elements occurs only through well-defined contracts.
 
-Exemplo:
-
-```python
-DoctorUseCase(CommandRunnerProtocol)
-```
-
-Essa abordagem reduz o acoplamento e facilita testes.
+No component should access another component's internal implementation directly.
 
 ---
 
-# Protocols
+# Principle 5 — High Cohesion
 
-Interfaces entre Application e Infrastructure devem utilizar Protocols (PEP 544).
+Components should group responsibilities that naturally belong together.
 
-Preferimos Protocols a classes abstratas sempre que apenas um contrato é necessário.
+Each component should have a clear purpose and a single reason to change.
 
----
-
-# Reports
-
-Casos de uso retornam objetos de domínio que representam o resultado da operação.
-
-Evitamos retornar:
-
-* dict
-* tuple
-* list
-
-Preferimos Reports explícitos, como:
-
-* DoctorReport
-* PackageReport
-* LabReport
+The architecture should encourage extending existing capabilities instead of introducing unrelated responsibilities.
 
 ---
 
-# Testing Strategy
+# Principle 6 — Low Coupling
 
-Cada camada testa apenas sua responsabilidade.
+Dependencies between architectural elements should be minimized.
 
-## Domain
-
-Testa regras de negócio.
-
-## Application
-
-Testa orquestração.
-
-## Infrastructure
-
-Testa integração com tecnologias externas.
-
-## CLI
-
-Testa entrada, saída e adaptação.
+Every dependency must have a clear architectural justification.
 
 ---
 
-# Fakes over Mocks
+# Principle 7 — Domain Independence
 
-Preferimos Fakes a Mocks.
+The Domain represents the core business knowledge of CyberLab.
 
-Fakes:
+It must remain independent from infrastructure concerns, presentation technologies and external technical details.
 
-* são determinísticos;
-* implementam os mesmos Protocols da Infrastructure;
-* tornam os testes mais legíveis;
-* reduzem acoplamento aos detalhes de implementação.
-
-O uso de `unittest.mock` deve ser exceção, não regra.
+Business concepts must remain stable regardless of implementation technology.
 
 ---
 
-# Commit Philosophy
+# Principle 8 — Immutability by Default
 
-Todo desenvolvimento segue o fluxo:
+Domain objects should be immutable whenever possible.
 
-```text
-Design Review
-↓
-RED
-↓
-GREEN
-↓
-REFACTOR
-↓
-Code Review
-↓
-Commit
-```
+Immutability:
 
-Todos os commits seguem o padrão Conventional Commits.
+* simplifies reasoning;
+* reduces side effects;
+* improves predictability;
+* facilitates testing.
+
+Mutability should be introduced only when there is a clear architectural or business justification.
 
 ---
 
-# Definition of Ready
+# Principle 9 — Dependency Injection
 
-Antes de iniciar uma implementação:
+Dependencies should always be supplied from the outside.
 
-* problema compreendido;
-* escopo definido;
-* arquitetura definida;
-* contrato definido;
-* estratégia de testes planejada.
+Components must not instantiate their own collaborators.
 
----
+Dependency construction must remain isolated from business logic.
 
-# Definition of Done
+This promotes:
 
-Antes de concluir qualquer Pull Request:
-
-```bash
-make format
-
-make verify
-
-git status
-
-git show --stat HEAD
-```
-
-Além disso:
-
-* todos os testes devem estar verdes;
-* nenhuma camada deve violar a arquitetura oficial;
-* todas as dependências devem ser injetadas;
-* a documentação deve estar atualizada quando houver mudanças de arquitetura ou comportamento.
+* loose coupling;
+* replaceable implementations;
+* simpler testing;
+* clearer responsibilities.
 
 ---
 
-# Long-term Vision
+# Principle 10 — Testability First
 
-O CyberLab deve permanecer:
+Architectural decisions must preserve and improve testability.
 
-* simples de compreender;
-* fácil de testar;
-* desacoplado;
-* evolutivo;
-* consistente entre todas as funcionalidades.
+The architecture should naturally support isolated, deterministic and maintainable automated tests.
 
-Novas funcionalidades devem seguir estes princípios, preservando a arquitetura estabelecida para a série v0.x.
-
-## Fake Objects
-
-The project adopts Fakes as the preferred test double strategy.
-
-Every Fake should:
-
-- implement the corresponding Protocol;
-- be fully in-memory;
-- receive its initial state through the constructor;
-- record relevant interactions performed by the system under test;
-- fail explicitly when receiving unexpected input;
-- never depend on the filesystem, network or subprocesses.
-
-Fakes should remain simple and deterministic.
-
-## Validation Reports
-
-Validation operations should return immutable Report objects.
-
-Reports expose derived information such as:
-
-* success
-* total_checks
-* successful_checks
-* failed_checks
-
-Individual validations should be represented by `CheckResult`.
+Implementation details of the testing strategy are documented in `architecture/testing.md`.
 
 ---
 
-## Validators
+# Principle 11 — Simplicity First
 
-Validators are Infrastructure services responsible for verifying external resources.
+The architecture should remain as simple as possible.
 
-Validators:
+New abstractions should be introduced only when they solve a real architectural problem.
 
-* implement an Application Protocol;
-* return domain Reports;
-* never render output;
-* never interact with the CLI;
-* may depend on external resources such as the filesystem.
+Complexity must always have a clear justification.
+
+Clarity is preferred over cleverness.
 
 ---
 
-## CLI Rendering
+# Principle 12 — Incremental Evolution
 
-CLI commands are responsible only for rendering.
+CyberLab evolves through small, incremental improvements.
 
-Whenever multiple commands render the same domain model, the rendering logic should be extracted into reusable helper functions.
+Architectural changes should preserve existing principles whenever possible.
 
-The CLI must never contain business rules.
+Significant architectural changes should be documented through an Architecture Decision Record (ADR).
+
+---
+
+# Principle 13 — Architecture as Documentation
+
+Architecture is expressed through both code and documentation.
+
+Architectural documentation must remain consistent with the implementation and with the project's Architecture Decision Records.
+
+Documentation should clarify architectural intent rather than duplicate implementation details.
+
+---
+
+# Summary
+
+Every architectural decision should reinforce the following goals:
+
+* independent business logic;
+* explicit architectural boundaries;
+* dependency inversion;
+* low coupling;
+* high cohesion;
+* simplicity;
+* testability;
+* maintainability;
+* incremental evolution.

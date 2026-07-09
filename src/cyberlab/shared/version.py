@@ -1,3 +1,11 @@
+"""
+Technical utilities for retrieving CyberLab package version.
+
+This module belongs to the shared package because it provides
+application-wide technical metadata and does not belong to any
+architectural layer.
+"""
+
 from __future__ import annotations
 
 from importlib.metadata import PackageNotFoundError

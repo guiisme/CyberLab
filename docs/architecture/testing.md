@@ -1,239 +1,199 @@
-# Testing Strategy
+# CyberLab Testing Architecture
 
-## Philosophy
+## Purpose
 
-CyberLab follows Test-Driven Development (TDD).
+This document describes the testing architecture adopted by CyberLab.
 
-Every feature is developed using the same workflow:
+Its purpose is to explain how the project's architecture supports reliable, isolated and maintainable automated tests.
 
-```text
-Design Review
-
-↓
-
-RED
-
-↓
-
-GREEN
-
-↓
-
-REFACTOR
-
-↓
-
-Code Review
-
-↓
-
-Commit
-```
+Implementation details, testing frameworks and individual test cases are intentionally outside the scope of this document.
 
 ---
 
-# Test Organization
+# Testing Philosophy
 
-```text
-tests/
-├── unit/
-└── fakes/
-```
+Testing is considered an architectural concern rather than a final validation step.
 
-Unit tests are organized following the project structure.
+CyberLab is designed so that business logic can be validated independently from technical implementations and external resources.
+
+The architecture prioritizes:
+
+* deterministic behavior;
+* isolated business logic;
+* explicit dependencies;
+* reproducible tests;
+* fast feedback.
 
 ---
 
-# Arrange – Act – Assert
+# Testing Pyramid
 
-Every unit test follows the AAA pattern.
+CyberLab follows a testing strategy based on the Testing Pyramid.
 
 ```text
-Arrange
-
-↓
-
-Act
-
-↓
-
-Assert
+                 E2E
+                  ▲
+             Integration
+                  ▲
+               Unit Tests
 ```
 
-The sections should be explicitly separated whenever practical.
+The majority of automated tests should be unit tests.
+
+* Unit tests validate isolated behavior.
+* Integration tests validate interactions between architectural components.
+* End-to-end tests validate complete user workflows.
+
+---
+
+# Testing by Architectural Layer
+
+## Domain
+
+Domain tests execute independently from infrastructure, external resources and presentation concerns.
+
+Their purpose is to validate business concepts, business rules and domain behavior.
+
+---
+
+## Application
+
+Application tests validate business orchestration.
+
+External behavior is replaced by implementations of the same Protocol contracts, allowing Use Cases to be tested independently from technical implementations.
+
+Application tests validate:
+
+* business workflows;
+* interactions with Protocols;
+* application behavior;
+* business outcomes.
+
+---
+
+## Infrastructure
+
+Infrastructure tests verify that technical adapters correctly implement the contracts defined by the Application.
+
+These tests may interact with external resources when required to validate technical integrations.
+
+---
+
+## CLI
+
+CLI tests validate the presentation layer.
+
+Typical responsibilities include:
+
+* command parsing;
+* dependency composition;
+* output rendering;
+* exit codes.
+
+Business rules are validated by the Application rather than by the CLI.
+
+---
+
+# Dependency Isolation
+
+Architectural dependencies are isolated through Protocols.
+
+Production environments use concrete implementations.
+
+Test environments replace those implementations with test doubles that satisfy the same contracts.
+
+```text
+Production
+
+Use Case
+    │
+    ▼
+Protocol
+    ▲
+    │
+Infrastructure
+
+------------------------------------
+
+Tests
+
+Use Case
+    │
+    ▼
+Protocol
+    ▲
+    │
+Test Double
+
+(e.g. Fake)
+```
+
+This architectural boundary allows business logic to be tested without relying on technical implementations.
 
 ---
 
 # Test Doubles
 
-CyberLab adopts **Fakes** as the preferred testing strategy.
+Test environments replace production implementations with Test Doubles.
 
-Mocks are intentionally avoided.
+Test doubles should:
 
-Every Fake:
+* implement the same Protocol contracts;
+* behave deterministically;
+* remain simple and predictable;
+* support isolated testing.
 
-* implements the corresponding Protocol;
-* is fully in-memory;
-* receives its state through the constructor;
-* records relevant interactions;
-* fails explicitly for unexpected input.
-
-Examples:
-
-* FakeCommandRunner
-* FakeLabRepository
-* FakeLabManifestLoader
-* FakeLabValidator
+The choice of a specific testing technique (Fake, Mock, Stub or Spy) is an implementation concern rather than an architectural requirement.
 
 ---
 
-# Protocol Testing
+# Composition Root
 
-Protocols define contracts.
+Production and test environments assemble different dependency graphs while preserving the same architectural boundaries.
 
-Protocols themselves are **not tested**.
+Production uses concrete infrastructure implementations.
 
-Their implementations are tested instead.
+Tests compose equivalent graphs using test doubles.
 
----
-
-# Domain Testing
-
-Domain tests verify:
-
-* immutability;
-* derived properties;
-* business rules;
-* equality semantics.
-
-Domain tests never interact with infrastructure.
+This allows the same Application code to execute in different environments without architectural changes.
 
 ---
 
-# Application Testing
 
-Application tests verify orchestration.
+# Architectural Goals
 
-Use Cases:
+The testing architecture supports the following goals:
 
-* receive Protocol implementations;
-* call the expected dependency;
-* propagate errors when appropriate.
+* confidence during refactoring;
+* rapid feedback;
+* isolated validation of business logic;
+* replaceable technical implementations;
+* long-term maintainability.
 
-Application tests always use Fakes.
-
----
-
-# Infrastructure Testing
-
-Infrastructure tests verify interaction with external resources.
-
-Examples:
-
-* filesystem
-* process execution
-* YAML loading
-
-Temporary resources should use pytest fixtures such as:
-
-```python
-tmp_path
-```
-
-No real project files should be modified during tests.
+Testing is considered a natural consequence of a well-designed architecture rather than a separate engineering activity.
 
 ---
 
-# CLI Testing
+## Terminology
 
-CLI tests use Typer's CliRunner.
+This document uses the term **Test Double** as the generic name for testing implementations that replace production dependencies.
 
-Dependencies are injected through:
+Examples include:
 
-```python
-create_app(...)
-```
+- Fake
+- Stub
+- Mock
+- Spy
 
-CLI tests verify:
-
-* exit code;
-* rendered output;
-* command behavior.
-
-Business logic is never tested through the CLI.
+CyberLab currently favors Fake implementations because they provide predictable behavior while preserving architectural boundaries.
 
 ---
 
-# Assertions
+# References
 
-Prefer explicit assertions.
+Additional architectural context is available in:
 
-Example:
-
-```python
-assert report.success is True
-assert report.failed_checks == 0
-```
-
-Avoid indirect assertions whenever possible.
-
----
-
-# Test Naming
-
-Test names should describe observable behavior.
-
-Examples:
-
-```text
-test_execute_returns_validation_report
-
-test_validate_returns_failure_when_required_file_is_missing
-
-test_lab_info_displays_manifest
-```
-
-Avoid implementation-oriented names.
-
----
-
-# Fixtures
-
-Use pytest fixtures only when they improve readability.
-
-Prefer local helper functions for simple object construction.
-
-Builders or factories should only be introduced when duplication becomes significant.
-
----
-
-# Quality Gates
-
-Every commit must pass:
-
-```bash
-make format
-make verify
-```
-
-The project is considered healthy only when:
-
-* Ruff passes
-* MyPy passes
-* Pytest passes
-
-No commit should be created with failing quality checks.
-
----
-
-# Long-Term Goal
-
-Tests should remain:
-
-* deterministic;
-* isolated;
-* fast;
-* easy to understand;
-* independent from external services.
-
-The architecture is intentionally designed so that the majority of tests execute without requiring Docker, network access or real laboratory environments.
+* `docs/AI_CONTEXT.md`
+* `docs/architecture/overview.md`
+* `docs/architecture/principles.md`
+* `docs/adr/`

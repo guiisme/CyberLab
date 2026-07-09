@@ -2,32 +2,76 @@
 
 ## Purpose
 
-CyberLab is designed around the principles of Clean Architecture, Hexagonal Architecture and Test-Driven Development.
+CyberLab is designed around the principles of Clean Architecture, Hexagonal Architecture and Test-Driven Development (TDD).
 
-The primary goal is to keep business rules independent from infrastructure and presentation concerns, allowing the project to evolve with minimal coupling.
+The primary goal is to keep business rules independent from infrastructure and presentation concerns, allowing the project to evolve with minimal coupling, high testability and clear separation of responsibilities.
+
+This document describes the technical architecture of the project. Engineering philosophy, architectural principles, architectural decisions and product planning are documented separately.
+
+---
+
+# Architectural Concepts
+
+CyberLab distinguishes two different structural concepts.
+
+## Architectural Layer
+
+An architectural layer defines a logical boundary with a well-defined responsibility.
+
+The CyberLab architecture contains exactly four layers:
+
+* CLI
+* Application
+* Domain
+* Infrastructure
+
+---
+
+## Component
+
+A component is a logical element that belongs to an architectural layer.
+
+Examples include:
+
+* Use Cases
+* Protocols (Ports)
+* Models
+* Reports
+* Value Objects
+
+Components are not architectural layers.
 
 ---
 
 # Architectural Layers
 
-The project is organized into four primary layers.
+CyberLab is organized into four architectural layers.
 
 ```text
-CLI
-│
-▼
-Application
-│
-▼
+                 CLI
+                  │
+                  ▼
+            Application
+      ┌─────────────────────┐
+      │     Use Cases       │
+      │     Protocols       │
+      └─────────────────────┘
+                  │
+                  ▼
+                Domain
+
 Infrastructure
-│
-▼
-Domain
+       │
+       └────────────► implements Application Protocols
 ```
 
-Dependencies always point toward the Domain.
+The architecture isolates core business logic from technical concerns through explicit architectural boundaries, dependency inversion and well-defined contracts.
 
-The Domain never depends on any other layer.
+* The Domain is the core of the system.
+* The Application orchestrates business operations.
+* Protocols are defined within the Application layer.
+* Infrastructure depends on the Protocols defined by the Application and provides their concrete implementations.
+* The CLI adapts user interaction into Application requests.
 
 ---
 
@@ -35,7 +79,7 @@ The Domain never depends on any other layer.
 
 ## Domain
 
-The Domain contains the business concepts of CyberLab.
+The Domain contains the core business concepts of CyberLab.
 
 Examples:
 
@@ -43,11 +87,17 @@ Examples:
 * Reports
 * Value Objects
 
-Characteristics:
+Responsibilities:
 
-* Immutable whenever possible
-* No infrastructure dependencies
-* No framework dependencies
+* Represent business concepts.
+* Enforce business invariants.
+* Define immutable business models whenever possible.
+
+The Domain:
+
+* is independent from infrastructure;
+* is independent from presentation concerns;
+* never performs technical operations.
 
 ---
 
@@ -58,11 +108,25 @@ The Application coordinates business operations.
 It contains:
 
 * Use Cases
-* Protocols (Interfaces)
+* Protocols (Ports)
 
-Application depends only on the Domain and Protocols.
+Responsibilities:
 
-Use Cases orchestrate the execution flow but do not implement infrastructure concerns.
+* Orchestrate business workflows.
+* Invoke Domain concepts.
+* Delegate external operations through Protocols.
+* Define abstractions for external behavior.
+
+The Application may depend only on:
+
+* the Domain;
+* its own Protocol interfaces.
+
+The Application never:
+
+* performs technical operations directly;
+* depends on Infrastructure implementations;
+* contains infrastructure-specific logic.
 
 ---
 
@@ -70,129 +134,140 @@ Use Cases orchestrate the execution flow but do not implement infrastructure con
 
 Infrastructure provides concrete implementations for the Protocols defined by the Application.
 
-Examples:
+Examples include:
 
-* Filesystem
-* Process execution
-* Configuration
-* Docker (future)
+* filesystem adapters;
+* process execution;
+* configuration;
+* external platform integrations.
 
-Infrastructure is the only layer allowed to interact with external resources.
+Responsibilities:
+
+* Implement Application Protocols.
+* Interact with external systems.
+* Isolate technical details from business logic.
+
+Infrastructure depends on the Protocol interfaces defined by the Application but never contains business rules.
 
 ---
 
 ## CLI
 
-The CLI adapts user input into Application requests.
+The CLI adapts user interaction into Application requests.
 
 Responsibilities:
 
-* Parse command-line arguments
-* Compose dependencies
-* Invoke Use Cases
-* Render output
+* Parse command-line arguments.
+* Compose dependencies.
+* Invoke Use Cases.
+* Render output.
 
 Business rules must never be implemented in the CLI.
 
 ---
 
-# Dependency Flow
+# Dependency Rules
 
-```text
-CLI
-    │
-    ▼
-Use Case
-    │
-    ▼
-Protocol
-    ▲
-    │
-Infrastructure
-```
+The following dependency rules must always be respected.
 
-This dependency inversion allows Infrastructure implementations to be replaced without modifying business logic.
+| Layer          | May Depend On                 |
+| -------------- | ----------------------------- |
+| CLI            | Application¹                  |
+| Application    | Domain, its own Protocols     |
+| Infrastructure | Domain, Application Protocols |
+| Domain         | None                          |
+
+¹ Except for the Composition Root, which is intentionally allowed to assemble Infrastructure implementations.
+
+---
+
+## Protocol Rules
+
+Protocols define the contracts between the Application and external systems.
+
+Protocols should be introduced only when a Use Case depends on external behavior.
+
+Typical examples include:
+
+* filesystem access;
+* process execution;
+* manifest loading;
+* external platform integration.
+
+Protocols must not be created for pure business logic.
+
+Protocols belong to the Application layer.
+
+Infrastructure provides concrete implementations of those Protocols.
+
+Automated tests assemble alternative dependency graphs using **Test Doubles** that implement the same Protocol contracts.
+
+---
+
+## Forbidden Dependencies
+
+The following dependencies are explicitly forbidden.
+
+| Layer          | Must Not Depend On                                            |
+| -------------- | ------------------------------------------------------------- |
+| Domain         | Presentation layers, Infrastructure and external technologies |
+| Application    | Concrete Infrastructure implementations                       |
+| Infrastructure | CLI                                                           |
+| CLI            | Business rules and Domain implementation details              |
+
+These rules preserve architectural boundaries and prevent coupling between unrelated concerns.
 
 ---
 
 # Composition Root
 
-Dependency construction is centralized in the Composition Root.
+The Composition Root centralizes dependency construction.
 
-Currently:
+Its responsibilities include:
+
+* assembling production dependencies;
+* wiring Application Protocols to their concrete Infrastructure implementations;
+* constructing the application's object graph;
+* injecting dependencies into the Application layer.
+
+The Composition Root is the only intentional exception to the dependency rules.
+
+Because of this responsibility, it is allowed to depend on both the Application and Infrastructure layers.
+
+Outside the Composition Root:
+
+* the CLI depends only on the Application layer;
+* the Application never instantiates Infrastructure;
+* Infrastructure is never assembled inside Use Cases.
+
+The current Composition Root is implemented by `create_app()`.
+
+Production and test environments assemble different dependency graphs while preserving the same architectural boundaries.
+
+---
+
+# Project Structure
+
+The project structure mirrors the architectural boundaries defined by CyberLab.
 
 ```text
-create_app()
+src/cyberlab/
+├── application/
+├── cli/
+├── domain/
+└── infrastructure/
 ```
 
-Production dependencies:
-
-* CommandRunner
-* FilesystemLabRepository
-* YamlLabManifestLoader
-* FilesystemLabValidator
-
-Tests replace these implementations with Fakes.
+Supporting packages that do not represent architectural layers are documented separately through the project's Architecture Decision Records.
 
 ---
 
-# Current Use Cases
+# References
 
-The Application currently exposes:
+Additional architectural information is available in:
 
-* VersionUseCase
-* DoctorUseCase
-* ListLabsUseCase
-* LabInfoUseCase
-* LabValidationUseCase
-
-Each Use Case exposes exactly one public method:
-
-```python
-execute(...)
-```
-
----
-
-# Testing Strategy
-
-The architecture is designed to maximize testability.
-
-Application tests depend exclusively on Protocols.
-
-Infrastructure is tested independently.
-
-CLI tests exercise command behavior using Fake implementations.
-
----
-
-# Current Project Status
-
-Implemented:
-
-* Version
-* Environment Doctor
-* Laboratory Discovery
-* Laboratory Metadata
-* Laboratory Validation
-
-Planned:
-
-* Laboratory Runner
-* Docker Orchestration
-* Template Engine
-* Package Manager
-
----
-
-# Design Principles
-
-The architecture follows these principles:
-
-* Dependency Inversion
-* Single Responsibility
-* Explicit Dependency Injection
-* Immutable Domain Models
-* Composition over inheritance
-* Testability first
-* Small incremental changes
+* `docs/AI_CONTEXT.md`
+* `docs/architecture/principles.md`
+* `docs/architecture/testing.md`
+* `docs/adr/`
+* `docs/roadmap/`
