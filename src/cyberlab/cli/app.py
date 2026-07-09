@@ -52,18 +52,20 @@ def create_app(
         help="CyberLab command-line interface.",
     )
 
+    labs_root = Path("labs")
+
     command_runner = command_runner or CommandRunner()
 
     repository = repository or FilesystemLabRepository(
-        labs_root=Path("labs"),
+        labs_root=labs_root,
     )
 
     manifest_loader = manifest_loader or YamlLabManifestLoader(
-        labs_root=Path("labs"),
+        labs_root=labs_root,
     )
 
     validator = validator or FilesystemLabValidator(
-        labs_root=Path("labs"),
+        labs_root=labs_root,
     )
 
     lab_runner = lab_runner or NoOpLabRunner()
