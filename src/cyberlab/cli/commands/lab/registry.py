@@ -24,6 +24,9 @@ from .list import (
 from .run import (
     register_run_command,
 )
+from .stop import (
+    register_stop_command,
+)
 from .validate import (
     register_validate_command,
 )
@@ -58,6 +61,11 @@ def register_lab(
     )
 
     register_run_command(
+        lab_app,
+        lab_runner,
+    )
+
+    register_stop_command(
         lab_app,
         lab_runner,
     )

@@ -154,3 +154,34 @@ def test_lab_run_displays_execution_report() -> None:
     assert 'Running laboratory "xss-basic"...' in result.stdout
 
     assert "✔ Laboratory started successfully." in result.stdout
+
+
+def test_lab_stop_displays_execution_report() -> None:
+    # Arrange
+    app = create_app(
+        manifest_loader=FakeLabManifestLoader({}),
+        validator=FakeLabValidator({}),
+        lab_runner=FakeLabRunner(
+            run_reports={},
+            stop_reports={
+                "xss-basic": _create_stop_report(),
+            },
+        ),
+    )
+
+    # Act
+    result = runner.invoke(
+        app,
+        [
+            "lab",
+            "stop",
+            "xss-basic",
+        ],
+    )
+
+    # Assert
+    assert result.exit_code == 0
+
+    assert 'Stopping laboratory "xss-basic"...' in result.stdout
+
+    assert "✔ Laboratory stopped successfully." in result.stdout
