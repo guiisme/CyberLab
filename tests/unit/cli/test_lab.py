@@ -63,6 +63,14 @@ def _create_execution_report() -> LabExecutionReport:
     )
 
 
+def _create_stop_report() -> LabExecutionReport:
+    return LabExecutionReport(
+        lab_id="xss-basic",
+        success=True,
+        message="Laboratory stopped successfully.",
+    )
+
+
 def _create_validation_report() -> LabValidationReport:
     return LabValidationReport(
         checks=(

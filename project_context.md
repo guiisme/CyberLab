@@ -2,245 +2,338 @@
 
 *Last updated: July 2026*
 
-## Project Overview
-
-CyberLab is an open-source framework for building and executing reproducible cybersecurity laboratories.
-
-The project is being developed with a strong emphasis on software engineering practices rather than rapid feature delivery. The architecture is intended to remain maintainable for many years while supporting future capabilities such as Docker orchestration, laboratory packaging, plugins and reusable templates.
-
-The project follows an incremental development process, where architecture is stabilized before introducing significant new functionality.
-
 ---
 
-# Architecture
+# Project Overview
 
-The project adopts:
+CyberLab is an open-source framework for building, validating and executing reproducible cybersecurity laboratories.
+
+The project follows:
 
 * Clean Architecture
 * Hexagonal Architecture
 * Test-Driven Development (TDD)
-* SOLID principles
-* Explicit Dependency Injection
-* Composition Root
-* Protocol-based Dependency Inversion
-* Immutable Domain Models whenever possible
+* Protocol-Oriented Design
+* Constructor Dependency Injection
 
-Current architectural layers:
+The primary objective is to isolate business rules from infrastructure, allowing execution technologies to evolve without impacting the Application or Domain layers.
+
+---
+
+# Current Architecture
 
 ```text
 CLI
-    │
-    ▼
-Application
-    │
-    ▼
-Domain
-
+ │
+ ▼
+Application (Use Cases)
+ │
+ ▼
+Protocols
+ ▲
+ │
 Infrastructure
+ │
+ ▼
+External Systems
+```
+
+All dependencies point toward the Application layer.
+
+---
+
+# Current Project Structure
+
+```text
+src/
+└── cyberlab/
+    ├── application/
+    │   ├── interfaces/
+    │   └── use_cases/
     │
-    └── implements Application Protocols
+    ├── cli/
+    │   ├── app.py
+    │   ├── commands/
+    │   └── rendering/
+    │
+    ├── domain/
+    │   └── models/
+    │
+    ├── infrastructure/
+    │   ├── docker/
+    │   ├── filesystem/
+    │   ├── process/
+    │   └── runner/
+    │
+    └── shared/
 ```
-
-Dependency construction is centralized in the Composition Root (`create_app()`).
-
-Infrastructure implementations are intentionally assembled only in the Composition Root.
 
 ---
 
-# Documentation Baseline
+# Current Features
 
-The architecture documentation has been reviewed and refined through multiple Design Reviews.
+Implemented:
 
-Current baseline:
+* version
+* doctor
+* laboratory discovery
+* laboratory metadata
+* laboratory validation
+* laboratory execution
+* Docker Compose integration
+
+---
+
+# Laboratory Execution
+
+Laboratories are executed through Docker Compose.
+
+Execution flow:
 
 ```text
-docs/
+CLI
 
-AI_CONTEXT.md
-architecture/
-    overview.md
-    principles.md
-    testing.md
-adr/
-roadmap/
+↓
+
+LabRunUseCase
+
+↓
+
+LabRunnerProtocol
+
+↓
+
+DockerComposeLabRunner
+
+↓
+
+DockerComposeService
+
+↓
+
+CommandRunnerProtocol
+
+↓
+
+docker compose
 ```
 
-Document responsibilities:
-
-### AI_CONTEXT.md
-
-Defines the engineering philosophy and long-term project vision.
+Business rules remain completely independent from Docker.
 
 ---
 
-### overview.md
+# Infrastructure Components
 
-Describes the technical architecture.
+Filesystem:
 
-Topics include:
+* FilesystemLabRepository
+* FilesystemLabValidator
+* YamlLabManifestLoader
 
-* architectural concepts
-* layers
-* dependency rules
-* protocols
-* composition root
-* project structure
+Process:
 
----
+* CommandRunner
 
-### principles.md
+Docker:
 
-Defines the permanent engineering principles that govern the architecture.
-
-Examples include:
-
-* Clean Architecture
-* Dependency Inversion
-* Low Coupling
-* High Cohesion
-* Domain Independence
-* Dependency Injection
-* Simplicity
-* Incremental Evolution
-
-This document intentionally avoids implementation details.
+* DockerComposeService
+* DockerComposeLabRunner
 
 ---
 
-### testing.md
+# Current Laboratory
 
-Defines the testing architecture.
-
-Topics include:
-
-* testing philosophy
-* testing by architectural layer
-* protocol-based isolation
-* dependency graphs
-* composition root in tests
-
-It does not describe testing frameworks or implementation details.
-
----
-
-### ADRs
-
-Architecture Decision Records document concrete architectural decisions.
-
-Current ADRs:
-
-* 0001 — Project Conventions
-* 0002 — Value Objects
-* 0003 — Environment Doctor
-* 0004 — Laboratory Discovery
-* 0005 — Laboratory Metadata Model
-* 0006 — Validation Architecture
-* 0007 — Shared Package
-
-ADRs are the only source of truth for architectural decisions.
-
-Architecture documents should reference ADRs rather than duplicate them.
-
----
-
-# Documentation Principles
-
-The project follows these documentation rules:
-
-* Each document has a single responsibility.
-* Avoid duplicated information.
-* Prefer references over duplication.
-* Architecture documentation must remain technology-independent whenever practical.
-* Principles should outlive implementations.
-* Overview documents describe architecture, not implementation.
-* ADRs justify architectural decisions.
-* AI_CONTEXT defines philosophy rather than architecture.
-
----
-
-# Current Code Architecture
-
-The project currently contains the following architectural areas:
-
-```text
-src/cyberlab/
-
-application/
-cli/
-domain/
-infrastructure/
-shared/
+```
+labs/
+└── xss-basic/
+    ├── lab.yaml
+    ├── compose.yaml
+    └── README.md
 ```
 
-The `shared` package is **not** an architectural layer.
+The first executable laboratory is available through:
 
-Its purpose and usage are governed exclusively by ADR-0007.
-
----
-
-# Current Development Status
-
-Completed:
-
-* Project foundation
-* CLI architecture
-* Version command
-* Doctor command
-* Laboratory discovery
-* Laboratory metadata
-* Laboratory validation
-* Composition Root
-* Architecture documentation baseline
-
-Architecture documentation has been reviewed with Codex and refined until the responsibilities of each document became explicit and non-overlapping.
+```bash
+uv run cyberlab lab run xss-basic
+```
 
 ---
 
-# Documentation Review Outcomes
+# CLI Commands
 
-The architecture documentation reached the following conclusions:
+Environment:
 
-* `overview.md` is considered an appropriate architectural overview.
-* `principles.md` is considered a long-term engineering principles document.
-* `testing.md` is considered a long-term testing architecture document.
+```bash
+uv run cyberlab doctor
+```
 
-The remaining improvements suggested by Codex relate primarily to future contributor documentation rather than architectural corrections.
+Version:
+
+```bash
+uv run cyberlab version
+```
+
+Discovery:
+
+```bash
+uv run cyberlab lab list
+```
+
+Metadata:
+
+```bash
+uv run cyberlab lab info xss-basic
+```
+
+Validation:
+
+```bash
+uv run cyberlab lab validate xss-basic
+```
+
+Execution:
+
+```bash
+uv run cyberlab lab run xss-basic
+```
 
 ---
 
-# Future Documentation Backlog
+# Testing Strategy
 
-The following documents may be introduced as the project evolves:
+Project follows:
 
-* `DEVELOPMENT.md`
-* `CONTRIBUTING.md`
-* `architecture/error-handling.md`
-* `architecture/plugins.md`
-* `architecture/laboratory-lifecycle.md`
+RED
 
-These are intentionally outside the scope of the current architecture baseline.
+↓
+
+GREEN
+
+↓
+
+REFACTOR
+
+Testing pyramid:
+
+* Unit Tests
+* Integration Tests
+* Acceptance Tests
+
+Fakes are preferred over mocks.
 
 ---
 
-# Current Development Priority
+# Architectural Rules
 
-The documentation baseline (Wave 2) is considered complete.
+The project follows several mandatory rules.
 
-Future work should focus on implementing new features while preserving the approved architecture.
+## Application
 
-Any architectural change should:
+Application never imports Infrastructure.
 
-1. Respect the Architecture Baseline.
-2. Preserve dependency rules.
-3. Be documented through an ADR when appropriate.
-4. Keep documentation synchronized with implementation.
+## Domain
 
-The preferred development workflow is:
+Domain never depends on any external technology.
 
-1. Design.
-2. Architecture review.
-3. Implementation.
-4. Tests.
-5. Documentation update.
-6. Commit.
-7. Design review.
+## Infrastructure
+
+Infrastructure implements Protocols defined by the Application layer.
+
+## CLI
+
+CLI contains no business logic.
+
+## Composition Root
+
+Infrastructure implementations are created only inside:
+
+```
+cyberlab.cli.app.create_app()
+```
+
+---
+
+# Current Protocols
+
+* CommandRunnerProtocol
+* LabRepositoryProtocol
+* LabManifestLoaderProtocol
+* LabValidatorProtocol
+* LabRunnerProtocol
+
+---
+
+# Current Pull Requests
+
+Completed
+
+* PR #001 — Project Bootstrap
+* PR #002 — Version Command
+* PR #003 — Environment Doctor
+* PR #004 — Laboratory Discovery
+* PR #005 — Laboratory Metadata
+* PR #006 — Laboratory Validation
+* PR #007 — Laboratory Runner Abstraction
+* PR #008 — CLI Modularization
+* PR #009 — Docker Compose Runner
+
+---
+
+# Development Workflow
+
+Every feature follows:
+
+1. Design Review
+2. RED
+3. GREEN
+4. REFACTOR
+5. Documentation Update
+6. Pull Request
+
+Each commit should remain small, reviewable and independently testable.
+
+---
+
+# Next Planned Pull Request
+
+## PR #010 — Laboratory Lifecycle
+
+Initial scope:
+
+* `lab stop`
+* `lab status`
+* `lab logs`
+
+Future evolution:
+
+* restart
+* shell
+* destroy
+
+The existing `DockerComposeService` should be extended to support:
+
+* `down`
+* `ps`
+* `logs`
+
+without modifying the Application layer.
+
+---
+
+# Long-Term Roadmap
+
+Future execution backends:
+
+* Podman
+* Kubernetes
+* Remote Runner
+
+Future laboratory capabilities:
+
+* Multi-container laboratories
+* Environment snapshots
+* Automatic cleanup
+* Marketplace
+* Laboratory templates
+
+The current architecture was intentionally designed so these capabilities can be added by introducing new Infrastructure implementations while preserving the existing Application layer.

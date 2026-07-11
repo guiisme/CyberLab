@@ -8,7 +8,7 @@ from dataclasses import dataclass
     slots=True,
 )
 class LabExecutionReport:
-    """Result of a laboratory execution."""
+    """Result of a laboratory lifecycle operation."""
 
     lab_id: str
     success: bool

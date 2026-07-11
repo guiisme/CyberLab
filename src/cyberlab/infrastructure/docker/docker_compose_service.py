@@ -23,7 +23,7 @@ class DockerComposeService:
         self,
         compose_file: Path,
     ) -> ProcessResult:
-        """Start a Docker Compose project."""
+        """Start a Docker Compose environment."""
 
         return self._command_runner.run(
             [
@@ -33,5 +33,21 @@ class DockerComposeService:
                 str(compose_file),
                 "up",
                 "-d",
+            ]
+        )
+
+    def down(
+        self,
+        compose_file: Path,
+    ) -> ProcessResult:
+        """Stop a Docker Compose environment."""
+
+        return self._command_runner.run(
+            [
+                "docker",
+                "compose",
+                "-f",
+                str(compose_file),
+                "down",
             ]
         )

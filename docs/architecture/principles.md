@@ -2,181 +2,172 @@
 
 ## Purpose
 
-This document defines the architectural principles that govern the design and evolution of CyberLab.
+This document defines the architectural principles that guide the evolution of CyberLab.
 
-These principles establish the engineering rules that every contribution must respect, ensuring consistency, maintainability and long-term evolution.
-
-Architectural decisions are documented in the project's ADRs. This document defines the enduring principles that guide those decisions.
+These principles are intended to remain stable over time, regardless of infrastructure choices or implementation details.
 
 ---
 
-# Principle 1 — Clean Architecture
+# 1. Clean Architecture
 
-CyberLab follows the principles of Clean Architecture.
+Business rules must remain independent from infrastructure.
 
-Business rules must remain independent from infrastructure, frameworks and presentation technologies.
+Infrastructure may evolve without requiring changes to the Domain or Application layers.
 
-The architecture must ensure that technical details can evolve without impacting business logic.
-
-### Objectives
-
-* Preserve business independence.
-* Minimize coupling.
-* Maximize maintainability.
-* Support long-term evolution.
+Dependencies always point inward.
 
 ---
 
-# Principle 2 — Dependency Inversion
+# 2. Hexagonal Architecture
 
-Dependencies must always point toward stable abstractions.
+External technologies communicate with the application exclusively through well-defined interfaces (Protocols).
 
-Concrete implementations must never dictate business behavior.
+The Application layer defines the contracts.
 
-Abstractions define the system contracts, while technical implementations fulfill those contracts.
-
-### Rules
-
-* Business logic never depends on technical implementations.
-* External behavior is accessed through abstractions.
-* Concrete implementations are assembled only at the application's composition boundary.
+Infrastructure provides the implementations.
 
 ---
 
-# Principle 3 — Single Responsibility
+# 3. Dependency Inversion
 
-Every architectural element must have a single primary responsibility.
+High-level policies never depend on low-level implementations.
 
-Responsibilities must not overlap.
+Examples include:
 
-A responsibility should exist in only one place within the architecture.
+* LabRepositoryProtocol
+* LabManifestLoaderProtocol
+* LabValidatorProtocol
+* LabRunnerProtocol
+* CommandRunnerProtocol
 
-Changes to one responsibility should have minimal impact on unrelated components.
-
----
-
-# Principle 4 — Explicit Architectural Boundaries
-
-Architectural boundaries must remain explicit.
-
-Communication between architectural elements occurs only through well-defined contracts.
-
-No component should access another component's internal implementation directly.
+Concrete implementations belong exclusively to the Infrastructure layer.
 
 ---
 
-# Principle 5 — High Cohesion
+# 4. Composition Root
 
-Components should group responsibilities that naturally belong together.
+Object creation is centralized in a single location.
 
-Each component should have a clear purpose and a single reason to change.
+Currently this responsibility belongs to:
 
-The architecture should encourage extending existing capabilities instead of introducing unrelated responsibilities.
+```text id="x0d4qv"
+cyberlab.cli.app.create_app()
+```
 
----
-
-# Principle 6 — Low Coupling
-
-Dependencies between architectural elements should be minimized.
-
-Every dependency must have a clear architectural justification.
+Business logic must never instantiate infrastructure implementations directly.
 
 ---
 
-# Principle 7 — Domain Independence
+# 5. Single Responsibility
 
-The Domain represents the core business knowledge of CyberLab.
+Each component should have a single, clearly defined responsibility.
 
-It must remain independent from infrastructure concerns, presentation technologies and external technical details.
+Examples:
 
-Business concepts must remain stable regardless of implementation technology.
-
----
-
-# Principle 8 — Immutability by Default
-
-Domain objects should be immutable whenever possible.
-
-Immutability:
-
-* simplifies reasoning;
-* reduces side effects;
-* improves predictability;
-* facilitates testing.
-
-Mutability should be introduced only when there is a clear architectural or business justification.
+* DockerComposeService executes Docker Compose commands.
+* DockerComposeLabRunner adapts laboratory execution to Docker Compose.
+* FilesystemLabRepository discovers available laboratories.
+* YamlLabManifestLoader loads laboratory metadata.
 
 ---
 
-# Principle 9 — Dependency Injection
+# 6. Constructor Dependency Injection
 
-Dependencies should always be supplied from the outside.
+Dependencies are supplied through constructors.
 
-Components must not instantiate their own collaborators.
-
-Dependency construction must remain isolated from business logic.
-
-This promotes:
-
-* loose coupling;
-* replaceable implementations;
-* simpler testing;
-* clearer responsibilities.
+Global state and service locators are intentionally avoided.
 
 ---
 
-# Principle 10 — Testability First
+# 7. Protocol-Oriented Design
 
-Architectural decisions must preserve and improve testability.
+Protocols define application requirements.
 
-The architecture should naturally support isolated, deterministic and maintainable automated tests.
+Infrastructure implements those requirements.
 
-Implementation details of the testing strategy are documented in `architecture/testing.md`.
-
----
-
-# Principle 11 — Simplicity First
-
-The architecture should remain as simple as possible.
-
-New abstractions should be introduced only when they solve a real architectural problem.
-
-Complexity must always have a clear justification.
-
-Clarity is preferred over cleverness.
+Protocols belong to the Application layer because they describe what the application needs, not how those needs are fulfilled.
 
 ---
 
-# Principle 12 — Incremental Evolution
+# 8. Infrastructure Isolation
 
-CyberLab evolves through small, incremental improvements.
+Infrastructure contains all technology-specific implementations.
 
-Architectural changes should preserve existing principles whenever possible.
+Examples include:
 
-Significant architectural changes should be documented through an Architecture Decision Record (ADR).
+* filesystem access;
+* YAML parsing;
+* process execution;
+* Docker Compose integration.
 
----
-
-# Principle 13 — Architecture as Documentation
-
-Architecture is expressed through both code and documentation.
-
-Architectural documentation must remain consistent with the implementation and with the project's Architecture Decision Records.
-
-Documentation should clarify architectural intent rather than duplicate implementation details.
+Business rules remain unaware of implementation details.
 
 ---
 
-# Summary
+# 9. Laboratory Execution
 
-Every architectural decision should reinforce the following goals:
+Laboratory execution follows the same architectural boundaries as every other feature.
 
-* independent business logic;
-* explicit architectural boundaries;
-* dependency inversion;
-* low coupling;
-* high cohesion;
-* simplicity;
-* testability;
-* maintainability;
-* incremental evolution.
+```text id="udg0vb"
+LabRunUseCase
+        │
+        ▼
+LabRunnerProtocol
+        │
+        ▼
+DockerComposeLabRunner
+        │
+        ▼
+DockerComposeService
+        │
+        ▼
+CommandRunnerProtocol
+        │
+        ▼
+Docker Compose
+```
+
+The Application layer defines the execution contract through `LabRunnerProtocol`.
+
+The Infrastructure layer provides the execution mechanism.
+
+Replacing Docker Compose with another technology should require changes only inside the Infrastructure layer.
+
+---
+
+# 10. Testability
+
+Every architectural decision should improve testability.
+
+The project follows these practices:
+
+* Test-Driven Development (TDD)
+* deterministic unit tests
+* constructor injection
+* Protocol-based boundaries
+* Fakes preferred over mocks
+
+External systems should be isolated whenever practical.
+
+---
+
+# 11. Incremental Evolution
+
+The project evolves through small, reviewable Pull Requests.
+
+Each Pull Request should:
+
+* implement a single architectural concern;
+* preserve backward compatibility whenever practical;
+* keep the project in a releasable state;
+* update documentation when architectural decisions change.
+
+---
+
+# 12. Documentation as Architecture
+
+Architecture documentation is treated as part of the system.
+
+Whenever an architectural decision changes, the corresponding documentation should be updated together with the implementation.
+
+The documentation is expected to evolve continuously alongside the codebase.

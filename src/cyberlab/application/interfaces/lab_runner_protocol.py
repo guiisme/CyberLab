@@ -8,11 +8,16 @@ from cyberlab.domain.models.lab_execution_report import (
 
 
 class LabRunnerProtocol(Protocol):
-    """Run a CyberLab laboratory."""
+    """Protocol for laboratory lifecycle management."""
 
     def run(
         self,
         lab_id: str,
     ) -> LabExecutionReport:
         """Run a laboratory."""
-        ...
+
+    def stop(
+        self,
+        lab_id: str,
+    ) -> LabExecutionReport:
+        """Stop a laboratory."""
