@@ -9,7 +9,7 @@ from cyberlab.domain.models.lab_execution_report import (
 
 
 class FakeLabRunner(LabRunnerProtocol):
-    """Fake laboratory runner."""
+    """Fake implementation of LabRunnerProtocol for tests."""
 
     def __init__(
         self,
@@ -19,10 +19,7 @@ class FakeLabRunner(LabRunnerProtocol):
         self._run_reports = run_reports
         self._stop_reports = stop_reports or {}
 
-        # Mantemos compatibilidade com todos os testes existentes
         self.requested_lab_ids: list[str] = []
-
-        # Preparação para a PR #010
         self.stopped_lab_ids: list[str] = []
 
     def run(
