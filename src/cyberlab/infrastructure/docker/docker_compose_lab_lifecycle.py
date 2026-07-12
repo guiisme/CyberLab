@@ -10,6 +10,7 @@ from cyberlab.domain.models.lab_execution_report import (
     LaboratoryState,
     LaboratoryStatus,
 )
+from cyberlab.domain.models.lab_logs import LabLogs
 from cyberlab.domain.models.process_result import (
     ProcessResult,
 )
@@ -130,7 +131,7 @@ class DockerComposeLabRunner(LabLifeCycleProtocol):
     def logs(
         self,
         lab_id: str,
-    ) -> LabExecutionReport:
+    ) -> LabLogs:
         """View logs for a laboratory."""
 
         compose_file = self._compose_file(
@@ -141,10 +142,9 @@ class DockerComposeLabRunner(LabLifeCycleProtocol):
             compose_file,
         )
 
-        return self._report(
+        return LabLogs(
             lab_id=lab_id,
-            result=result,
-            success_message="Laboratory logs retrieved successfully.",
+            content=(result.stdout if result.exit_code == 0 else result.stderr),
         )
 
     def _compose_file(

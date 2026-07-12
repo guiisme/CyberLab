@@ -4,6 +4,7 @@ from cyberlab.domain.models.lab_execution_report import (
     LabExecutionReport,
     LaboratoryStatus,
 )
+from cyberlab.domain.models.lab_logs import LabLogs
 
 
 class LabLifeCycleProtocol(Protocol):
@@ -40,6 +41,6 @@ class LabLifeCycleProtocol(Protocol):
     def logs(
         self,
         lab_id: str,
-    ) -> LabExecutionReport:
+    ) -> LabLogs:
         """View logs for a laboratory."""
         ...

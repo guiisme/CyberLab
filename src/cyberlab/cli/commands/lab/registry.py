@@ -21,6 +21,9 @@ from .info import (
 from .list import (
     register_list_command,
 )
+from .logs import (
+    register_logs_command,
+)
 from .restart import (
     register_restart_command,
 )
@@ -59,6 +62,11 @@ def register_lab(
     register_info_command(
         lab_app,
         manifest_loader,
+    )
+
+    register_logs_command(
+        lab_app,
+        lab_runner,
     )
 
     register_validate_command(

@@ -8,6 +8,7 @@ from cyberlab.domain.models.lab_execution_report import (
     LaboratoryState,
     LaboratoryStatus,
 )
+from cyberlab.domain.models.lab_logs import LabLogs
 
 
 class FakeLabLifeCycle(LabLifeCycleProtocol):
@@ -19,7 +20,7 @@ class FakeLabLifeCycle(LabLifeCycleProtocol):
         stop_reports: dict[str, LabExecutionReport] | None = None,
         restart_reports: dict[str, LabExecutionReport] | None = None,
         status_to_return: LaboratoryStatus | None = None,
-        logs_output: dict[str, LabExecutionReport] | None = None,
+        logs_output: dict[str, LabLogs] | None = None,
     ) -> None:
         self._run_reports = run_reports
         self._stop_reports = stop_reports or {}
@@ -71,7 +72,7 @@ class FakeLabLifeCycle(LabLifeCycleProtocol):
     def logs(
         self,
         lab_id: str,
-    ) -> LabExecutionReport:
+    ) -> LabLogs:
         self.logs_received_lab_id.append(lab_id)
 
         if lab_id not in self._logs_output:

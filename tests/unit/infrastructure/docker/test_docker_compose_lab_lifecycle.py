@@ -307,5 +307,4 @@ def test_logs_returns_failure_report() -> None:
     report = runner.logs("xss-basic")
 
     assert report.lab_id == "xss-basic"
-    assert report.success is False
-    assert report.message == "Docker failed"
+    assert report.content == "Docker failed"

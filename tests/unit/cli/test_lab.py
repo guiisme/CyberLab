@@ -5,6 +5,7 @@ from cyberlab.domain.models.check_result import CheckResult
 from cyberlab.domain.models.lab_execution_report import (
     LabExecutionReport,
 )
+from cyberlab.domain.models.lab_logs import LabLogs
 from cyberlab.domain.models.lab_manifest import LabManifest
 from cyberlab.domain.models.lab_validation_report import LabValidationReport
 from tests.fakes.fake_lab_lifecycle import (
@@ -185,3 +186,41 @@ def test_lab_stop_displays_execution_report() -> None:
     assert 'Stopping laboratory "xss-basic"...' in result.stdout
 
     assert "✔ Laboratory stopped successfully." in result.stdout
+
+
+def _create_logs_report() -> LabLogs:
+    return LabLogs(
+        lab_id="xss-basic",
+        content="Sample log content for xss-basic laboratory.",
+    )
+
+
+def test_lab_logs_displays_execution_report() -> None:
+    app = create_app(
+        manifest_loader=FakeLabManifestLoader({}),
+        validator=FakeLabValidator({}),
+        lab_runner=FakeLabLifeCycle(
+            run_reports={},
+            logs_output={
+                "xss-basic": LabLogs(
+                    lab_id="xss-basic",
+                    content="nginx\nphp\nmysql",
+                ),
+            },
+        ),
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "lab",
+            "logs",
+            "xss-basic",
+        ],
+    )
+
+    assert result.exit_code == 0
+
+    assert 'Showing logs for laboratory "xss-basic"...' in result.stdout
+
+    assert "nginx\nphp\nmysql" in result.stdout
