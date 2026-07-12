@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from cyberlab.domain.laboratory_state import LaboratoryState
+from cyberlab.domain.models.laboratory_state import LaboratoryState
 
 
 @dataclass(frozen=True, slots=True)
