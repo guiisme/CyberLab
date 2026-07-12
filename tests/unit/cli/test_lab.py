@@ -7,11 +7,11 @@ from cyberlab.domain.models.lab_execution_report import (
 )
 from cyberlab.domain.models.lab_manifest import LabManifest
 from cyberlab.domain.models.lab_validation_report import LabValidationReport
+from tests.fakes.fake_lab_lifecycle import (
+    FakeLabLifeCycle,
+)
 from tests.fakes.fake_lab_manifest_loader import (
     FakeLabManifestLoader,
-)
-from tests.fakes.fake_lab_runner import (
-    FakeLabRunner,
 )
 from tests.fakes.fake_lab_validator import FakeLabValidator
 
@@ -131,7 +131,7 @@ def test_lab_run_displays_execution_report() -> None:
     app = create_app(
         manifest_loader=FakeLabManifestLoader({}),
         validator=FakeLabValidator({}),
-        lab_runner=FakeLabRunner(
+        lab_runner=FakeLabLifeCycle(
             {
                 "xss-basic": _create_execution_report(),
             }
@@ -161,7 +161,7 @@ def test_lab_stop_displays_execution_report() -> None:
     app = create_app(
         manifest_loader=FakeLabManifestLoader({}),
         validator=FakeLabValidator({}),
-        lab_runner=FakeLabRunner(
+        lab_runner=FakeLabLifeCycle(
             run_reports={},
             stop_reports={
                 "xss-basic": _create_stop_report(),

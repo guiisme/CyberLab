@@ -198,3 +198,71 @@ def test_down_returns_process_failure() -> None:
 
     assert result.exit_code == 1
     assert result.stderr == "Docker failed"
+
+
+#
+# Logs
+#
+
+
+def test_logs_executes_docker_compose_command() -> None:
+    compose_file = Path("labs/xss-basic/compose.yaml")
+
+    expected = _success_result()
+
+    command_runner = FakeCommandRunner(
+        responses={
+            (
+                "docker",
+                "compose",
+                "-f",
+                str(compose_file),
+                "logs",
+            ): expected,
+        },
+    )
+
+    service = DockerComposeService(
+        command_runner=command_runner,
+    )
+
+    result = service.logs(compose_file)
+
+    assert result == expected
+
+    assert command_runner.commands == [
+        (
+            "docker",
+            "compose",
+            "-f",
+            str(compose_file),
+            "logs",
+        ),
+    ]
+
+
+def test_logs_returns_process_failure() -> None:
+    compose_file = Path("labs/xss-basic/compose.yaml")
+
+    expected = _failure_result()
+
+    command_runner = FakeCommandRunner(
+        responses={
+            (
+                "docker",
+                "compose",
+                "-f",
+                str(compose_file),
+                "logs",
+            ): expected,
+        },
+    )
+
+    service = DockerComposeService(
+        command_runner=command_runner,
+    )
+
+    result = service.logs(compose_file)
+
+    assert result.exit_code == 1
+    assert result.stderr == "Docker failed"

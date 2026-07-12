@@ -5,8 +5,8 @@ import pytest
 from cyberlab.domain.models.lab_execution_report import (
     LabExecutionReport,
 )
-from tests.fakes.fake_lab_runner import (
-    FakeLabRunner,
+from tests.fakes.fake_lab_lifecycle import (
+    FakeLabLifeCycle,
 )
 
 
@@ -22,7 +22,7 @@ def test_run_returns_execution_report() -> None:
     # Arrange
     report = _create_report()
 
-    runner = FakeLabRunner(
+    runner = FakeLabLifeCycle(
         {
             "xss-basic": report,
         }
@@ -39,7 +39,7 @@ def test_run_records_requested_lab_id() -> None:
     # Arrange
     report = _create_report()
 
-    runner = FakeLabRunner(
+    runner = FakeLabLifeCycle(
         {
             "xss-basic": report,
         }
@@ -56,7 +56,7 @@ def test_run_records_requested_lab_id() -> None:
 
 def test_run_raises_assertion_error_for_unknown_lab() -> None:
     # Arrange
-    runner = FakeLabRunner({})
+    runner = FakeLabLifeCycle({})
 
     # Act / Assert
     with pytest.raises(

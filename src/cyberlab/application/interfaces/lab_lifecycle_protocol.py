@@ -36,3 +36,10 @@ class LabLifeCycleProtocol(Protocol):
     ) -> LabExecutionReport:
         """Restart a laboratory."""
         ...
+
+    def logs(
+        self,
+        lab_id: str,
+    ) -> LabExecutionReport:
+        """View logs for a laboratory."""
+        ...

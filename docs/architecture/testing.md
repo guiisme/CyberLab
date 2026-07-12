@@ -104,7 +104,7 @@ LabRunUseCase
 
 ↓
 
-FakeLabRunner
+FakeLabLifeCycle
 ```
 
 Application tests verify:
@@ -128,7 +128,7 @@ Each Protocol has a canonical Fake implementation.
 
 Examples:
 
-- FakeLabRunner
+- FakeLabLifeCycle
 - FakeCommandRunner
 - FakeLabManifestLoader
 - FakeLabValidator
@@ -223,7 +223,7 @@ LabLifeCycleProtocol
 
 ↓
 
-FakeLabRunner
+FakeLabLifeCycle
 
 CommandRunnerProtocol
 

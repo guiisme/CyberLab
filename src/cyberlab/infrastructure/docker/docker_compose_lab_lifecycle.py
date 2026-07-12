@@ -127,6 +127,26 @@ class DockerComposeLabRunner(LabLifeCycleProtocol):
             success_message="Laboratory restarted successfully.",
         )
 
+    def logs(
+        self,
+        lab_id: str,
+    ) -> LabExecutionReport:
+        """View logs for a laboratory."""
+
+        compose_file = self._compose_file(
+            lab_id,
+        )
+
+        result = self._compose_service.logs(
+            compose_file,
+        )
+
+        return self._report(
+            lab_id=lab_id,
+            result=result,
+            success_message="Laboratory logs retrieved successfully.",
+        )
+
     def _compose_file(
         self,
         lab_id: str,

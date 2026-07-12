@@ -83,3 +83,19 @@ class DockerComposeService:
                 "restart",
             ]
         )
+
+    def logs(
+        self,
+        compose_file: Path,
+    ) -> ProcessResult:
+        """Show logs for a Docker Compose environment."""
+
+        return self._command_runner.run(
+            [
+                "docker",
+                "compose",
+                "-f",
+                str(compose_file),
+                "logs",
+            ]
+        )

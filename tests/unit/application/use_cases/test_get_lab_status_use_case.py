@@ -4,11 +4,11 @@ from cyberlab.domain.models.lab_execution_report import (
     LaboratoryState,
     LaboratoryStatus,
 )
-from tests.fakes.fake_lab_runner import FakeLabRunner
+from tests.fakes.fake_lab_lifecycle import FakeLabLifeCycle
 
 
 def test_returns_running_status() -> None:
-    status = FakeLabRunner(
+    status = FakeLabLifeCycle(
         {
             "xss-basic": LabExecutionReport(
                 "xss-basic",
@@ -29,7 +29,7 @@ def test_returns_running_status() -> None:
 
 
 def test_returns_stopped_status() -> None:
-    status = FakeLabRunner(
+    status = FakeLabLifeCycle(
         {
             "xss-basic": LabExecutionReport(
                 "xss-basic",
@@ -51,7 +51,7 @@ def test_returns_stopped_status() -> None:
 
 
 def test_passes_lab_id_to_status_service() -> None:
-    status = FakeLabRunner({})
+    status = FakeLabLifeCycle({})
 
     use_case = GetLabStatusUseCase(status)
 

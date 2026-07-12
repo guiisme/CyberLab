@@ -232,3 +232,80 @@ def test_stop_returns_failure_report() -> None:
     assert report.lab_id == "xss-basic"
     assert report.success is False
     assert report.message == "Docker failed"
+
+
+#
+# Logs
+#
+
+
+def test_logs_executes_docker_compose_command() -> None:
+    compose_file = "labs/xss-basic/compose.yaml"
+
+    command_runner = FakeCommandRunner(
+        responses={
+            (
+                "docker",
+                "compose",
+                "-f",
+                compose_file,
+                "logs",
+            ): _success_result(),
+        },
+    )
+
+    service = DockerComposeService(
+        command_runner,
+    )
+
+    runner = DockerComposeLabRunner(
+        compose_service=service,
+        labs_root=Path("labs"),
+    )
+
+    runner.logs("xss-basic")
+
+    assert command_runner.commands == [
+        (
+            "docker",
+            "compose",
+            "-f",
+            compose_file,
+            "logs",
+        ),
+    ]
+
+
+def test_logs_returns_failure_report() -> None:
+    compose_file = "labs/xss-basic/compose.yaml"
+
+    command_runner = FakeCommandRunner(
+        responses={
+            (
+                "docker",
+                "compose",
+                "-f",
+                compose_file,
+                "logs",
+            ): ProcessResult(
+                exit_code=1,
+                stdout="",
+                stderr="Docker failed",
+            ),
+        },
+    )
+
+    service = DockerComposeService(
+        command_runner,
+    )
+
+    runner = DockerComposeLabRunner(
+        compose_service=service,
+        labs_root=Path("labs"),
+    )
+
+    report = runner.logs("xss-basic")
+
+    assert report.lab_id == "xss-basic"
+    assert report.success is False
+    assert report.message == "Docker failed"
