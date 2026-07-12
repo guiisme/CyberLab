@@ -219,7 +219,7 @@ Each Protocol has a single canonical Fake implementation.
 Examples:
 
 ```text
-LabRunnerProtocol
+LabLifeCycleProtocol
 
 ↓
 

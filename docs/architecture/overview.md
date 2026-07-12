@@ -88,7 +88,7 @@ They represent ports in the Hexagonal Architecture.
 
 Examples include:
 
-- LabRunnerProtocol
+- LabLifeCycleProtocol
 - LabRepositoryProtocol
 - LabManifestLoaderProtocol
 - LabValidatorProtocol
@@ -137,7 +137,7 @@ LabStopUseCase
 
         ▼
 
-LabRunnerProtocol
+LabLifeCycleProtocol
 
         │
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from cyberlab.application.interfaces.lab_lifecycle_protocol import (
-    LabRunnerProtocol,
+    LabLifeCycleProtocol,
 )
 from cyberlab.domain.models.lab_execution_report import (
     LabExecutionReport,
@@ -10,8 +10,8 @@ from cyberlab.domain.models.lab_execution_report import (
 )
 
 
-class FakeLabRunner(LabRunnerProtocol):
-    """Fake implementation of LabRunnerProtocol for tests."""
+class FakeLabRunner(LabLifeCycleProtocol):
+    """Fake implementation of LabLifeCycleProtocol for tests."""
 
     def __init__(
         self,

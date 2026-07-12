@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from cyberlab.application.interfaces.lab_lifecycle_protocol import (
-    LabRunnerProtocol,
+    LabLifeCycleProtocol,
 )
 from cyberlab.domain.models.lab_execution_report import (
     LabExecutionReport,
@@ -18,7 +18,7 @@ from cyberlab.infrastructure.docker.docker_compose_service import (
 )
 
 
-class DockerComposeLabRunner(LabRunnerProtocol):
+class DockerComposeLabRunner(LabLifeCycleProtocol):
     """Run laboratories using Docker Compose."""
 
     def __init__(

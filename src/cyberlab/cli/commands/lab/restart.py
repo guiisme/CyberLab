@@ -5,28 +5,26 @@ import typer
 from cyberlab.application.interfaces.lab_lifecycle_protocol import (
     LabLifeCycleProtocol,
 )
-from cyberlab.application.use_cases.stop_lab_use_case import (
-    LabStopUseCase,
-)
+from cyberlab.application.use_cases.lab_restart_use_case import LabRestartUseCase
 
 
-def register_stop_command(
+def register_restart_command(
     app: typer.Typer,
     lab_runner: LabLifeCycleProtocol,
 ) -> None:
-    """Register the 'lab stop' command."""
+    """Register the 'lab restart' command."""
 
-    @app.command("stop")
-    def stop(
+    @app.command("restart")
+    def restart(
         lab_id: str,
     ) -> None:
-        """Stop a laboratory."""
+        """Restart a laboratory."""
 
-        typer.echo(f'Stopping laboratory "{lab_id}"...')
+        typer.echo(f'Restarting laboratory "{lab_id}"...')
 
         typer.echo()
 
-        report = LabStopUseCase(
+        report = LabRestartUseCase(
             lab_runner,
         ).execute(
             lab_id,

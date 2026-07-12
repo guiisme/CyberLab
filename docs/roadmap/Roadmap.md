@@ -59,7 +59,7 @@ Completed milestones represent architectural foundations. Future milestones focu
 
 ## PR #007 — Laboratory Runner Abstraction
 
-* LabRunnerProtocol
+* LabLifeCycleProtocol
 * Execution reports
 * Infrastructure abstraction
 

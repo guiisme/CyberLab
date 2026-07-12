@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from cyberlab.application.interfaces.lab_lifecycle_protocol import (
-    LabRunnerProtocol,
+    LabLifeCycleProtocol,
 )
 from cyberlab.domain.models.lab_execution_report import (
     LabExecutionReport,
@@ -13,7 +13,7 @@ class LabStopUseCase:
 
     def __init__(
         self,
-        runner: LabRunnerProtocol,
+        runner: LabLifeCycleProtocol,
     ) -> None:
         self._runner = runner
 

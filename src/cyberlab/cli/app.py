@@ -8,7 +8,7 @@ from cyberlab.application.interfaces.command_runner_protocol import (
     CommandRunnerProtocol,
 )
 from cyberlab.application.interfaces.lab_lifecycle_protocol import (
-    LabRunnerProtocol,
+    LabLifeCycleProtocol,
 )
 from cyberlab.application.interfaces.lab_manifest_loader_protocol import (
     LabManifestLoaderProtocol,
@@ -47,7 +47,7 @@ def create_app(
     repository: LabRepositoryProtocol | None = None,
     manifest_loader: LabManifestLoaderProtocol | None = None,
     validator: LabValidatorProtocol | None = None,
-    lab_runner: LabRunnerProtocol | None = None,
+    lab_runner: LabLifeCycleProtocol | None = None,
 ) -> typer.Typer:
     """Create the CyberLab CLI application."""
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import typer
 
 from cyberlab.application.interfaces.lab_lifecycle_protocol import (
-    LabRunnerProtocol,
+    LabLifeCycleProtocol,
 )
 from cyberlab.application.interfaces.lab_manifest_loader_protocol import (
     LabManifestLoaderProtocol,
@@ -20,6 +20,9 @@ from .info import (
 )
 from .list import (
     register_list_command,
+)
+from .restart import (
+    register_restart_command,
 )
 from .run import (
     register_run_command,
@@ -40,7 +43,7 @@ def register_lab(
     repository: LabRepositoryProtocol,
     manifest_loader: LabManifestLoaderProtocol,
     validator: LabValidatorProtocol,
-    lab_runner: LabRunnerProtocol,
+    lab_runner: LabLifeCycleProtocol,
 ) -> None:
     """Register laboratory commands."""
 
@@ -74,6 +77,11 @@ def register_lab(
     )
 
     register_status_command(
+        lab_app,
+        lab_runner,
+    )
+
+    register_restart_command(
         lab_app,
         lab_runner,
     )

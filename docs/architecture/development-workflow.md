@@ -145,7 +145,7 @@ DockerComposeLabRunner
 
 ↓
 
-LabRunnerProtocol
+LabLifeCycleProtocol
 
 ↓
 

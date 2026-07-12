@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typer
 
-from cyberlab.application.interfaces.lab_lifecycle_protocol import LabRunnerProtocol
+from cyberlab.application.interfaces.lab_lifecycle_protocol import LabLifeCycleProtocol
 from cyberlab.application.use_cases.get_lab_status_use_case import (
     GetLabStatusUseCase,
 )
@@ -10,7 +10,7 @@ from cyberlab.application.use_cases.get_lab_status_use_case import (
 
 def register_status_command(
     app: typer.Typer,
-    lab_status: LabRunnerProtocol,
+    lab_status: LabLifeCycleProtocol,
 ) -> None:
     """Register the 'lab status' command."""
 

@@ -37,7 +37,7 @@ Examples include:
 * LabRepositoryProtocol
 * LabManifestLoaderProtocol
 * LabValidatorProtocol
-* LabRunnerProtocol
+* LabLifeCycleProtocol
 * CommandRunnerProtocol
 
 Concrete implementations belong exclusively to the Infrastructure layer.
@@ -112,7 +112,7 @@ Laboratory execution follows the same architectural boundaries as every other fe
 LabRunUseCase
         │
         ▼
-LabRunnerProtocol
+LabLifeCycleProtocol
         │
         ▼
 DockerComposeLabRunner
@@ -127,7 +127,7 @@ CommandRunnerProtocol
 Docker Compose
 ```
 
-The Application layer defines the execution contract through `LabRunnerProtocol`.
+The Application layer defines the execution contract through `LabLifeCycleProtocol`.
 
 The Infrastructure layer provides the execution mechanism.
 

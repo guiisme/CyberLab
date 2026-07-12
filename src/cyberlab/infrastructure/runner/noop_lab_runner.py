@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 from cyberlab.application.interfaces.lab_lifecycle_protocol import (
-    LabRunnerProtocol,
+    LabLifeCycleProtocol,
 )
 from cyberlab.domain.models.lab_execution_report import (
     LabExecutionReport,
 )
 
 
-class NoOpLabRunner(LabRunnerProtocol):
-    """No-operation implementation of LabRunnerProtocol."""
+class NoOpLabRunner(LabLifeCycleProtocol):
+    """No-operation implementation of LabLifeCycleProtocol."""
 
     def run(
         self,

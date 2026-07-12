@@ -6,7 +6,7 @@ from cyberlab.domain.models.lab_execution_report import (
 )
 
 
-class LabRunnerProtocol(Protocol):
+class LabLifeCycleProtocol(Protocol):
     """Protocol for laboratory execution."""
 
     def run(

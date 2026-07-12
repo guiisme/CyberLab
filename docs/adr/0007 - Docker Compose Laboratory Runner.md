@@ -10,7 +10,7 @@
 
 CyberLab introduces laboratory execution as a first-class capability.
 
-The Application layer already defines the execution contract through `LabRunnerProtocol`, allowing the business workflow to remain independent from the underlying execution technology.
+The Application layer already defines the execution contract through `LabLifeCycleProtocol`, allowing the business workflow to remain independent from the underlying execution technology.
 
 The project requires an initial execution backend capable of:
 
@@ -30,7 +30,7 @@ CyberLab adopts Docker Compose as the initial laboratory execution backend.
 The execution architecture is divided into two infrastructure components:
 
 ```text
-LabRunnerProtocol
+LabLifeCycleProtocol
         │
         ▼
 DockerComposeLabRunner
@@ -51,7 +51,7 @@ Responsibilities are intentionally separated.
 
 Responsible for:
 
-* adapting the `LabRunnerProtocol`;
+* adapting the `LabLifeCycleProtocol`;
 * locating the laboratory Compose file;
 * translating execution results into `LabExecutionReport`.
 
@@ -164,4 +164,4 @@ Potential future implementations include:
 * KubernetesLabRunner
 * RemoteLabRunner
 
-All future runners are expected to implement the existing `LabRunnerProtocol`.
+All future runners are expected to implement the existing `LabLifeCycleProtocol`.

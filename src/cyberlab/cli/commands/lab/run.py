@@ -3,7 +3,7 @@ from __future__ import annotations
 import typer
 
 from cyberlab.application.interfaces.lab_lifecycle_protocol import (
-    LabRunnerProtocol,
+    LabLifeCycleProtocol,
 )
 from cyberlab.application.use_cases.lab_run_use_case import (
     LabRunUseCase,
@@ -12,7 +12,7 @@ from cyberlab.application.use_cases.lab_run_use_case import (
 
 def register_run_command(
     app: typer.Typer,
-    lab_runner: LabRunnerProtocol,
+    lab_runner: LabLifeCycleProtocol,
 ) -> None:
     """Register the 'lab run' command."""
 
