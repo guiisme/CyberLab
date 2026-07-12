@@ -1,0 +1,195 @@
+./
+├── CHANGELOG.md
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── docs/
+│   ├── adr/
+│   │   ├── 0001 - Project Conventions.md
+│   │   ├── 0002 - Value-objects.md
+│   │   ├── 0003 - Environment Doctor.md
+│   │   ├── 0004 - Laboratory Discovery.md
+│   │   ├── 0005 - Laboratory Metadata Model.md
+│   │   ├── 0006 - Validation Architecture.md
+│   │   └── 0007 - Docker Compose Laboratory Runner.md
+│   ├── AI_CONTEXT.md
+│   ├── architecture/
+│   │   ├── development-workflow.md
+│   │   ├── overview.md
+│   │   ├── principles.md
+│   │   └── testing.md
+│   ├── reviews/
+│   │   └── 2026-07-07-codex-architecture-review.md
+│   └── roadmap/
+│       └── Roadmap.md
+├── .editorconfig
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   └── workflows/
+├── .gitignore
+├── infrastructure/
+│   └── system/
+├── labs/
+│   ├── csrf-basic/
+│   ├── sqli-basic/
+│   └── xss-basic/
+│       ├── compose.yaml
+│       ├── lab.yaml
+│       └── README.md
+├── LICENSE
+├── Makefile
+├── .pre-commit-config.yaml
+├── project_context.md
+├── project_tree.txt
+├── pyproject.toml
+├── .python-version
+├── README.md
+├── SECURITY.md
+├── src/
+│   └── cyberlab/
+│       ├── application/
+│       │   ├── __init__.py
+│       │   ├── interfaces/
+│       │   │   ├── command_runner_protocol.py
+│       │   │   ├── __init__.py
+│       │   │   ├── lab_manifest_loader_protocol.py
+│       │   │   ├── lab_repository_protocol.py
+│       │   │   ├── lab_runner_protocol.py
+│       │   │   ├── lab_status_protocol.py
+│       │   │   └── lab_validator_protocol.py
+│       │   └── use_cases/
+│       │       ├── doctor_use_case.py
+│       │       ├── get_lab_status_use_case.py
+│       │       ├── __init__.py
+│       │       ├── lab_info_use_case.py
+│       │       ├── lab_run_use_case.py
+│       │       ├── lab_validation_use_case.py
+│       │       ├── list_labs_use_case.py
+│       │       ├── stop_lab_use_case.py
+│       │       └── version_use_case.py
+│       ├── cli/
+│       │   ├── app.py
+│       │   ├── commands/
+│       │   │   ├── doctor.py
+│       │   │   ├── lab/
+│       │   │   │   ├── info.py
+│       │   │   │   ├── __init__.py
+│       │   │   │   ├── list.py
+│       │   │   │   ├── registry.py
+│       │   │   │   ├── run.py
+│       │   │   │   ├── status.py
+│       │   │   │   ├── stop.py
+│       │   │   │   └── validate.py
+│       │   │   ├── registry.py
+│       │   │   └── version.py
+│       │   ├── __init__.py
+│       │   └── rendering/
+│       │       └── checks.py
+│       ├── domain/
+│       │   ├── __init__.py
+│       │   ├── interfaces/
+│       │   │   └── __init__.py
+│       │   ├── models/
+│       │   │   ├── check_result.py
+│       │   │   ├── doctor_report.py
+│       │   │   ├── __init__.py
+│       │   │   ├── lab_execution_report.py
+│       │   │   ├── lab_execution_result.py
+│       │   │   ├──  lab_list_report.py
+│       │   │   ├── lab_manifest.py
+│       │   │   ├── laboratory_state.py
+│       │   │   ├── laboratory_status.py
+│       │   │   ├── lab.py
+│       │   │   ├── lab_validation_report.py
+│       │   │   └── process_result.py
+│       │   ├── reports/
+│       │   └── value_objects/
+│       │       ├── __init__.py
+│       │       └── version.py
+│       ├── infrastructure/
+│       │   ├── configuration/
+│       │   │   └── __init__.py
+│       │   ├── docker/
+│       │   │   ├── docker_compose_lab_runner.py
+│       │   │   ├── docker_compose_lab_status.py
+│       │   │   ├── docker_compose_service.py
+│       │   │   └── __init__.py
+│       │   ├── filesystem/
+│       │   │   ├── filesystem_lab_repository.py
+│       │   │   ├── filesystem_lab_validator.py
+│       │   │   ├── __init__.py
+│       │   │   └── yaml_lab_manifest_loader.py
+│       │   ├── __init__.py
+│       │   ├── process/
+│       │   │   ├── command_runner.py
+│       │   │   └── __init__.py
+│       │   └── runner/
+│       │       └── noop_lab_runner.py
+│       ├── __init__.py
+│       ├── __main__.py
+│       ├── plugins/
+│       │   └── __init__.py
+│       └── shared/
+│           ├── __init__.py
+│           └── version.py
+├── tests/
+│   ├── fakes/
+│   │   ├── fake_command_runner.py
+│   │   ├── fake_docker_compose_service.py
+│   │   ├── fake_lab_manifest_loader.py
+│   │   ├── fake_lab_repository.py
+│   │   ├── fake_lab_runner.py
+│   │   ├── fake_lab_status.py
+│   │   └── fake_lab_validator.py
+│   ├── fixtures/
+│   ├── integration/
+│   └── unit/
+│       ├── application/
+│       │   └── use_cases/
+│       │       ├── test_get_lab_status_use_case.py
+│       │       ├── test_lab_run_use_case.py
+│       │       ├── test_lab_validation_use_case.py
+│       │       ├── test_stop_lab_use_case.py
+│       │       └── use_cases/
+│       │           ├── test_doctor.py
+│       │           ├── test_lab_info_use_case.py
+│       │           ├── test_list_labs_use_case.py
+│       │           └── test_version.py
+│       ├── cli/
+│       │   ├── test_app.py
+│       │   ├── test_doctor.py
+│       │   ├── test_lab.py
+│       │   └── test_version.py
+│       ├── domain/
+│       │   ├── models/
+│       │   │   ├── test_check_result.py
+│       │   │   ├── test_doctor_report.py
+│       │   │   ├── test_lab_execution_report.py
+│       │   │   ├── test_lab_execution_result.py
+│       │   │   ├── test_lab_manifest.py
+│       │   │   ├── test_lab.py
+│       │   │   └── test_lab_validation_report.py
+│       │   └── test_laboratory_status.py
+│       ├── fakes/
+│       │   ├── test_fake_command_runner.py
+│       │   ├── test_fake_lab_manifest_loader.py
+│       │   ├── test_fake_lab_runner.py
+│       │   └── test_fake_lab_validator.py
+│       ├── infrastructure/
+│       │   ├── docker/
+│       │   │   ├── test_docker_compose_lab_runner.py
+│       │   │   ├── test_docker_compose_lab_status.py
+│       │   │   └── test_docker_compose_service.py
+│       │   ├── filesystem/
+│       │   │   └── test_filesystem_lab_validator.py
+│       │   ├── process/
+│       │   │   ├── filesystem/
+│       │   │   │   ├── test_filesystem_lab_repository.py
+│       │   │   │   └── test_yaml_lab_manifest_loader.py
+│       │   │   ├── test_command_runner.py
+│       │   │   └── test_process_result.py
+│       │   └── runner/
+│       │       └── test_noop_lab_runner.py
+│       └── shared/
+└── uv.lock
+
+56 directories, 137 files

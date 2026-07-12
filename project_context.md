@@ -6,7 +6,7 @@
 
 # Project Overview
 
-CyberLab is an open-source framework for building, executing and distributing reproducible cybersecurity laboratories.
+CyberLab is an open-source framework for building, executing, learning and distributing reproducible cybersecurity laboratories.
 
 The project combines:
 
@@ -16,9 +16,9 @@ The project combines:
 - Protocol-Oriented Design
 - Dependency Injection
 
-The primary objective is to provide a highly maintainable platform where new laboratory capabilities can be added with minimal coupling and maximum testability.
+The primary objective is to provide a highly maintainable platform where new laboratory capabilities can be added with minimal coupling, maximum testability and long-term architectural stability.
 
-CyberLab is designed as a long-term platform rather than a Docker-specific tool.
+CyberLab is designed as a long-term extensible platform rather than a Docker-specific tool.
 
 ---
 
@@ -27,7 +27,7 @@ CyberLab is designed as a long-term platform rather than a Docker-specific tool.
 Current milestone:
 
 ```text
-Laboratory Lifecycle
+Core Laboratory Platform
 ```
 
 Implemented capabilities:
@@ -37,12 +37,15 @@ Implemented capabilities:
 - Laboratory validation
 - Laboratory execution
 - Laboratory stop
+- Laboratory status
 - Environment diagnostics
 - Version management
 
 The project architecture is considered stable.
 
-Future work is expected to extend existing capabilities rather than redesign core architecture.
+Recent development has confirmed that new capabilities can be introduced by extending the existing architecture rather than modifying established layers.
+
+Future work is expected to expand the platform incrementally while preserving architectural consistency.
 
 ---
 
@@ -85,6 +88,23 @@ Architecture is considered a first-class concern.
 
 ---
 
+# Design Philosophy
+
+CyberLab favors simplicity over premature abstraction.
+
+Whenever possible:
+
+- prefer extension over modification;
+- prefer explicit code over hidden magic;
+- prefer small duplication over unnecessary abstraction;
+- prefer Protocols over inheritance;
+- prefer Fakes over mocks;
+- keep commits small and independently releasable.
+
+Architectural consistency is valued more than implementation cleverness.
+
+---
+
 # Composition Root
 
 Dependency creation is centralized inside the Composition Root.
@@ -110,6 +130,7 @@ Infrastructure components include:
 
 - DockerComposeService
 - DockerComposeLabRunner
+- DockerComposeLabStatus
 - CommandRunner
 - Filesystem repositories
 - YAML manifest loader
@@ -130,14 +151,14 @@ Current lifecycle operations:
 ```text
 Run
 
+Status
+
 Stop
 ```
 
 Planned operations:
 
 ```text
-Status
-
 Restart
 
 Logs
@@ -309,29 +330,63 @@ Architecture documents remain timeless whenever possible.
 
 ---
 
-# Current Project Structure
+# Project Structure (Permanent)
+
+CyberLab follows a stable directory organization based on Clean Architecture and
+Hexagonal Architecture. New capabilities should integrate into this structure
+instead of introducing new top-level modules.
 
 ```text
 src/
 └── cyberlab/
     ├── application/
+    │   ├── interfaces/
+    │   └── use_cases/
+    │
     ├── cli/
+    │   ├── app.py
+    │   ├── commands/
+    │   │   ├── registry.py
+    │   │   └── lab/
+    │   │       ├── registry.py
+    │   │       ├── list.py
+    │   │       ├── info.py
+    │   │       ├── validate.py
+    │   │       ├── run.py
+    │   │       ├── stop.py
+    │   │       └── status.py
+    │   │
+    │   └── rendering/
+    │
     ├── domain/
+    │   ├── models/
+    │   └── value_objects/
+    │
     ├── infrastructure/
+    │   ├── docker/
+    │   ├── filesystem/
+    │   ├── process/
+    │   └── runner/
+    │
     └── shared/
 
 docs/
 ├── adr/
 ├── architecture/
-└── roadmap.md
+├── reviews/
+└── roadmap/
 
 labs/
-└── xss-basic/
 
 tests/
-├── unit/
-└── fakes/
+├── fakes/
+├── integration/
+└── unit/
 ```
+
+The directory organization is considered stable and should evolve incrementally.
+Individual files may change over time, but the architectural organization should
+remain consistent.
 
 ---
 
@@ -349,6 +404,8 @@ Current lifecycle:
 cyberlab lab run xss-basic
 
 cyberlab lab stop xss-basic
+
+cyberlab lab status xss-basic
 ```
 
 This laboratory serves as the reference implementation for future laboratories.
@@ -359,11 +416,11 @@ This laboratory serves as the reference implementation for future laboratories.
 
 Current priorities:
 
-1. Laboratory Status
-2. Laboratory Restart
-3. Laboratory Logs
-4. Additional laboratory templates
-5. New execution adapters
+1. Laboratory Restart
+2. Laboratory Logs
+3. Additional laboratory templates
+4. New execution adapters
+5. Plugin architecture
 
 The architecture is prepared for these capabilities.
 
