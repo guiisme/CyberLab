@@ -467,3 +467,18 @@ To continue CyberLab development in a new conversation:
 - Retrospective
 
 Implementation should only begin after the planning stages have been completed.
+
+---
+# Architecture Status
+
+Current architectural capabilities:
+
+- Laboratory Discovery
+- Laboratory Validation
+- Laboratory Lifecycle
+- Environment Diagnostics
+
+The architecture is considered stable.
+
+Future development should evolve these capabilities before introducing new
+architectural abstractions.
