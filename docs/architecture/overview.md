@@ -251,9 +251,6 @@ Current lifecycle operations include:
 - Stop laboratory
 - Status laboratory
 - Restart laboratory
-
-Planned lifecycle operations include:
-
 - Laboratory logs
 
 The lifecycle abstraction allows different execution backends to provide the

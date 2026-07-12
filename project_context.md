@@ -40,6 +40,7 @@ Implemented capabilities:
     - Stop
     - Status
     - Restart
+    - Logs
 - Environment diagnostics
 - Version management
 
@@ -411,6 +412,8 @@ cyberlab lab restart xss-basic
 cyberlab lab stop xss-basic
 
 cyberlab lab status xss-basic
+
+cyberlab lab logs xss-basic
 ```
 
 This laboratory serves as the reference implementation for future laboratories.
@@ -421,10 +424,9 @@ This laboratory serves as the reference implementation for future laboratories.
 
 Current priorities:
 
-1. Laboratory Logs
-2. Additional laboratory templates
-3. New execution adapters
-4. Plugin architecture
+1. Additional laboratory templates
+2. New execution adapters
+3. Plugin architecture
 
 The architecture is prepared for these capabilities.
 

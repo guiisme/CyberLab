@@ -1,0 +1,94 @@
+# ADR 0010 — Domain Return Models
+
+## Status
+
+Accepted
+
+## Context
+
+CyberLab models application capabilities around domain concepts rather than
+implementation details.
+
+Initially, every laboratory lifecycle operation returned a
+`LabExecutionReport`, including the newly introduced `logs` capability.
+
+During the implementation of the Laboratory Logs capability (PR #013), it
+became clear that this approach incorrectly modeled the domain.
+
+Execution-oriented capabilities (such as `run`, `stop` and `restart`) represent
+commands whose primary result is the success or failure of an operation.
+
+Conversely, `logs` represents a query whose primary result is domain content,
+not execution status.
+
+Reusing `LabExecutionReport` for content retrieval would force unrelated
+concepts into the same model and hide the actual information requested by the
+user.
+
+## Decision
+
+Each application capability shall return the domain model that best represents
+its business semantics.
+
+Execution-oriented capabilities return execution reports.
+
+Query-oriented capabilities return dedicated domain models representing the
+requested information.
+
+Examples:
+
+| Capability | Return Model |
+|------------|--------------|
+| Run | `LabExecutionReport` |
+| Stop | `LabExecutionReport` |
+| Restart | `LabExecutionReport` |
+| Status | `LaboratoryStatus` |
+| Logs | `LabLogs` |
+
+Infrastructure adapters remain responsible for translating infrastructure
+results into domain models.
+
+The Application layer depends exclusively on domain models and protocol
+contracts.
+
+## Consequences
+
+### Positive
+
+- Improves domain expressiveness.
+- Prevents unrelated capabilities from sharing inappropriate models.
+- Keeps Application independent from infrastructure details.
+- Encourages explicit domain modeling.
+- Simplifies future capabilities such as:
+  - Laboratory Events
+  - Laboratory Metrics
+  - Laboratory Inspection
+  - Laboratory Configuration
+
+### Negative
+
+- Introduces additional domain models as new capabilities are added.
+
+This additional modeling effort is considered acceptable because it preserves
+architectural clarity and avoids overloading existing abstractions.
+
+## Alternatives Considered
+
+### Reuse `LabExecutionReport`
+
+Rejected.
+
+Although simpler initially, it mixes command execution semantics with content
+retrieval and forces unrelated capabilities into the same abstraction.
+
+### Return infrastructure models
+
+Rejected.
+
+Returning infrastructure-specific objects would violate Clean Architecture by
+leaking infrastructure concerns into the Application layer.
+
+## Related ADRs
+
+- ADR 0001 — Project Conventions
+- ADR 0006 — Validation Architecture

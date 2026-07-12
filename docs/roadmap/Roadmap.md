@@ -53,10 +53,10 @@ details.
 
 ### Logs
 
-- [ ] Show laboratory logs
-- [ ] Follow logs (`--follow`)
-- [ ] Tail logs (`--tail`)
-- [ ] Service filtering
+- [x] Show laboratory logs
+- [x] Follow logs (`--follow`)
+- [x] Tail logs (`--tail`)
+- [x] Service filtering
 
 ---
 
