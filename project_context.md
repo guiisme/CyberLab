@@ -1,6 +1,6 @@
 # CyberLab — Project Context
 
-*Last updated: July 2026*
+Last updated: July 2026 (PR #012)
 
 ---
 
@@ -35,9 +35,11 @@ Implemented capabilities:
 - Laboratory discovery
 - Laboratory information
 - Laboratory validation
-- Laboratory execution
-- Laboratory stop
-- Laboratory status
+- Laboratory lifecycle
+    - Run
+    - Stop
+    - Status
+    - Restart
 - Environment diagnostics
 - Version management
 
@@ -83,9 +85,10 @@ The project follows these architectural principles:
 - Explicit Dependency Injection
 - Small Use Cases
 - Replaceable Infrastructure
+- Capability Consolidation
 
 Architecture is considered a first-class concern.
-
+Model capabilities around domain concepts rather than individual operations.
 ---
 
 # Design Philosophy
@@ -129,8 +132,7 @@ Current execution backend:
 Infrastructure components include:
 
 - DockerComposeService
-- DockerComposeLabRunner
-- DockerComposeLabStatus
+- DockerComposeLabLifecycle
 - CommandRunner
 - Filesystem repositories
 - YAML manifest loader
@@ -153,13 +155,12 @@ Run
 
 Status
 
+Restart
+
 Stop
 ```
 
 Planned operations:
-
-```text
-Restart
 
 Logs
 ```
@@ -308,6 +309,7 @@ The project follows these conventions.
 - Business rules independent from infrastructure.
 - Explicit dependency injection.
 - Protocols define architectural contracts.
+- Group related operations around a single domain capability whenever they belong to the same lifecycle or business concept.
 
 ---
 
@@ -354,6 +356,7 @@ src/
     │   │       ├── validate.py
     │   │       ├── run.py
     │   │       ├── stop.py
+    |   |       ├── restart.py
     │   │       └── status.py
     │   │
     │   └── rendering/
@@ -403,6 +406,8 @@ Current lifecycle:
 ```bash
 cyberlab lab run xss-basic
 
+cyberlab lab restart xss-basic
+
 cyberlab lab stop xss-basic
 
 cyberlab lab status xss-basic
@@ -416,11 +421,10 @@ This laboratory serves as the reference implementation for future laboratories.
 
 Current priorities:
 
-1. Laboratory Restart
-2. Laboratory Logs
-3. Additional laboratory templates
-4. New execution adapters
-5. Plugin architecture
+1. Laboratory Logs
+2. Additional laboratory templates
+3. New execution adapters
+4. Plugin architecture
 
 The architecture is prepared for these capabilities.
 
@@ -449,6 +453,7 @@ To continue CyberLab development in a new conversation:
 
 3. Follow the official development workflow:
 
+- Capability Review
 - Architecture Brief
 - Architecture Review
 - Impact Analysis

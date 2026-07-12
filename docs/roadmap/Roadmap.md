@@ -1,211 +1,143 @@
 # CyberLab Roadmap
 
-This roadmap describes the planned evolution of CyberLab.
-
-The roadmap is organized by capabilities rather than implementation details.
-
-Completed milestones represent architectural foundations. Future milestones focus on expanding laboratory functionality while preserving the existing architecture.
+*Last updated: July 2026 (PR #012)*
 
 ---
 
-# Completed
+# Vision
 
-## PR #001 — Project Bootstrap
+CyberLab aims to become a reference implementation for reproducible cybersecurity
+laboratories built on Clean Architecture, Hexagonal Architecture and
+Protocol-Oriented Design.
 
-* Initial project structure
-* Development tooling
-* Code quality pipeline
-* Testing infrastructure
-
----
-
-## PR #002 — Version Command
-
-* Version provider
-* CLI version command
+The roadmap is organized by architectural capabilities rather than implementation
+details.
 
 ---
 
-## PR #003 — Environment Doctor
+# Current Milestone
 
-* Environment verification
-* Dependency checks
+## Core Laboratory Platform
 
----
+### Discovery
 
-## PR #004 — Laboratory Discovery
+- [x] Laboratory discovery
+- [x] Laboratory metadata
+- [x] Laboratory information
 
-* Filesystem repository
-* Laboratory discovery
-* CLI laboratory listing
+### Validation
 
----
+- [x] Laboratory validation
 
-## PR #005 — Laboratory Metadata
+### Lifecycle
 
-* YAML laboratory manifests
-* Laboratory information
-* Metadata model
+- [x] Run
+- [x] Stop
+- [x] Status
+- [x] Restart
 
----
+### Environment
 
-## PR #006 — Laboratory Validation
+- [x] Environment doctor
 
-* Laboratory validation
-* Validation reports
-* Validation renderer
+### CLI
 
----
-
-## PR #007 — Laboratory Runner Abstraction
-
-* LabLifeCycleProtocol
-* Execution reports
-* Infrastructure abstraction
-
----
-
-## PR #008 — CLI Modularization
-
-* Improved CLI organization
-* Better command separation
-* Cleaner Composition Root
-
----
-
-## PR #009 — Docker Compose Runner
-
-* DockerComposeService
-* DockerComposeLabRunner
-* Docker Compose execution
-* First executable laboratory
+- [x] Version command
+- [x] Rich terminal output
 
 ---
 
 # Next Milestone
 
-## PR #010 — Laboratory Lifecycle
+## Laboratory Observability
 
-Goals:
+### Logs
 
-* `lab stop`
-* `lab status`
-* `lab logs`
-
-Infrastructure additions:
-
-* Docker Compose down
-* Docker Compose ps
-* Docker Compose logs
-
-No changes should be required in the Application layer.
+- [ ] Show laboratory logs
+- [ ] Follow logs (`--follow`)
+- [ ] Tail logs (`--tail`)
+- [ ] Service filtering
 
 ---
 
-# Short-Term Roadmap
+# Future Milestones
 
-## Laboratory Lifecycle
+## Laboratory Templates
 
-* Stop laboratories
-* Restart laboratories
-* Destroy laboratories
-* Laboratory status
-* Container logs
-
----
-
-## CLI Improvements
-
-* Better progress reporting
-* Rich terminal output
-* Colored execution summaries
-* Interactive confirmations
-
----
-
-## Laboratory Development
-
-* Complete XSS laboratory
-* SQL Injection laboratory
-* SSRF laboratory
-* Command Injection laboratory
-* File Upload laboratory
-
-Each laboratory should remain self-contained.
-
----
-
-# Medium-Term Roadmap
-
-## Laboratory Platform
-
-* Multiple containers per laboratory
-* Shared laboratory components
-* Network isolation
-* Persistent laboratory volumes
+- [ ] Web applications
+- [ ] API laboratories
+- [ ] Authentication laboratories
+- [ ] Cloud laboratories
+- [ ] Container security laboratories
 
 ---
 
 ## Execution Backends
 
-Introduce additional infrastructure implementations:
+Current backend:
 
-* Podman
-* Kubernetes
-* Remote execution
+- [x] Docker Compose
 
-The Application layer should remain unchanged.
+Future adapters:
 
----
-
-## Validation Improvements
-
-* Compose validation
-* Port conflict detection
-* Resource validation
-* Laboratory dependency validation
+- [ ] Podman
+- [ ] Kubernetes
+- [ ] Remote execution
+- [ ] Cloud-native execution
 
 ---
 
-# Long-Term Roadmap
+## Plugin Architecture
 
-## Laboratory Marketplace
-
-* Community laboratories
-* Laboratory templates
-* Versioned laboratory catalog
-* Digital signatures
+- [ ] Plugin discovery
+- [ ] External laboratory packages
+- [ ] Third-party execution adapters
+- [ ] Capability extensions
 
 ---
 
-## Automation
+## Documentation
 
-* CI laboratory validation
-* Automatic environment provisioning
-* Automated cleanup
-* Scheduled execution
-
----
-
-## Educational Features
-
-* Guided laboratory walkthroughs
-* Integrated hints
-* Learning objectives
-* Progress tracking
+- [ ] User Guide
+- [ ] Laboratory Author Guide
+- [ ] Plugin Development Guide
+- [ ] Architecture Handbook
 
 ---
 
-# Architectural Direction
+# Long-Term Goals
 
-Future development should preserve the following principles:
+- Stable architecture
+- Reproducible laboratories
+- Educational platform
+- Extensible execution model
+- Excellent developer experience
 
-* Clean Architecture
-* Hexagonal Architecture
-* Protocol-Oriented Design
-* Constructor Dependency Injection
-* Test-Driven Development
+---
 
-New capabilities should be implemented by extending Infrastructure whenever possible while keeping the Application and Domain layers stable.
+# Architectural Evolution
 
-The existing architectural boundaries are expected to remain valid as the project grows.
+The project evolves by extending existing architectural capabilities instead of
+creating isolated implementations.
+
+Current architectural capabilities include:
+
+- Laboratory Discovery
+- Laboratory Validation
+- Laboratory Lifecycle
+- Environment Diagnostics
+
+Future capabilities are expected to follow the same architectural principles.
+
+---
+
+# Development Principles
+
+Every roadmap item should:
+
+- preserve Clean Architecture;
+- preserve Hexagonal Architecture;
+- follow Protocol-Oriented Design;
+- keep infrastructure replaceable;
+- remain independently testable;
+- evolve through small Pull Requests.

@@ -2,7 +2,8 @@
 
 ## Purpose
 
-CyberLab is an open-source framework for building and executing reproducible cybersecurity laboratories.
+CyberLab is an open-source framework for building, executing, learning and
+distributing reproducible cybersecurity laboratories.
 
 The project is designed around the principles of:
 
@@ -12,9 +13,13 @@ The project is designed around the principles of:
 - Protocol-Oriented Design
 - Dependency Injection
 
-The primary objective is to keep business rules independent from infrastructure and presentation concerns, allowing the framework to evolve with minimal coupling, high testability and clear separation of responsibilities.
+The primary objective is to keep business rules independent from
+infrastructure and presentation concerns, allowing the framework to evolve
+with minimal coupling, high testability and clear separation of
+responsibilities.
 
-This document provides a high-level overview of the project's architecture and the responsibilities of each layer.
+This document provides a high-level overview of the project's architecture and
+the responsibilities of each layer.
 
 ---
 
@@ -52,49 +57,52 @@ Its responsibilities are intentionally minimal.
 It is responsible for:
 
 - parsing user input;
-- invoking Application Use Cases;
+- invoking Application use cases;
 - formatting terminal output.
 
-The CLI never contains business rules and never communicates directly with infrastructure components.
+The CLI never contains business rules and never communicates directly with
+infrastructure components.
 
 ---
 
 ## Application
 
-The Application layer orchestrates use cases.
+The Application layer orchestrates business capabilities.
 
 Its responsibilities include:
 
-- coordinating business workflows;
+- coordinating workflows;
 - invoking Protocols;
-- exposing the system capabilities.
+- exposing application capabilities.
 
-Application services do not know how operations are implemented.
+Application services never know how operations are implemented.
 
 Examples include:
 
-- Run Laboratory
-- Stop Laboratory
-- Validate Laboratory
-- Display Laboratory Information
+- Laboratory Discovery
+- Laboratory Validation
+- Laboratory Lifecycle
+- Environment Diagnostics
 
 ---
 
 ## Protocols
 
-Protocols define the contracts between the Application layer and Infrastructure.
+Protocols define the contracts between the Application layer and
+Infrastructure.
 
-They represent ports in the Hexagonal Architecture.
+They represent Ports in the Hexagonal Architecture.
 
 Examples include:
 
-- LabLifeCycleProtocol
+- LabLifecycleProtocol
 - LabRepositoryProtocol
 - LabManifestLoaderProtocol
 - LabValidatorProtocol
 - CommandRunnerProtocol
 
-Protocols make infrastructure replaceable without affecting business workflows.
+Protocols make infrastructure replaceable without affecting business
+workflows.
 
 ---
 
@@ -106,7 +114,8 @@ This layer contains all platform-specific code.
 
 Examples include:
 
-- Docker Compose execution
+- DockerComposeLabLifecycle
+- DockerComposeService
 - Filesystem repositories
 - YAML manifest loading
 - Command execution
@@ -116,34 +125,54 @@ Infrastructure never contains orchestration logic.
 
 ---
 
+# Architectural Capabilities
+
+CyberLab organizes related operations around architectural capabilities rather
+than individual commands.
+
+Current architectural capabilities include:
+
+- Laboratory Discovery
+- Laboratory Validation
+- Laboratory Lifecycle
+- Environment Diagnostics
+
+Each capability owns its own protocols, infrastructure adapters and business
+workflow while remaining independent from the others.
+
+This approach favors cohesive domain concepts over isolated command-oriented
+implementations.
+
+---
+
 # Capability Flow
 
-A system capability traverses the architecture through each layer.
+Every capability traverses the architecture through the same layers.
 
-For example, stopping a laboratory follows this flow:
+For example, restarting a laboratory follows this flow:
 
 ```text
 CLI
 
-lab stop
+lab restart
 
         │
 
         ▼
 
-LabStopUseCase
+RestartLabUseCase
 
         │
 
         ▼
 
-LabLifeCycleProtocol
+LabLifecycleProtocol
 
         │
 
         ▼
 
-DockerComposeLabRunner
+DockerComposeLabLifecycle
 
         │
 
@@ -155,10 +184,11 @@ DockerComposeService
 
         ▼
 
-docker compose down
+docker compose restart
 ```
 
-Each layer performs a single responsibility while remaining independent from implementation details belonging to other layers.
+Each layer performs a single responsibility while remaining independent from
+implementation details belonging to other layers.
 
 ---
 
@@ -206,26 +236,28 @@ The Composition Root is responsible for:
 - wiring protocol implementations;
 - injecting dependencies into the CLI.
 
-This approach ensures that dependency wiring remains isolated from business logic.
+This approach ensures that dependency wiring remains isolated from business
+logic.
 
 ---
 
 # Laboratory Lifecycle
 
-CyberLab models laboratory execution as a lifecycle.
+CyberLab models laboratory execution as a lifecycle capability.
 
 Current lifecycle operations include:
 
 - Run laboratory
 - Stop laboratory
+- Status laboratory
+- Restart laboratory
 
-Future lifecycle operations may include:
+Planned lifecycle operations include:
 
-- Status
-- Restart
-- Logs
+- Laboratory logs
 
-The lifecycle abstraction allows different execution backends to provide the same behavior through a common protocol.
+The lifecycle abstraction allows different execution backends to provide the
+same behavior through a common protocol.
 
 ---
 
@@ -236,16 +268,16 @@ CyberLab follows the Ports and Adapters pattern.
 ```text
                     Application
 
-          +---------------------------+
-          |        Use Cases          |
-          +-------------+-------------+
-                        |
+          +-----------------------------+
+          |      Business Capabilities  |
+          +--------------+--------------+
+                         |
                  Protocols (Ports)
-                        |
-        +---------------+---------------+
-        |                               |
- Docker Compose                 Future Adapters
- Infrastructure                  (Podman, Kubernetes,
+                         |
+        +----------------+----------------+
+        |                                 |
+DockerComposeLabLifecycle        Future Adapters
+                                 (Podman, Kubernetes,
                                  Remote Runner, ...)
 ```
 
@@ -253,7 +285,8 @@ Application depends only on Protocols.
 
 Adapters implement those Protocols.
 
-New execution technologies can be introduced without changing business workflows.
+New execution technologies can be introduced without changing business
+workflows.
 
 ---
 
@@ -293,7 +326,8 @@ The architecture follows these principles:
 - Dependency Inversion Principle
 - Explicit dependency injection
 - Protocol-oriented interfaces
-- Small and focused Use Cases
+- Capability-oriented architecture
+- Small and focused use cases
 - Replaceable infrastructure
 - Testability by design
 
@@ -303,7 +337,8 @@ These principles guide every architectural decision in the project.
 
 # Long-Term Vision
 
-CyberLab is designed as an extensible platform rather than a Docker-specific tool.
+CyberLab is designed as an extensible platform rather than a Docker-specific
+tool.
 
 Future execution adapters may include:
 
@@ -312,6 +347,11 @@ Future execution adapters may include:
 - Remote execution environments
 - Cloud-native laboratory orchestration
 
-Because the Application layer depends only on Protocols, these capabilities can be introduced without changing existing business workflows.
+Because the Application layer depends only on Protocols, these capabilities can
+be introduced without changing existing business workflows.
 
-This architecture allows CyberLab to evolve while preserving stability, maintainability and testability.
+As new features are introduced, CyberLab evolves existing architectural
+capabilities whenever possible instead of creating isolated abstractions.
+
+This approach keeps the architecture cohesive, reduces unnecessary complexity
+and allows the framework to grow without architectural redesign.
