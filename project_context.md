@@ -6,39 +6,306 @@
 
 # Project Overview
 
-CyberLab is an open-source framework for building, validating and executing reproducible cybersecurity laboratories.
+CyberLab is an open-source framework for building, executing and distributing reproducible cybersecurity laboratories.
 
-The project follows:
+The project combines:
 
-* Clean Architecture
-* Hexagonal Architecture
-* Test-Driven Development (TDD)
-* Protocol-Oriented Design
-* Constructor Dependency Injection
+- Clean Architecture
+- Hexagonal Architecture
+- Test-Driven Development (TDD)
+- Protocol-Oriented Design
+- Dependency Injection
 
-The primary objective is to isolate business rules from infrastructure, allowing execution technologies to evolve without impacting the Application or Domain layers.
+The primary objective is to provide a highly maintainable platform where new laboratory capabilities can be added with minimal coupling and maximum testability.
+
+CyberLab is designed as a long-term platform rather than a Docker-specific tool.
 
 ---
 
-# Current Architecture
+# Current Development Status
+
+Current milestone:
+
+```text
+Laboratory Lifecycle
+```
+
+Implemented capabilities:
+
+- Laboratory discovery
+- Laboratory information
+- Laboratory validation
+- Laboratory execution
+- Laboratory stop
+- Environment diagnostics
+- Version management
+
+The project architecture is considered stable.
+
+Future work is expected to extend existing capabilities rather than redesign core architecture.
+
+---
+
+# Architectural Layers
 
 ```text
 CLI
- │
- ▼
-Application (Use Cases)
- │
- ▼
+
+↓
+
+Application
+
+↓
+
 Protocols
- ▲
- │
+
+↓
+
 Infrastructure
- │
- ▼
-External Systems
 ```
 
-All dependencies point toward the Application layer.
+Dependencies always point downward.
+
+---
+
+# Architectural Principles
+
+The project follows these architectural principles:
+
+- Clean Architecture
+- Hexagonal Architecture
+- Dependency Inversion
+- Protocol-Oriented Design
+- Composition Root
+- Explicit Dependency Injection
+- Small Use Cases
+- Replaceable Infrastructure
+
+Architecture is considered a first-class concern.
+
+---
+
+# Composition Root
+
+Dependency creation is centralized inside the Composition Root.
+
+Responsibilities include:
+
+- infrastructure creation;
+- protocol wiring;
+- dependency injection;
+- CLI composition.
+
+Business logic never creates infrastructure objects directly.
+
+---
+
+# Current Infrastructure
+
+Current execution backend:
+
+- Docker Compose
+
+Infrastructure components include:
+
+- DockerComposeService
+- DockerComposeLabRunner
+- CommandRunner
+- Filesystem repositories
+- YAML manifest loader
+
+Future execution adapters may include:
+
+- Podman
+- Kubernetes
+- Remote execution
+- Cloud-native orchestration
+
+---
+
+# Laboratory Lifecycle
+
+Current lifecycle operations:
+
+```text
+Run
+
+Stop
+```
+
+Planned operations:
+
+```text
+Status
+
+Restart
+
+Logs
+```
+
+Lifecycle operations are exposed through Application Use Cases and implemented through Infrastructure adapters.
+
+---
+
+# Testing Strategy
+
+Testing mirrors the architecture.
+
+```text
+CLI
+
+↓
+
+Application
+
+↓
+
+Domain
+
+↓
+
+Infrastructure
+```
+
+Current testing principles:
+
+- TDD whenever practical
+- Fakes instead of mocks
+- One canonical Fake per Protocol
+- Deterministic unit tests
+- Fast feedback
+- Layer isolation
+
+Every architectural layer owns its own test suite.
+
+---
+
+# Development Workflow
+
+Every Pull Request follows the official workflow.
+
+```text
+Architecture Brief
+
+↓
+
+Architecture Review
+
+↓
+
+Impact Analysis
+
+↓
+
+Dependency Graph
+
+↓
+
+Contract Review
+
+↓
+
+Commit Plan
+
+↓
+
+Implementation
+
+↓
+
+Verification
+
+↓
+
+Sprint Review
+
+↓
+
+Retrospective
+```
+
+This workflow is considered part of the project's architecture.
+
+---
+
+# Quality Gates
+
+Every commit must successfully execute:
+
+```bash
+make format
+
+make verify
+```
+
+The verification pipeline includes:
+
+- Ruff
+- MyPy
+- Pytest
+
+No commit is considered complete before passing every quality gate.
+
+---
+
+# Commit Strategy
+
+Every Pull Request is divided into small architectural increments.
+
+General evolution order:
+
+```text
+Infrastructure
+
+↓
+
+Application
+
+↓
+
+CLI
+
+↓
+
+Documentation
+```
+
+Each commit introduces a single architectural responsibility.
+
+Every commit should leave the repository in a releasable state.
+
+---
+
+# Project Conventions
+
+The project follows these conventions.
+
+## Architecture
+
+- One responsibility per layer.
+- One architectural concern per commit.
+- Business rules independent from infrastructure.
+- Explicit dependency injection.
+- Protocols define architectural contracts.
+
+---
+
+## Testing
+
+- One canonical Fake per Protocol.
+- Test behavior rather than implementation.
+- Infrastructure tested independently.
+- CLI tested independently.
+
+---
+
+## Documentation
+
+Documentation evolves together with implementation.
+
+Documentation explains decisions rather than code.
+
+Architecture documents remain timeless whenever possible.
 
 ---
 
@@ -48,292 +315,93 @@ All dependencies point toward the Application layer.
 src/
 └── cyberlab/
     ├── application/
-    │   ├── interfaces/
-    │   └── use_cases/
-    │
     ├── cli/
-    │   ├── app.py
-    │   ├── commands/
-    │   └── rendering/
-    │
     ├── domain/
-    │   └── models/
-    │
     ├── infrastructure/
-    │   ├── docker/
-    │   ├── filesystem/
-    │   ├── process/
-    │   └── runner/
-    │
     └── shared/
+
+docs/
+├── adr/
+├── architecture/
+└── roadmap.md
+
+labs/
+└── xss-basic/
+
+tests/
+├── unit/
+└── fakes/
 ```
-
----
-
-# Current Features
-
-Implemented:
-
-* version
-* doctor
-* laboratory discovery
-* laboratory metadata
-* laboratory validation
-* laboratory execution
-* Docker Compose integration
-
----
-
-# Laboratory Execution
-
-Laboratories are executed through Docker Compose.
-
-Execution flow:
-
-```text
-CLI
-
-↓
-
-LabRunUseCase
-
-↓
-
-LabRunnerProtocol
-
-↓
-
-DockerComposeLabRunner
-
-↓
-
-DockerComposeService
-
-↓
-
-CommandRunnerProtocol
-
-↓
-
-docker compose
-```
-
-Business rules remain completely independent from Docker.
-
----
-
-# Infrastructure Components
-
-Filesystem:
-
-* FilesystemLabRepository
-* FilesystemLabValidator
-* YamlLabManifestLoader
-
-Process:
-
-* CommandRunner
-
-Docker:
-
-* DockerComposeService
-* DockerComposeLabRunner
 
 ---
 
 # Current Laboratory
 
-```
-labs/
-└── xss-basic/
-    ├── lab.yaml
-    ├── compose.yaml
-    └── README.md
+Reference laboratory:
+
+```text
+labs/xss-basic
 ```
 
-The first executable laboratory is available through:
+Current lifecycle:
 
 ```bash
-uv run cyberlab lab run xss-basic
+cyberlab lab run xss-basic
+
+cyberlab lab stop xss-basic
 ```
+
+This laboratory serves as the reference implementation for future laboratories.
 
 ---
 
-# CLI Commands
+# Next Development Priorities
 
-Environment:
+Current priorities:
 
-```bash
-uv run cyberlab doctor
-```
+1. Laboratory Status
+2. Laboratory Restart
+3. Laboratory Logs
+4. Additional laboratory templates
+5. New execution adapters
 
-Version:
-
-```bash
-uv run cyberlab version
-```
-
-Discovery:
-
-```bash
-uv run cyberlab lab list
-```
-
-Metadata:
-
-```bash
-uv run cyberlab lab info xss-basic
-```
-
-Validation:
-
-```bash
-uv run cyberlab lab validate xss-basic
-```
-
-Execution:
-
-```bash
-uv run cyberlab lab run xss-basic
-```
+The architecture is prepared for these capabilities.
 
 ---
 
-# Testing Strategy
+# Long-Term Vision
 
-Project follows:
+CyberLab aims to become a reference implementation for:
 
-RED
+- cybersecurity laboratory automation;
+- Clean Architecture in Python;
+- Protocol-Oriented Design;
+- reproducible offensive security laboratories.
 
-↓
+The long-term objective is to evolve the platform without requiring architectural redesign.
 
-GREEN
+Every new capability should integrate naturally into the existing architecture while preserving simplicity, maintainability and testability.
 
-↓
+# Starting a New Development Session
 
-REFACTOR
+To continue CyberLab development in a new conversation:
 
-Testing pyramid:
+1. Share this document (`project_context.md`).
 
-* Unit Tests
-* Integration Tests
-* Acceptance Tests
+2. Describe the objective of the next Pull Request.
 
-Fakes are preferred over mocks.
+3. Follow the official development workflow:
 
----
+- Architecture Brief
+- Architecture Review
+- Impact Analysis
+- Dependency Graph
+- Contract Review
+- Commit Plan
+- Implementation
+- Verification
+- Quality Audit
+- Sprint Review
+- Retrospective
 
-# Architectural Rules
-
-The project follows several mandatory rules.
-
-## Application
-
-Application never imports Infrastructure.
-
-## Domain
-
-Domain never depends on any external technology.
-
-## Infrastructure
-
-Infrastructure implements Protocols defined by the Application layer.
-
-## CLI
-
-CLI contains no business logic.
-
-## Composition Root
-
-Infrastructure implementations are created only inside:
-
-```
-cyberlab.cli.app.create_app()
-```
-
----
-
-# Current Protocols
-
-* CommandRunnerProtocol
-* LabRepositoryProtocol
-* LabManifestLoaderProtocol
-* LabValidatorProtocol
-* LabRunnerProtocol
-
----
-
-# Current Pull Requests
-
-Completed
-
-* PR #001 — Project Bootstrap
-* PR #002 — Version Command
-* PR #003 — Environment Doctor
-* PR #004 — Laboratory Discovery
-* PR #005 — Laboratory Metadata
-* PR #006 — Laboratory Validation
-* PR #007 — Laboratory Runner Abstraction
-* PR #008 — CLI Modularization
-* PR #009 — Docker Compose Runner
-
----
-
-# Development Workflow
-
-Every feature follows:
-
-1. Design Review
-2. RED
-3. GREEN
-4. REFACTOR
-5. Documentation Update
-6. Pull Request
-
-Each commit should remain small, reviewable and independently testable.
-
----
-
-# Next Planned Pull Request
-
-## PR #010 — Laboratory Lifecycle
-
-Initial scope:
-
-* `lab stop`
-* `lab status`
-* `lab logs`
-
-Future evolution:
-
-* restart
-* shell
-* destroy
-
-The existing `DockerComposeService` should be extended to support:
-
-* `down`
-* `ps`
-* `logs`
-
-without modifying the Application layer.
-
----
-
-# Long-Term Roadmap
-
-Future execution backends:
-
-* Podman
-* Kubernetes
-* Remote Runner
-
-Future laboratory capabilities:
-
-* Multi-container laboratories
-* Environment snapshots
-* Automatic cleanup
-* Marketplace
-* Laboratory templates
-
-The current architecture was intentionally designed so these capabilities can be added by introducing new Infrastructure implementations while preserving the existing Application layer.
+Implementation should only begin after the planning stages have been completed.

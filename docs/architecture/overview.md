@@ -2,40 +2,42 @@
 
 ## Purpose
 
-CyberLab is designed around the principles of **Clean Architecture**, **Hexagonal Architecture**, and **Test-Driven Development (TDD)**.
+CyberLab is an open-source framework for building and executing reproducible cybersecurity laboratories.
 
-The primary objective is to build a framework capable of creating, validating and executing reproducible cybersecurity laboratories while keeping business rules independent from infrastructure.
+The project is designed around the principles of:
 
-The architecture emphasizes:
+- Clean Architecture
+- Hexagonal Architecture (Ports and Adapters)
+- Test-Driven Development (TDD)
+- Protocol-Oriented Design
+- Dependency Injection
 
-* clear separation of responsibilities;
-* dependency inversion;
-* infrastructure independence;
-* high testability;
-* incremental evolution through small, reviewable changes.
+The primary objective is to keep business rules independent from infrastructure and presentation concerns, allowing the framework to evolve with minimal coupling, high testability and clear separation of responsibilities.
+
+This document provides a high-level overview of the project's architecture and the responsibilities of each layer.
 
 ---
 
 # Architectural Layers
 
+CyberLab is organized into four primary architectural layers.
+
 ```text
                 CLI
                  │
                  ▼
-         Application Layer
-                 │
-        Interfaces (Protocols)
-                 ▲
-                 │
-      Infrastructure Layer
+          Application
                  │
                  ▼
-         External Systems
+             Protocols
+                 │
+                 ▼
+          Infrastructure
 ```
 
-Dependencies always point toward the Application layer.
+Dependencies always point downward.
 
-The Domain and Application layers never depend on Infrastructure.
+Lower layers never depend on higher layers.
 
 ---
 
@@ -43,209 +45,273 @@ The Domain and Application layers never depend on Infrastructure.
 
 ## CLI
 
-Responsible for:
+The CLI is the presentation layer.
 
-* parsing command-line arguments;
-* registering commands;
-* presenting results to users.
+Its responsibilities are intentionally minimal.
 
-The CLI contains no business rules.
+It is responsible for:
+
+- parsing user input;
+- invoking Application Use Cases;
+- formatting terminal output.
+
+The CLI never contains business rules and never communicates directly with infrastructure components.
 
 ---
 
 ## Application
 
-Responsible for:
+The Application layer orchestrates use cases.
 
-* use cases;
-* orchestration;
-* business workflows;
-* defining infrastructure contracts through Protocols.
+Its responsibilities include:
 
-The Application layer coordinates the execution of laboratories but never depends on Docker, the filesystem or external tools.
+- coordinating business workflows;
+- invoking Protocols;
+- exposing the system capabilities.
+
+Application services do not know how operations are implemented.
+
+Examples include:
+
+- Run Laboratory
+- Stop Laboratory
+- Validate Laboratory
+- Display Laboratory Information
 
 ---
 
-## Domain
+## Protocols
 
-Responsible for:
+Protocols define the contracts between the Application layer and Infrastructure.
 
-* business models;
-* immutable value objects;
-* execution reports;
-* validation results.
+They represent ports in the Hexagonal Architecture.
 
-Domain objects remain independent from any infrastructure concern.
+Examples include:
+
+- LabRunnerProtocol
+- LabRepositoryProtocol
+- LabManifestLoaderProtocol
+- LabValidatorProtocol
+- CommandRunnerProtocol
+
+Protocols make infrastructure replaceable without affecting business workflows.
 
 ---
 
 ## Infrastructure
 
-Responsible for implementing the interfaces defined by the Application layer.
+Infrastructure implements the Protocols.
+
+This layer contains all platform-specific code.
 
 Examples include:
 
-* filesystem repositories;
-* YAML manifest loading;
-* laboratory validation;
-* process execution;
-* Docker Compose integration.
+- Docker Compose execution
+- Filesystem repositories
+- YAML manifest loading
+- Command execution
+- Laboratory validation
 
-Infrastructure may change without affecting business rules.
+Infrastructure never contains orchestration logic.
 
 ---
 
-# Dependency Rule
+# Capability Flow
 
-The dependency flow is always:
+A system capability traverses the architecture through each layer.
+
+For example, stopping a laboratory follows this flow:
 
 ```text
 CLI
-    │
-    ▼
+
+lab stop
+
+        │
+
+        ▼
+
+LabStopUseCase
+
+        │
+
+        ▼
+
+LabRunnerProtocol
+
+        │
+
+        ▼
+
+DockerComposeLabRunner
+
+        │
+
+        ▼
+
+DockerComposeService
+
+        │
+
+        ▼
+
+docker compose down
+```
+
+Each layer performs a single responsibility while remaining independent from implementation details belonging to other layers.
+
+---
+
+# Dependency Direction
+
+Dependencies always follow the same direction.
+
+```text
+Presentation
+
+        │
+
+        ▼
+
 Application
-    │
-    ▼
+
+        │
+
+        ▼
+
 Protocols
-    ▲
-    │
+
+        │
+
+        ▼
+
 Infrastructure
 ```
 
-Infrastructure implements contracts defined by the Application layer.
+Infrastructure never depends on the CLI.
 
-Application never imports Infrastructure.
+Application never depends on Docker, filesystems or external technologies.
+
+Business workflows remain independent from implementation details.
 
 ---
 
 # Composition Root
 
-The Composition Root is responsible for wiring the application.
-
-Currently this responsibility belongs to:
-
-```text
-cyberlab.cli.app.create_app()
-```
-
-It creates concrete infrastructure implementations and injects them into the CLI.
-
-Business logic never creates infrastructure components directly.
-
----
-
-# Laboratory Execution
-
-Laboratory execution follows the flow below:
-
-```text
-CLI
-    │
-    ▼
-LabRunUseCase
-    │
-    ▼
-LabRunnerProtocol
-    │
-    ▼
-DockerComposeLabRunner
-    │
-    ▼
-DockerComposeService
-    │
-    ▼
-CommandRunnerProtocol
-    │
-    ▼
-docker compose
-```
-
-This flow demonstrates the separation between business rules and execution technology.
-
-Replacing Docker Compose with another execution backend should require changes only inside the Infrastructure layer.
-
----
-
-# Protocol-Oriented Design
-
-Communication between Application and Infrastructure occurs through Protocols.
-
-Examples include:
-
-* CommandRunnerProtocol
-* LabRepositoryProtocol
-* LabManifestLoaderProtocol
-* LabValidatorProtocol
-* LabRunnerProtocol
-
-Protocols belong to the Application layer because they express application requirements rather than infrastructure implementations.
-
----
-
-# Dependency Injection
-
-All infrastructure dependencies are injected through constructors.
-
-The project avoids service locators and global state.
-
 Object creation is centralized in the Composition Root.
+
+The Composition Root is responsible for:
+
+- creating infrastructure services;
+- wiring protocol implementations;
+- injecting dependencies into the CLI.
+
+This approach ensures that dependency wiring remains isolated from business logic.
+
+---
+
+# Laboratory Lifecycle
+
+CyberLab models laboratory execution as a lifecycle.
+
+Current lifecycle operations include:
+
+- Run laboratory
+- Stop laboratory
+
+Future lifecycle operations may include:
+
+- Status
+- Restart
+- Logs
+
+The lifecycle abstraction allows different execution backends to provide the same behavior through a common protocol.
+
+---
+
+# Hexagonal Architecture
+
+CyberLab follows the Ports and Adapters pattern.
+
+```text
+                    Application
+
+          +---------------------------+
+          |        Use Cases          |
+          +-------------+-------------+
+                        |
+                 Protocols (Ports)
+                        |
+        +---------------+---------------+
+        |                               |
+ Docker Compose                 Future Adapters
+ Infrastructure                  (Podman, Kubernetes,
+                                 Remote Runner, ...)
+```
+
+Application depends only on Protocols.
+
+Adapters implement those Protocols.
+
+New execution technologies can be introduced without changing business workflows.
 
 ---
 
 # Testing Strategy
 
-Testing follows the testing pyramid.
+Testing mirrors the architecture.
 
 ```text
-Acceptance Tests
+CLI Tests
 
-Integration Tests
+↓
 
-Unit Tests
+Application Tests
+
+↓
+
+Domain Tests
+
+↓
+
+Infrastructure Tests
 ```
 
-Whenever possible:
+Each layer is tested independently.
 
-* Fakes are preferred over mocks.
-* Business rules are tested independently from infrastructure.
-* Infrastructure is tested in isolation.
-* External systems are validated through acceptance tests.
+Protocols are tested using Fakes.
 
----
-
-# Laboratory Model
-
-Each laboratory is self-contained.
-
-```text
-labs/
-└── xss-basic/
-    ├── lab.yaml
-    ├── compose.yaml
-    └── README.md
-```
-
-Each laboratory owns:
-
-* its metadata;
-* its infrastructure;
-* its documentation;
-* its execution environment.
+Infrastructure components are tested through their concrete implementations.
 
 ---
 
 # Architectural Principles
 
-The project follows these principles:
+The architecture follows these principles:
 
-* Single Responsibility Principle
-* Dependency Inversion Principle
-* Explicit Composition Root
-* Constructor Dependency Injection
-* Protocol-Oriented Design
-* Infrastructure Isolation
-* Immutable Domain Models
-* Small, Incremental Pull Requests
-* Test-Driven Development
+- Single Responsibility Principle
+- Dependency Inversion Principle
+- Explicit dependency injection
+- Protocol-oriented interfaces
+- Small and focused Use Cases
+- Replaceable infrastructure
+- Testability by design
 
-These principles are intended to remain stable as the project evolves.
+These principles guide every architectural decision in the project.
+
+---
+
+# Long-Term Vision
+
+CyberLab is designed as an extensible platform rather than a Docker-specific tool.
+
+Future execution adapters may include:
+
+- Podman
+- Kubernetes
+- Remote execution environments
+- Cloud-native laboratory orchestration
+
+Because the Application layer depends only on Protocols, these capabilities can be introduced without changing existing business workflows.
+
+This architecture allows CyberLab to evolve while preserving stability, maintainability and testability.

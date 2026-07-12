@@ -2,247 +2,291 @@
 
 ## Purpose
 
-Testing is a fundamental architectural concern in CyberLab.
+Testing is a first-class architectural concern in CyberLab.
 
-The project follows **Test-Driven Development (TDD)** and treats automated tests as the primary mechanism for validating business behavior, protecting architectural boundaries and enabling safe refactoring.
+The project is designed to maximize confidence while keeping tests fast, deterministic and easy to understand.
 
-The goal is to ensure that every layer can evolve independently while preserving correctness.
+CyberLab follows Test-Driven Development (TDD) whenever practical.
+
+Tests are organized to validate observable behavior rather than implementation details.
 
 ---
 
-# Testing Philosophy
+# Testing Principles
 
-CyberLab follows these principles:
+The testing strategy is guided by the following principles:
 
-* Test behavior rather than implementation.
-* Keep tests deterministic.
-* Prefer Fakes over mocks.
-* Isolate infrastructure whenever possible.
-* Keep unit tests fast.
-* Build confidence through layered testing.
+- Test behavior instead of implementation.
+- Prefer Fakes over mocks.
+- Keep tests deterministic.
+- Test one responsibility at a time.
+- Isolate architectural layers.
+- Avoid infrastructure dependencies in unit tests.
+- Every feature should be introduced together with its tests.
 
-Tests should provide confidence without coupling themselves to implementation details.
+Testing is considered part of the implementation, not an afterthought.
 
 ---
 
 # Testing Pyramid
 
-```text id="l7d67r"
-                Acceptance Tests
-                       ▲
-                       │
-             Integration Tests
-                       ▲
-                       │
-                 Unit Tests
+CyberLab prioritizes fast feedback.
+
+```text
+            Manual Testing
+                  ▲
+                  │
+         Integration Tests
+                  ▲
+                  │
+            Unit Tests
 ```
 
-Each layer has a different responsibility.
+Most tests should be unit tests.
+
+Integration tests validate interactions between components.
+
+Manual testing is reserved for validating the complete user experience.
 
 ---
 
-# Unit Tests
+# Layer Isolation
 
-Unit tests validate a single component in isolation.
+Each architectural layer is tested independently.
 
-Examples include:
+```text
+CLI
 
-* Domain models
-* Value objects
-* Use cases
-* Infrastructure adapters
-* CLI command registration
+↓
 
-Unit tests should never require external systems.
+Application
 
-Dependencies must be replaced by Fakes whenever possible.
+↓
 
----
+Domain
 
-# Integration Tests
+↓
 
-Integration tests verify collaboration between multiple components.
-
-Typical examples include:
-
-* Filesystem repositories
-* YAML manifest loading
-* Docker Compose services
-* Process execution
-
-Integration tests may exercise real implementations while still avoiding unnecessary external dependencies.
-
----
-
-# Acceptance Tests
-
-Acceptance tests validate complete user workflows.
-
-Examples include:
-
-```bash id="u5uxdz"
-uv run cyberlab version
-
-uv run cyberlab doctor
-
-uv run cyberlab lab list
-
-uv run cyberlab lab info xss-basic
-
-uv run cyberlab lab validate xss-basic
-
-uv run cyberlab lab run xss-basic
+Infrastructure
 ```
 
-Acceptance tests verify that all architectural layers collaborate correctly.
+Every layer owns its own test suite.
+
+Changes in one layer should have minimal impact on the others.
 
 ---
 
-# Test Doubles
+# Domain Testing
 
-CyberLab primarily uses **Fakes**.
+The Domain layer contains pure business models.
 
-Typical examples include:
+Tests verify:
 
-* FakeCommandRunner
-* FakeLabRepository
-* FakeLabManifestLoader
-* FakeLabValidator
+- immutable models;
+- value objects;
+- validation rules;
+- domain behavior.
 
-Fakes provide predictable behavior while remaining close to production implementations.
-
-Mocks should be used only when interaction verification cannot be expressed naturally through a Fake.
+Domain tests never depend on infrastructure.
 
 ---
 
-# Testing Infrastructure
+# Application Testing
 
-Infrastructure components are tested independently from business rules.
+Application tests focus on Use Cases.
+
+Use Cases are tested through Protocols using Fakes.
 
 Example:
 
-```text id="vcpi88"
-DockerComposeService
-        │
-        ▼
-FakeCommandRunner
-```
-
-The service verifies:
-
-* command construction;
-* argument ordering;
-* propagation of ProcessResult.
-
-It does not test Docker itself.
-
----
-
-# Testing Use Cases
-
-Use cases are tested through their Protocols.
-
-```text id="s73q8s"
+```text
 LabRunUseCase
-        │
-        ▼
+
+↓
+
 FakeLabRunner
 ```
 
-The use case should remain completely unaware of infrastructure implementations.
+Application tests verify:
+
+- orchestration;
+- delegation;
+- returned results;
+- propagated errors.
+
+Application tests never execute Docker, filesystem operations or external commands.
 
 ---
 
-# Testing CLI
+# Protocol Testing
 
-CLI tests verify:
+Protocols define architectural contracts.
 
-* command registration;
-* command output;
-* integration with use cases.
+They are validated indirectly through their implementations and Fakes.
 
-The CLI should never contain business logic.
+Each Protocol has a canonical Fake implementation.
+
+Examples:
+
+- FakeLabRunner
+- FakeCommandRunner
+- FakeLabManifestLoader
+- FakeLabValidator
+
+Fakes simulate behavior while remaining deterministic and lightweight.
+
+---
+
+# Infrastructure Testing
+
+Infrastructure tests verify concrete implementations.
+
+Examples include:
+
+- DockerComposeService
+- DockerComposeLabRunner
+- Filesystem repositories
+- YAML manifest loading
+- Command execution
+
+Infrastructure tests validate:
+
+- command generation;
+- filesystem interaction;
+- adapter behavior;
+- protocol implementation.
+
+Infrastructure tests avoid depending on external services whenever possible.
+
+---
+
+# CLI Testing
+
+CLI tests validate the user interface.
+
+They verify:
+
+- command registration;
+- argument parsing;
+- terminal output;
+- integration with Use Cases.
+
+CLI tests never validate Docker commands directly.
+
+Those behaviors belong to the Infrastructure layer.
+
+---
+
+# Lifecycle Testing
+
+Laboratory lifecycle operations are tested independently.
+
+Current lifecycle operations include:
+
+- Run Laboratory
+- Stop Laboratory
+
+Each lifecycle operation is validated across the architecture:
+
+```text
+CLI
+
+↓
+
+Application
+
+↓
+
+Protocol
+
+↓
+
+Infrastructure
+```
+
+Each layer has dedicated tests for its own responsibility.
+
+---
+
+# Fake Objects
+
+CyberLab prefers Fakes over mocks.
+
+Fakes provide deterministic behavior while preserving architectural contracts.
+
+Each Protocol has a single canonical Fake implementation.
+
+Examples:
+
+```text
+LabRunnerProtocol
+
+↓
+
+FakeLabRunner
+
+CommandRunnerProtocol
+
+↓
+
+FakeCommandRunner
+```
+
+As Protocols evolve, their corresponding Fakes evolve together.
+
+This keeps the test suite consistent and minimizes duplication.
 
 ---
 
 # Test Organization
 
-```text id="n6fx0r"
+Tests mirror the project architecture.
+
+```text
 tests/
-├── acceptance/
-├── integration/
+
 ├── unit/
-└── fakes/
+│   ├── application/
+│   ├── cli/
+│   ├── domain/
+│   ├── infrastructure/
+│   └── fakes/
 ```
 
-Tests should mirror the production structure whenever practical.
+This structure makes it easy to locate tests related to each architectural layer.
 
 ---
 
-# Test Naming
+# Verification Pipeline
 
-Test names should describe observable behavior.
+Every commit must pass the complete verification pipeline.
 
-Prefer:
+```bash
+make format
 
-```text id="q55k9k"
-test_run_returns_success_report
-```
-
-instead of:
-
-```text id="vjlwmf"
-test_runner
-```
-
-Behavior-oriented names improve readability and documentation.
-
----
-
-# Running Tests
-
-Run the complete verification pipeline:
-
-```bash id="yhl79s"
 make verify
 ```
 
-Format the code:
+The verification pipeline includes:
 
-```bash id="jwl04d"
-make format
-```
+- Ruff
+- MyPy
+- Pytest
 
-Execute the full test suite:
-
-```bash id="0m0wlw"
-pytest
-```
-
-Individual test modules may also be executed directly during development.
+A commit is considered complete only when the entire pipeline succeeds.
 
 ---
 
-# Architectural Boundaries
+# Long-Term Strategy
 
-Tests should reinforce architectural rules.
+As CyberLab evolves, new capabilities should follow the same testing approach.
 
-Application tests must never depend directly on Infrastructure.
+Every new feature should introduce tests for:
 
-Infrastructure tests may depend on Application contracts but should not alter business behavior.
+- Infrastructure
+- Application
+- CLI
 
-The Composition Root should remain thin and contain no business logic.
+Documentation should evolve together with the implementation.
 
----
-
-# Continuous Evolution
-
-Whenever a new feature is introduced:
-
-1. Write the failing test (RED).
-2. Implement the minimum code required (GREEN).
-3. Refactor while keeping all tests passing (REFACTOR).
-
-This RED → GREEN → REFACTOR cycle is the standard development workflow throughout the project.
-
-Maintaining a fast, reliable and expressive test suite is considered an essential part of CyberLab's architecture rather than an afterthought.
+This strategy keeps the project maintainable while allowing new capabilities to be introduced with confidence.

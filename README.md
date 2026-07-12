@@ -139,6 +139,11 @@ Run a laboratory:
 uv run cyberlab lab run xss-basic
 ```
 
+Stop a laboratory
+
+```bash
+uv run cyberlab lab stop xss-basic
+
 ---
 
 # Running Laboratories
