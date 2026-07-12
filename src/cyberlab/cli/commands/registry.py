@@ -14,6 +14,9 @@ from cyberlab.application.interfaces.lab_repository_protocol import (
 from cyberlab.application.interfaces.lab_runner_protocol import (
     LabRunnerProtocol,
 )
+from cyberlab.application.interfaces.lab_status_protocol import (
+    LabStatusProtocol,
+)
 from cyberlab.application.interfaces.lab_validator_protocol import (
     LabValidatorProtocol,
 )
@@ -35,6 +38,7 @@ def register_commands(
     manifest_loader: LabManifestLoaderProtocol,
     validator: LabValidatorProtocol,
     lab_runner: LabRunnerProtocol,
+    lab_status: LabStatusProtocol,
 ) -> None:
     """Register all CLI commands."""
 
@@ -51,4 +55,5 @@ def register_commands(
         manifest_loader,
         validator,
         lab_runner,
+        lab_status,
     )
