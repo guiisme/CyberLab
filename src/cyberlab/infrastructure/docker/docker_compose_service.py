@@ -51,3 +51,19 @@ class DockerComposeService:
                 "down",
             ]
         )
+
+    def ps(
+        self,
+        compose_file: Path,
+    ) -> ProcessResult:
+        """Show the status of a Docker Compose environment."""
+
+        return self._command_runner.run(
+            [
+                "docker",
+                "compose",
+                "-f",
+                str(compose_file),
+                "ps",
+            ]
+        )
