@@ -67,3 +67,19 @@ class DockerComposeService:
                 "ps",
             ]
         )
+
+    def restart(
+        self,
+        compose_file: Path,
+    ) -> ProcessResult:
+        """Restart a Docker Compose environment."""
+
+        return self._command_runner.run(
+            [
+                "docker",
+                "compose",
+                "-f",
+                str(compose_file),
+                "restart",
+            ]
+        )

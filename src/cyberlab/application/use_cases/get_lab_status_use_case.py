@@ -1,7 +1,11 @@
-from cyberlab.application.interfaces.lab_status_protocol import (
-    LabStatusProtocol,
+from __future__ import annotations
+
+from cyberlab.application.interfaces.lab_lifecycle_protocol import (
+    LabRunnerProtocol,
 )
-from cyberlab.domain.models.laboratory_status import LaboratoryStatus
+from cyberlab.domain.models.lab_execution_report import (
+    LaboratoryStatus,
+)
 
 
 class GetLabStatusUseCase:
@@ -9,7 +13,7 @@ class GetLabStatusUseCase:
 
     def __init__(
         self,
-        status: LabStatusProtocol,
+        status: LabRunnerProtocol,
     ) -> None:
         self._status = status
 

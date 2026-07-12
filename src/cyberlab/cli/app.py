@@ -7,17 +7,14 @@ import typer
 from cyberlab.application.interfaces.command_runner_protocol import (
     CommandRunnerProtocol,
 )
+from cyberlab.application.interfaces.lab_lifecycle_protocol import (
+    LabRunnerProtocol,
+)
 from cyberlab.application.interfaces.lab_manifest_loader_protocol import (
     LabManifestLoaderProtocol,
 )
 from cyberlab.application.interfaces.lab_repository_protocol import (
     LabRepositoryProtocol,
-)
-from cyberlab.application.interfaces.lab_runner_protocol import (
-    LabRunnerProtocol,
-)
-from cyberlab.application.interfaces.lab_status_protocol import (
-    LabStatusProtocol,
 )
 from cyberlab.application.interfaces.lab_validator_protocol import (
     LabValidatorProtocol,
@@ -25,11 +22,8 @@ from cyberlab.application.interfaces.lab_validator_protocol import (
 from cyberlab.cli.commands.registry import (
     register_commands,
 )
-from cyberlab.infrastructure.docker.docker_compose_lab_runner import (
+from cyberlab.infrastructure.docker.docker_compose_lab_lifecycle import (
     DockerComposeLabRunner,
-)
-from cyberlab.infrastructure.docker.docker_compose_lab_status import (
-    DockerComposeLabStatus,
 )
 from cyberlab.infrastructure.docker.docker_compose_service import (
     DockerComposeService,
@@ -54,7 +48,6 @@ def create_app(
     manifest_loader: LabManifestLoaderProtocol | None = None,
     validator: LabValidatorProtocol | None = None,
     lab_runner: LabRunnerProtocol | None = None,
-    lab_status: LabStatusProtocol | None = None,
 ) -> typer.Typer:
     """Create the CyberLab CLI application."""
 
@@ -87,11 +80,6 @@ def create_app(
         labs_root=labs_root,
     )
 
-    lab_status = lab_status or DockerComposeLabStatus(
-        compose_service=docker_compose_service,
-        labs_root=labs_root,
-    )
-
     register_commands(
         app=app,
         runner=command_runner,
@@ -99,7 +87,6 @@ def create_app(
         manifest_loader=manifest_loader,
         validator=validator,
         lab_runner=lab_runner,
-        lab_status=lab_status,
     )
 
     return app

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typer
 
-from cyberlab.application.interfaces.lab_runner_protocol import (
+from cyberlab.application.interfaces.lab_lifecycle_protocol import (
     LabRunnerProtocol,
 )
 from cyberlab.application.use_cases.stop_lab_use_case import (

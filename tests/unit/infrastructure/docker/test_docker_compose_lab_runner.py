@@ -5,7 +5,7 @@ from pathlib import Path
 from cyberlab.domain.models.process_result import (
     ProcessResult,
 )
-from cyberlab.infrastructure.docker.docker_compose_lab_runner import (
+from cyberlab.infrastructure.docker.docker_compose_lab_lifecycle import (
     DockerComposeLabRunner,
 )
 from cyberlab.infrastructure.docker.docker_compose_service import (

@@ -1,16 +1,24 @@
-from cyberlab.application.use_cases.get_lab_status_use_case import (
-    GetLabStatusUseCase,
+from cyberlab.application.use_cases.get_lab_status_use_case import GetLabStatusUseCase
+from cyberlab.domain.models.lab_execution_report import (
+    LabExecutionReport,
+    LaboratoryState,
+    LaboratoryStatus,
 )
-from cyberlab.domain.models.laboratory_state import LaboratoryState
-from cyberlab.domain.models.laboratory_status import LaboratoryStatus
-from tests.fakes.fake_lab_status import FakeLabStatus
+from tests.fakes.fake_lab_runner import FakeLabRunner
 
 
 def test_returns_running_status() -> None:
-    status = FakeLabStatus()
-
-    status.status_to_return = LaboratoryStatus(
-        LaboratoryState.RUNNING,
+    status = FakeLabRunner(
+        {
+            "xss-basic": LabExecutionReport(
+                "xss-basic",
+                True,
+                "running",
+            ),
+        },
+        status_to_return=LaboratoryStatus(
+            LaboratoryState.RUNNING,
+        ),
     )
 
     use_case = GetLabStatusUseCase(status)
@@ -21,7 +29,15 @@ def test_returns_running_status() -> None:
 
 
 def test_returns_stopped_status() -> None:
-    status = FakeLabStatus()
+    status = FakeLabRunner(
+        {
+            "xss-basic": LabExecutionReport(
+                "xss-basic",
+                False,
+                "stopped",
+            ),
+        }
+    )
 
     status.status_to_return = LaboratoryStatus(
         LaboratoryState.STOPPED,
@@ -35,7 +51,7 @@ def test_returns_stopped_status() -> None:
 
 
 def test_passes_lab_id_to_status_service() -> None:
-    status = FakeLabStatus()
+    status = FakeLabRunner({})
 
     use_case = GetLabStatusUseCase(status)
 

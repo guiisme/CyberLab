@@ -1,5 +1,4 @@
-from cyberlab.domain.models.laboratory_state import LaboratoryState
-from cyberlab.domain.models.laboratory_status import LaboratoryStatus
+from cyberlab.domain.models.lab_execution_report import LaboratoryState, LaboratoryStatus
 
 
 def test_running_status() -> None:

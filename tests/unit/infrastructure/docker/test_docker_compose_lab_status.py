@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from cyberlab.domain.models.laboratory_state import LaboratoryState
+from cyberlab.domain.models.lab_execution_report import LaboratoryState
 from cyberlab.domain.models.process_result import ProcessResult
-from cyberlab.infrastructure.docker.docker_compose_lab_status import (
-    DockerComposeLabStatus,
+from cyberlab.infrastructure.docker.docker_compose_lab_lifecycle import (
+    DockerComposeLabRunner,
 )
 from cyberlab.infrastructure.docker.docker_compose_service import (
     DockerComposeService,
@@ -32,7 +32,7 @@ def test_returns_running_status() -> None:
 
     service = DockerComposeService(runner)
 
-    adapter = DockerComposeLabStatus(
+    adapter = DockerComposeLabRunner(
         service,
         Path("labs"),
     )
@@ -64,7 +64,7 @@ def test_returns_stopped_status() -> None:
 
     service = DockerComposeService(runner)
 
-    adapter = DockerComposeLabStatus(
+    adapter = DockerComposeLabRunner(
         service,
         Path("labs"),
     )
@@ -96,7 +96,7 @@ def test_returns_stopped_when_command_fails() -> None:
 
     service = DockerComposeService(runner)
 
-    adapter = DockerComposeLabStatus(
+    adapter = DockerComposeLabRunner(
         service,
         Path("labs"),
     )

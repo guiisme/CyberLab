@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from cyberlab.application.interfaces.lab_runner_protocol import (
+from cyberlab.application.interfaces.lab_lifecycle_protocol import (
     LabRunnerProtocol,
 )
 from cyberlab.domain.models.lab_execution_report import (

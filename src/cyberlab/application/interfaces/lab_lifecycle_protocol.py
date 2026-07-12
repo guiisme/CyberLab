@@ -2,6 +2,7 @@ from typing import Protocol
 
 from cyberlab.domain.models.lab_execution_report import (
     LabExecutionReport,
+    LaboratoryStatus,
 )
 
 
@@ -20,4 +21,18 @@ class LabRunnerProtocol(Protocol):
         lab_id: str,
     ) -> LabExecutionReport:
         """Stop a laboratory."""
+        ...
+
+    def status(
+        self,
+        lab_id: str,
+    ) -> LaboratoryStatus:
+        """Return the current status of a laboratory."""
+        ...
+
+    def restart(
+        self,
+        lab_id: str,
+    ) -> LabExecutionReport:
+        """Restart a laboratory."""
         ...

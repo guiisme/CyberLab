@@ -2,17 +2,14 @@ from __future__ import annotations
 
 import typer
 
+from cyberlab.application.interfaces.lab_lifecycle_protocol import (
+    LabRunnerProtocol,
+)
 from cyberlab.application.interfaces.lab_manifest_loader_protocol import (
     LabManifestLoaderProtocol,
 )
 from cyberlab.application.interfaces.lab_repository_protocol import (
     LabRepositoryProtocol,
-)
-from cyberlab.application.interfaces.lab_runner_protocol import (
-    LabRunnerProtocol,
-)
-from cyberlab.application.interfaces.lab_status_protocol import (
-    LabStatusProtocol,
 )
 from cyberlab.application.interfaces.lab_validator_protocol import (
     LabValidatorProtocol,
@@ -44,7 +41,6 @@ def register_lab(
     manifest_loader: LabManifestLoaderProtocol,
     validator: LabValidatorProtocol,
     lab_runner: LabRunnerProtocol,
-    lab_status: LabStatusProtocol,
 ) -> None:
     """Register laboratory commands."""
 
@@ -79,7 +75,7 @@ def register_lab(
 
     register_status_command(
         lab_app,
-        lab_status,
+        lab_runner,
     )
 
     app.add_typer(
