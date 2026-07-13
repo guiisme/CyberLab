@@ -11,10 +11,14 @@ from cyberlab.application.interfaces.lab_manifest_loader_protocol import (
 from cyberlab.application.interfaces.lab_repository_protocol import (
     LabRepositoryProtocol,
 )
+from cyberlab.application.interfaces.lab_scaffolding_protocol import LabScaffoldingProtocol
 from cyberlab.application.interfaces.lab_validator_protocol import (
     LabValidatorProtocol,
 )
 
+from .create import (
+    register_create_command,
+)
 from .info import (
     register_info_command,
 )
@@ -47,6 +51,7 @@ def register_lab(
     manifest_loader: LabManifestLoaderProtocol,
     validator: LabValidatorProtocol,
     lab_runner: LabLifeCycleProtocol,
+    lab_scaffolding: LabScaffoldingProtocol,
 ) -> None:
     """Register laboratory commands."""
 
@@ -92,6 +97,11 @@ def register_lab(
     register_restart_command(
         lab_app,
         lab_runner,
+    )
+
+    register_create_command(
+        lab_app,
+        lab_scaffolding,
     )
 
     app.add_typer(

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import typer
 
+from cyberlab.application.interfaces import lab_scaffolding_protocol
 from cyberlab.application.interfaces.command_runner_protocol import (
     CommandRunnerProtocol,
 )
@@ -35,6 +36,7 @@ def register_commands(
     manifest_loader: LabManifestLoaderProtocol,
     validator: LabValidatorProtocol,
     lab_runner: LabLifeCycleProtocol,
+    lab_scaffolding: lab_scaffolding_protocol.LabScaffoldingProtocol,
 ) -> None:
     """Register all CLI commands."""
 
@@ -51,4 +53,5 @@ def register_commands(
         manifest_loader,
         validator,
         lab_runner,
+        lab_scaffolding,
     )

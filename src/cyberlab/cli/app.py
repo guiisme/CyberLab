@@ -16,6 +16,7 @@ from cyberlab.application.interfaces.lab_manifest_loader_protocol import (
 from cyberlab.application.interfaces.lab_repository_protocol import (
     LabRepositoryProtocol,
 )
+from cyberlab.application.interfaces.lab_scaffolding_protocol import LabScaffoldingProtocol
 from cyberlab.application.interfaces.lab_validator_protocol import (
     LabValidatorProtocol,
 )
@@ -30,6 +31,9 @@ from cyberlab.infrastructure.docker.docker_compose_service import (
 )
 from cyberlab.infrastructure.filesystem.filesystem_lab_repository import (
     FilesystemLabRepository,
+)
+from cyberlab.infrastructure.filesystem.filesystem_lab_scaffolding import (
+    FilesystemLabScaffolding,
 )
 from cyberlab.infrastructure.filesystem.filesystem_lab_validator import (
     FilesystemLabValidator,
@@ -48,6 +52,7 @@ def create_app(
     manifest_loader: LabManifestLoaderProtocol | None = None,
     validator: LabValidatorProtocol | None = None,
     lab_runner: LabLifeCycleProtocol | None = None,
+    lab_scaffolding: LabScaffoldingProtocol | None = None,
 ) -> typer.Typer:
     """Create the CyberLab CLI application."""
 
@@ -56,6 +61,7 @@ def create_app(
     )
 
     labs_root = Path("labs")
+    scaffolds_root = Path("scaffolds")
 
     command_runner = command_runner or CommandRunner()
 
@@ -80,6 +86,11 @@ def create_app(
         labs_root=labs_root,
     )
 
+    lab_scaffolding = lab_scaffolding or FilesystemLabScaffolding(
+        labs_root=labs_root,
+        scaffolds_root=scaffolds_root,
+    )
+
     register_commands(
         app=app,
         runner=command_runner,
@@ -87,6 +98,7 @@ def create_app(
         manifest_loader=manifest_loader,
         validator=validator,
         lab_runner=lab_runner,
+        lab_scaffolding=lab_scaffolding,
     )
 
     return app
