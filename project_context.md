@@ -1,12 +1,12 @@
 # CyberLab — Project Context
 
-Last updated: July 2026 (PR #012)
+Last updated: July 2026 (PR #014)
 
 ---
 
 # Project Overview
 
-CyberLab is an open-source framework for building, executing, learning and distributing reproducible cybersecurity laboratories.
+CyberLab is an open-source framework for creating, building, executing, learning and distributing reproducible cybersecurity laboratories.
 
 The project combines:
 
@@ -35,6 +35,7 @@ Implemented capabilities:
 - Laboratory discovery
 - Laboratory information
 - Laboratory validation
+- Laboratory scaffolding
 - Laboratory lifecycle
     - Run
     - Stop
@@ -137,6 +138,7 @@ Infrastructure components include:
 - CommandRunner
 - Filesystem repositories
 - YAML manifest loader
+- Filesystem laboratory scaffolding
 
 Future execution adapters may include:
 
@@ -380,6 +382,9 @@ docs/
 ├── reviews/
 └── roadmap/
 
+scaffolds/
+└── default/
+
 labs/
 
 tests/
@@ -400,6 +405,8 @@ Reference laboratory:
 
 ```text
 labs/xss-basic
+
+labs/sqli-basic
 ```
 
 Current lifecycle:
@@ -414,6 +421,8 @@ cyberlab lab stop xss-basic
 cyberlab lab status xss-basic
 
 cyberlab lab logs xss-basic
+
+cyberlab lab create <lab-id>
 ```
 
 This laboratory serves as the reference implementation for future laboratories.
@@ -424,9 +433,10 @@ This laboratory serves as the reference implementation for future laboratories.
 
 Current priorities:
 
-1. Additional laboratory templates
-2. New execution adapters
-3. Plugin architecture
+1. Additional official laboratories
+2. Multiple laboratory scaffolds
+3. New execution adapters
+4. Plugin architecture
 
 The architecture is prepared for these capabilities.
 
@@ -444,6 +454,10 @@ CyberLab aims to become a reference implementation for:
 The long-term objective is to evolve the platform without requiring architectural redesign.
 
 Every new capability should integrate naturally into the existing architecture while preserving simplicity, maintainability and testability.
+
+Official laboratory scaffolds provide a standardized foundation for future
+laboratories, ensuring architectural consistency while allowing individual
+laboratories to evolve independently.
 
 # Starting a New Development Session
 
@@ -477,6 +491,7 @@ Current architectural capabilities:
 
 - Laboratory Discovery
 - Laboratory Validation
+- Laboratory Scaffolding
 - Laboratory Lifecycle
 - Environment Diagnostics
 

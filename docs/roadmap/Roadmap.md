@@ -64,7 +64,7 @@ details.
 
 ## Laboratory Templates
 
-- [ ] Web applications
+- [x] Web applications
 - [ ] API laboratories
 - [ ] Authentication laboratories
 - [ ] Cloud laboratories

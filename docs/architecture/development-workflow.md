@@ -212,6 +212,8 @@ Every commit should introduce one architectural responsibility.
 Avoid mixing refactoring and new functionality unless the refactor is required
 to support the feature.
 
+Whenever a new capability creates permanent artifacts (such as scaffolds or reference labs), they must be included in the architecture documentation before the merge.
+
 ---
 
 ## 9. Verification

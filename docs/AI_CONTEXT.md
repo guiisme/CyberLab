@@ -1,6 +1,5 @@
 # AI_CONTEXT.md
-
-> **Status:** Version 1.0 (Foundation)
+> **Status:** Version 1.1
 > **Projeto:** CyberLab
 > **Objetivo:** Fornecer o contexto arquitetural e as decisões de engenharia necessárias para que desenvolvedores e assistentes de IA possam contribuir com o projeto de forma consistente.
 
@@ -45,17 +44,17 @@ Por exemplo, a utilização do pacote `shared` é definida pelo **ADR-0007 — S
 
 # 2. Visão Geral
 
-O CyberLab é uma plataforma open source para criação, execução e gerenciamento de laboratórios de cibersegurança reproduzíveis.
+O CyberLab é uma plataforma open source para criação, padronização, execução e gerenciamento de laboratórios de cibersegurança reproduzíveis.
 
-O projeto foi concebido para simplificar a construção de ambientes de estudo e pesquisa utilizando contêineres, oferecendo uma experiência consistente por meio de uma interface de linha de comando moderna, arquitetura limpa e componentes altamente testáveis.
+O projeto fornece uma arquitetura extensível para construir, distribuir e executar laboratórios utilizando uma estrutura consistente baseada em scaffolds oficiais, protocolos arquiteturais e componentes desacoplados.
 
-Mais do que um conjunto de laboratórios, o CyberLab é uma plataforma extensível que poderá suportar diferentes tipos de cenários, plugins e provedores de infraestrutura ao longo de sua evolução.
+Mais do que um conjunto de laboratórios, o CyberLab é uma plataforma extensível capaz de evoluir para suportar diferentes ambientes de execução, plugins, scaffolds e provedores de infraestrutura sem comprometer sua arquitetura.
 
 ---
 
 # 3. Missão
 
-Tornar a criação e a execução de laboratórios de cibersegurança simples, reproduzíveis e padronizadas, fornecendo uma base sólida para estudo, treinamento, pesquisa e demonstração de cenários reais.
+Tornar a criação, padronização e execução de laboratórios de cibersegurança simples, reproduzíveis e consistentes, fornecendo uma base sólida para estudo, treinamento, pesquisa e demonstração de cenários reais.
 
 ---
 
@@ -64,6 +63,7 @@ Tornar a criação e a execução de laboratórios de cibersegurança simples, r
 O CyberLab busca:
 
 * facilitar a criação de laboratórios reproduzíveis;
+* estabelecer um padrão oficial para novos laboratórios;
 * reduzir o tempo necessário para preparar ambientes de estudo;
 * fornecer uma CLI intuitiva e consistente;
 * permitir a expansão da plataforma sem alterar sua arquitetura principal;
@@ -157,6 +157,16 @@ Ela faz parte do desenvolvimento diário através de:
 
 ---
 
+## 6.8 Consistência Arquitetural
+
+Novas capacidades devem reutilizar a arquitetura existente sempre que possível.
+
+O projeto favorece evolução por extensão em vez de substituição de componentes já consolidados.
+
+Scaffolds oficiais representam a estrutura canônica de novos laboratórios e devem evoluir juntamente com a arquitetura da plataforma.
+
+---
+
 # 7. O que o CyberLab NÃO é
 
 Para manter um escopo claro, o CyberLab não pretende:
@@ -175,6 +185,10 @@ Esses limites ajudam a preservar a identidade e a sustentabilidade técnica do p
 
 O CyberLab é desenvolvido seguindo uma filosofia de engenharia orientada por decisões.
 
+Sempre que possível, novas capacidades devem ser validadas através de sua própria utilização.
+
+O CyberLab utiliza seus próprios scaffolds para gerar seus laboratórios de referência, reduzindo duplicação e garantindo que as funcionalidades permaneçam continuamente exercitadas.
+
 Isso significa que decisões importantes devem ser registradas juntamente com sua motivação e consequências, permitindo compreender o raciocínio por trás da arquitetura e facilitando a evolução do projeto.
 
 Sempre que possível, decisões relevantes devem responder às seguintes perguntas:
@@ -192,4 +206,6 @@ Este documento deve ser a primeira referência consultada antes de qualquer alte
 
 Ele existe para preservar a consistência arquitetural do CyberLab durante toda a sua evolução, independentemente de quem esteja contribuindo com o código.
 
-**Fim da Versão 1.0**
+Este documento complementa os ADRs ao registrar os princípios permanentes que orientam a evolução da plataforma, enquanto as decisões específicas continuam sendo documentadas individualmente através dos rchitecture Decision Records.
+
+**Fim da Versão 1.1**
