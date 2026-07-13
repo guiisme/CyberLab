@@ -9,14 +9,14 @@ class FakeLabScaffolding(LabScaffoldingProtocol):
     """Fake laboratory scaffolding."""
 
     def __init__(self) -> None:
-        self.created = []
+        self.created_labs: list[tuple[str, str]] = []
 
     def create(
         self,
         lab_id: str,
         scaffold: str = "default",
     ) -> None:
-        self.created.append(
+        self.created_labs.append(
             (
                 lab_id,
                 scaffold,
