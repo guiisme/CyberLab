@@ -1,6 +1,13 @@
 id: xss-basic
-name: Basic XSS
-description: Basic reflected XSS laboratory.
-category: web
-difficulty: easy
-version: 1.0.0
+name: Cross-Site Scripting Basics
+
+description: Learn the fundamentals of Cross-Site Scripting attacks.
+
+category: Web Security
+
+difficulty: Beginner
+
+tags:
+  - xss
+  - scripting
+  - owasp

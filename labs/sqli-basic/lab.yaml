@@ -1,0 +1,13 @@
+id: sqli-basic
+name: SQL Injection Basics
+
+description: Learn the fundamentals of SQL Injection attacks.
+
+category: Web Security
+
+difficulty: Beginner
+
+tags:
+  - sqli
+  - injection
+  - owasp
