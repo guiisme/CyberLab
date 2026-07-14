@@ -1,6 +1,6 @@
 # CyberLab Roadmap
 
-*Last updated: July 2026 (PR #012)*
+*Last updated: July 2026 (PR #015)*
 
 ---
 
@@ -44,6 +44,7 @@ details.
 
 - [x] Version command
 - [x] Rich terminal output
+- [x] Plugin listing
 
 ---
 
@@ -89,6 +90,12 @@ Future adapters:
 
 ## Plugin Architecture
 
+- [x] Plugin discovery
+- [x] Plugin loading
+- [x] Plugin registry
+- [x] Plugin CLI
+- [ ] Plugin SDK
+- [ ] Official plugins
 - [ ] Plugin discovery
 - [ ] External laboratory packages
 - [ ] Third-party execution adapters
@@ -100,6 +107,7 @@ Future adapters:
 
 - [ ] User Guide
 - [ ] Laboratory Author Guide
+- [ ] Plugin Development Guide
 - [ ] Plugin Development Guide
 - [ ] Architecture Handbook
 
@@ -120,14 +128,48 @@ Future adapters:
 The project evolves by extending existing architectural capabilities instead of
 creating isolated implementations.
 
-Current architectural capabilities include:
+CCurrent architectural capabilities include:
 
 - Laboratory Discovery
 - Laboratory Validation
+- Laboratory Scaffolding
 - Laboratory Lifecycle
+- Plugin Architecture
 - Environment Diagnostics
 
 Future capabilities are expected to follow the same architectural principles.
+
+---
+
+# Architecture Roadmap
+
+Future architectural evolution should continue following the incremental
+development model established during PR #015.
+
+Preferred capability evolution order:
+
+```text
+Contracts
+
+↓
+
+Infrastructure
+
+↓
+
+Consumer
+
+↓
+
+Composition Root
+
+↓
+
+Documentation
+```
+
+Each Pull Request should introduce a single architectural concept while
+preserving a releasable repository state.
 
 ---
 
@@ -140,4 +182,5 @@ Every roadmap item should:
 - follow Protocol-Oriented Design;
 - keep infrastructure replaceable;
 - remain independently testable;
-- evolve through small Pull Requests.
+- evolve through small Pull Requests;
+- introduce one architectural concept per Pull Request increment.

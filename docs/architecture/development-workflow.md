@@ -31,48 +31,81 @@ Every Pull Request should:
 
 ---
 
-# Official Workflow
+# Official Development Workflow
 
-Every Pull Request follows the same sequence.
+Every new capability should follow the same engineering process.
 
 ```text
-Capability Review
-        │
-        ▼
+Capability Proposal
+
+↓
+
 Architecture Brief
-        │
-        ▼
+
+↓
+
 Architecture Review
-        │
-        ▼
+
+↓
+
 Impact Analysis
-        │
-        ▼
+
+↓
+
 Dependency Graph
-        │
-        ▼
-Contract Review
-        │
-        ▼
+
+↓
+
+Contract Design
+
+↓
+
 Commit Plan
-        │
-        ▼
+
+↓
+
 Implementation
-        │
-        ▼
+
+↓
+
 Verification
-        │
-        ▼
-Quality Audit
-        │
-        ▼
-Sprint Review
-        │
-        ▼
-Retrospective
+
+↓
+
+Code Review
+
+↓
+
+Architecture Audit
+
+↓
+
+Documentation
+
+↓
+
+Pull Request Review
+
+↓
+
+Merge
 ```
 
-No implementation should begin before the planning stages have been completed.
+Each phase has a specific objective:
+
+- **Capability Proposal** defines the problem being solved.
+- **Architecture Brief** identifies architectural impact.
+- **Architecture Review** validates responsibilities before implementation.
+- **Impact Analysis** evaluates long-term consequences.
+- **Dependency Graph** confirms architectural boundaries.
+- **Contract Design** defines protocols before implementations.
+- **Commit Plan** splits work into incremental responsibilities.
+- **Implementation** introduces a single architectural concept per commit.
+- **Verification** executes the project's quality gates.
+- **Code Review** validates implementation quality.
+- **Architecture Audit** validates the complete capability after implementation.
+- **Documentation** updates the permanent project knowledge.
+- **Pull Request Review** performs the final technical review before merge.
 
 ---
 
@@ -317,3 +350,14 @@ Reviews should prioritize maintainability over cleverness.
 CyberLab should evolve without requiring architectural redesign.
 
 Every Pull Request should leave the project slightly better than it was before.
+
+# Guiding Principles
+
+The workflow follows a few permanent principles:
+
+- Architecture drives implementation.
+- Prefer extension over modification.
+- Introduce one architectural concept per commit.
+- Keep the repository releasable after every commit.
+- Avoid premature abstractions.
+- Documentation is part of the Definition of Done.

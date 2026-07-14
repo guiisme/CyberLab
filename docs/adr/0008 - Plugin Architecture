@@ -1,0 +1,56 @@
+Status
+Accepted
+
+Context
+
+CyberLab requires an extensible mechanism that allows new capabilities to be
+added without modifying the Core application.
+
+Decision
+
+Adopt a plugin architecture based on Python Entry Points.
+
+Plugins are discovered through EntryPointProvider, instantiated by
+PluginLoader and stored by PluginRegistry.
+
+Consequences
+
+Positive
+
+- Extensible platform.
+- No Core modifications required for new plugins.
+- Small and cohesive responsibilities.
+- Compatible with Clean Architecture.
+- Compatible with Hexagonal Architecture.
+
+Negative
+
+- Requires Python packaging metadata.
+- Plugins must comply with PluginProtocol.
+
+Alternatives Considered
+
+PluginManager
+
+Rejected because it centralizes multiple responsibilities.
+
+CapabilityRegistry
+
+Rejected because no current use case justifies its existence.
+
+EntryPointProviderProtocol
+
+Rejected because the dependency remains entirely inside Infrastructure,
+making an additional abstraction unnecessary.
+
+Future Evolution
+
+The same architecture may support:
+
+- Official plugins
+- Community plugins
+- Plugin SDK
+- Marketplace
+- Remote plugin repositories
+
+without requiring architectural redesign.

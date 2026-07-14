@@ -1,5 +1,5 @@
 # AI_CONTEXT.md
-> **Status:** Version 1.1
+> **Status:** Version 1.2
 > **Projeto:** CyberLab
 > **Objetivo:** Fornecer o contexto arquitetural e as decisões de engenharia necessárias para que desenvolvedores e assistentes de IA possam contribuir com o projeto de forma consistente.
 
@@ -49,6 +49,8 @@ O CyberLab é uma plataforma open source para criação, padronização, execuç
 O projeto fornece uma arquitetura extensível para construir, distribuir e executar laboratórios utilizando uma estrutura consistente baseada em scaffolds oficiais, protocolos arquiteturais e componentes desacoplados.
 
 Mais do que um conjunto de laboratórios, o CyberLab é uma plataforma extensível capaz de evoluir para suportar diferentes ambientes de execução, plugins, scaffolds e provedores de infraestrutura sem comprometer sua arquitetura.
+
+A Plugin Architecture introduzida na PR #015 consolida esse objetivo, permitindo que novas capacidades sejam adicionadas através de Python Entry Points sem modificar o Core da aplicação.
 
 ---
 
@@ -167,6 +169,20 @@ Scaffolds oficiais representam a estrutura canônica de novos laboratórios e de
 
 ---
 
+## 6.9 Evolução por Extensão
+
+O CyberLab prioriza evolução por extensão em vez de modificação do Core.
+
+Novas capacidades devem, sempre que possível:
+
+* reutilizar contratos existentes;
+* introduzir novos adaptadores em vez de alterar componentes consolidados;
+* manter o Composition Root como único ponto de composição da aplicação.
+
+A Plugin Architecture estabeleceu este princípio como uma diretriz permanente do projeto.
+
+---
+
 # 7. O que o CyberLab NÃO é
 
 Para manter um escopo claro, o CyberLab não pretende:
@@ -186,6 +202,8 @@ Esses limites ajudam a preservar a identidade e a sustentabilidade técnica do p
 O CyberLab é desenvolvido seguindo uma filosofia de engenharia orientada por decisões.
 
 Sempre que possível, novas capacidades devem ser validadas através de sua própria utilização.
+
+Novas capacidades devem ser implementadas incrementalmente, introduzindo um único conceito arquitetural por commit. Esse processo reduz retrabalho, facilita revisões e preserva a estabilidade do Core.
 
 O CyberLab utiliza seus próprios scaffolds para gerar seus laboratórios de referência, reduzindo duplicação e garantindo que as funcionalidades permaneçam continuamente exercitadas.
 
@@ -208,4 +226,4 @@ Ele existe para preservar a consistência arquitetural do CyberLab durante toda 
 
 Este documento complementa os ADRs ao registrar os princípios permanentes que orientam a evolução da plataforma, enquanto as decisões específicas continuam sendo documentadas individualmente através dos rchitecture Decision Records.
 
-**Fim da Versão 1.1**
+**Fim da Versão 1.2**

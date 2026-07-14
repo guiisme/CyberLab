@@ -24,7 +24,7 @@ from cyberlab.cli.commands.doctor import (
 from cyberlab.cli.commands.lab.registry import (
     register_lab_commands,
 )
-from cyberlab.cli.commands.plugins.registry import (
+from cyberlab.cli.commands.plugin.registry import (
     register_plugin_commands,
 )
 from cyberlab.cli.commands.version import (

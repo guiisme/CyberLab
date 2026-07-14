@@ -1,6 +1,6 @@
 # CyberLab — Project Context
 
-Last updated: July 2026 (PR #014)
+Last updated: July 2026 (PR #015)
 
 ---
 
@@ -42,6 +42,11 @@ Implemented capabilities:
     - Status
     - Restart
     - Logs
+- Plugin architecture
+    - Plugin discovery
+    - Plugin loading
+    - Plugin registry
+    - Plugin CLI
 - Environment diagnostics
 - Version management
 
@@ -139,6 +144,9 @@ Infrastructure components include:
 - Filesystem repositories
 - YAML manifest loader
 - Filesystem laboratory scaffolding
+- Python Entry Point provider
+- Plugin loader
+- Plugin registry
 
 Future execution adapters may include:
 
@@ -210,6 +218,10 @@ Every architectural layer owns its own test suite.
 Every Pull Request follows the official workflow.
 
 ```text
+Capability Proposal
+
+↓
+
 Architecture Brief
 
 ↓
@@ -226,7 +238,7 @@ Dependency Graph
 
 ↓
 
-Contract Review
+Contract Design
 
 ↓
 
@@ -238,7 +250,15 @@ Implementation
 
 ↓
 
-Verification
+Code Review
+
+↓
+
+Architecture Audit
+
+↓
+
+Documentation
 
 ↓
 
@@ -280,15 +300,19 @@ Every Pull Request is divided into small architectural increments.
 General evolution order:
 
 ```text
+Contracts
+
+↓
+
 Infrastructure
 
 ↓
 
-Application
+Consumer
 
 ↓
 
-CLI
+Composition Root
 
 ↓
 
@@ -352,6 +376,7 @@ src/
     │   ├── app.py
     │   ├── commands/
     │   │   ├── registry.py
+    │   │   ├── plugin/
     │   │   └── lab/
     │   │       ├── registry.py
     │   │       ├── list.py
@@ -361,6 +386,7 @@ src/
     │   │       ├── stop.py
     |   |       ├── restart.py
     │   │       └── status.py
+    |   |
     │   │
     │   └── rendering/
     │
@@ -436,9 +462,37 @@ Current priorities:
 1. Additional official laboratories
 2. Multiple laboratory scaffolds
 3. New execution adapters
-4. Plugin architecture
+4. Plugin SDK
+5. Official plugins
 
 The architecture is prepared for these capabilities.
+
+---
+
+# Plugin Architecture
+
+CyberLab now supports a native plugin architecture based on Python Entry Points.
+
+The architecture follows a simple discovery pipeline:
+
+```text
+EntryPointProvider
+
+↓
+
+PluginLoader
+
+↓
+
+PluginRegistry
+
+↓
+
+CLI / Future Capabilities
+```
+
+This architecture enables the platform to evolve through extension instead of
+modification, allowing new plugins to be installed without changing the Core.
 
 ---
 
@@ -493,6 +547,7 @@ Current architectural capabilities:
 - Laboratory Validation
 - Laboratory Scaffolding
 - Laboratory Lifecycle
+- Plugin Architecture
 - Environment Diagnostics
 
 The architecture is considered stable.

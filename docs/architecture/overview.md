@@ -82,6 +82,7 @@ Examples include:
 - Laboratory Discovery
 - Laboratory Validation
 - Laboratory Lifecycle
+- Plugin Discovery
 - Environment Diagnostics
 
 ---
@@ -99,6 +100,9 @@ Examples include:
 - LabRepositoryProtocol
 - LabManifestLoaderProtocol
 - LabValidatorProtocol
+- PluginLoaderProtocol
+- PluginRegistryProtocol
+- PluginProtocol
 - CommandRunnerProtocol
 
 Protocols make infrastructure replaceable without affecting business
@@ -118,6 +122,8 @@ Examples include:
 - DockerComposeService
 - Filesystem repositories
 - YAML manifest loading
+- Plugin loading (Python Entry Points)
+- Plugin registry
 - Command execution
 - Laboratory validation
 
@@ -255,6 +261,54 @@ Current lifecycle operations include:
 
 The lifecycle abstraction allows different execution backends to provide the
 same behavior through a common protocol.
+
+---
+
+# Plugin Architecture
+
+CyberLab provides a native plugin architecture based on Python Entry Points.
+
+Plugins extend the platform without modifying the Core.
+
+The plugin discovery pipeline follows a simple and explicit flow:
+
+```text
+Python Entry Points
+
+        │
+
+        ▼
+
+EntryPointProvider
+
+        │
+
+        ▼
+
+PluginLoader
+
+        │
+
+        ▼
+
+PluginRegistry
+
+        │
+
+        ▼
+
+CLI / Future Capabilities
+```
+
+Each component has a single responsibility:
+
+- **EntryPointProvider** discovers Python Entry Points.
+- **PluginLoader** loads plugin implementations.
+- **PluginRegistry** stores loaded plugins.
+- **PluginProtocol** defines the plugin contract.
+
+This design allows CyberLab to evolve through extension rather than
+modification, keeping the Core independent from concrete plugins.
 
 ---
 
