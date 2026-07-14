@@ -1,0 +1,22 @@
+[build-system]
+requires = ["uv_build>=0.11.21,<0.12.0"]
+build-backend = "uv_build"
+
+[project]
+name = "cyberlab-plugin-hello"
+version = "0.1.0"
+description = "CyberLab Hello Plugin"
+readme = "README.md"
+requires-python = ">=3.12"
+
+dependencies = [
+    # Replace with the published CyberLab package
+    "cyberlab",
+]
+
+[project.urls]
+Homepage = "https://github.com/guiisme84/CyberLab"
+Repository = "https://github.com/guiisme84/CyberLab"
+
+[project.entry-points."cyberlab.plugins"]
+hello = "cyberlab_plugin_hello.plugin:HelloPlugin"

@@ -1,0 +1,23 @@
+version = 1
+revision = 3
+requires-python = ">=3.12"
+
+[[package]]
+name = "cyberlab"
+version = "0.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ca/10/77fb57d533c8e9e988d381876dc3dfe595b19125b3be574c00996a788126/cyberlab-0.0.1.tar.gz", hash = "sha256:0d0f131864512fa79c9732d15f05d60b674cf7a39c831d96f77a3eb3fa571d27", size = 1416, upload-time = "2026-04-18T23:07:33.829Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8a/4b/8730510b6dbb08557d9dab0e667bc8f7375ac08b4a473548584dec559252/cyberlab-0.0.1-py3-none-any.whl", hash = "sha256:02dc64bd43edb52eb8a5d06f66c44957207c8752f89d9ae36db4202c3d698681", size = 1519, upload-time = "2026-04-18T23:07:32.425Z" },
+]
+
+[[package]]
+name = "cyberlab-plugin-hello"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "cyberlab" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "cyberlab" }]
