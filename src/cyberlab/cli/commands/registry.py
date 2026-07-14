@@ -21,12 +21,16 @@ from cyberlab.application.interfaces.lab_validator_protocol import (
 from cyberlab.cli.commands.doctor import (
     register_doctor,
 )
-from cyberlab.cli.commands.lab import (
-    register_lab,
+from cyberlab.cli.commands.lab.registry import (
+    register_lab_commands,
+)
+from cyberlab.cli.commands.plugins.registry import (
+    register_plugin_commands,
 )
 from cyberlab.cli.commands.version import (
     register_version,
 )
+from cyberlab.infrastructure.plugins import plugin_registry
 
 
 def register_commands(
@@ -37,6 +41,7 @@ def register_commands(
     validator: LabValidatorProtocol,
     lab_runner: LabLifeCycleProtocol,
     lab_scaffolding: lab_scaffolding_protocol.LabScaffoldingProtocol,
+    plugin_registry: plugin_registry.PluginRegistry,
 ) -> None:
     """Register all CLI commands."""
 
@@ -47,11 +52,17 @@ def register_commands(
         runner,
     )
 
-    register_lab(
-        app,
-        repository,
-        manifest_loader,
-        validator,
-        lab_runner,
-        lab_scaffolding,
+    register_lab_commands(
+        app=app,
+        repository=repository,
+        validator=validator,
+        manifest_loader=manifest_loader,
+        # lifecycle=lifecycle,
+        lab_scaffolding=lab_scaffolding,
+        lab_runner=lab_runner,
+    )
+
+    register_plugin_commands(
+        app=app,
+        registry=plugin_registry,
     )

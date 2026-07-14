@@ -45,7 +45,7 @@ from .validate import (
 )
 
 
-def register_lab(
+def register_lab_commands(
     app: typer.Typer,
     repository: LabRepositoryProtocol,
     manifest_loader: LabManifestLoaderProtocol,

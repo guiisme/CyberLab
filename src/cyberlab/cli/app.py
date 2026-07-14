@@ -41,9 +41,34 @@ from cyberlab.infrastructure.filesystem.filesystem_lab_validator import (
 from cyberlab.infrastructure.filesystem.yaml_lab_manifest_loader import (
     YamlLabManifestLoader,
 )
+
+# Plugin infrastructure
+from cyberlab.infrastructure.plugins.entry_point_provider import (
+    EntryPointProvider,
+)
+from cyberlab.infrastructure.plugins.plugin_loader import (
+    PluginLoader,
+)
+from cyberlab.infrastructure.plugins.plugin_registry import (
+    PluginRegistry,
+)
 from cyberlab.infrastructure.process.command_runner import (
     CommandRunner,
 )
+
+
+def _create_plugin_registry() -> PluginRegistry:
+    """Create and initialize the plugin registry."""
+
+    registry = PluginRegistry()
+
+    provider = EntryPointProvider()
+    loader = PluginLoader(provider)
+
+    for plugin in loader.load():
+        registry.register(plugin)
+
+    return registry
 
 
 def create_app(
@@ -53,6 +78,7 @@ def create_app(
     validator: LabValidatorProtocol | None = None,
     lab_runner: LabLifeCycleProtocol | None = None,
     lab_scaffolding: LabScaffoldingProtocol | None = None,
+    plugin_registry: PluginRegistry | None = None,
 ) -> typer.Typer:
     """Create the CyberLab CLI application."""
 
@@ -91,6 +117,8 @@ def create_app(
         scaffolds_root=scaffolds_root,
     )
 
+    plugin_registry = plugin_registry or _create_plugin_registry()
+
     register_commands(
         app=app,
         runner=command_runner,
@@ -99,6 +127,7 @@ def create_app(
         validator=validator,
         lab_runner=lab_runner,
         lab_scaffolding=lab_scaffolding,
+        plugin_registry=plugin_registry,
     )
 
     return app
