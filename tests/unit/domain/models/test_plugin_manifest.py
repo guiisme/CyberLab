@@ -36,7 +36,7 @@ def test_plugin_manifest_is_immutable() -> None:
 
     # Act / Assert
     with pytest.raises(FrozenInstanceError):
-        manifest.name = "New Name"
+        manifest.name = "New Name"  # pyright: ignore[reportAttributeAccessIssue]
 
 
 def test_plugin_manifests_with_same_values_are_equal() -> None:
