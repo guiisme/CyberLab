@@ -11,6 +11,9 @@ from cyberlab.application.use_cases.list_plugins_use_case import (
 from cyberlab.cli.commands.plugin.create import (
     create_command,
 )
+from cyberlab.cli.commands.plugin.init import (
+    init_plugin_command,
+)
 from cyberlab.cli.commands.plugin.plugin_list import (
     list_command,
 )
@@ -42,6 +45,9 @@ def register_plugin_commands(
             create_plugin,
         )
     )
+    plugin_app.command(
+        "init",
+    )(init_plugin_command())
 
     app.add_typer(
         plugin_app,

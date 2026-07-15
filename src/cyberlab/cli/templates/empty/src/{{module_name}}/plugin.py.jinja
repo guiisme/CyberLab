@@ -1,0 +1,17 @@
+from cyberlab.sdk import Plugin, PluginManifest
+
+class {{class_name}}(Plugin):
+    """
+    {{description}}
+    """
+
+    def __init__(self, **kwargs) -> None:
+        manifest = PluginManifest(
+            id="{{plugin_id}}",
+            name="{{plugin_name}}",
+            version="0.1.0",
+            description="{{description}}",
+            author="{{author}}",
+            capabilities=()
+        )
+        super().__init__(manifest=manifest, **kwargs)
