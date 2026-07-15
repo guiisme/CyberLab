@@ -24,4 +24,4 @@ Homepage = "https://github.com/guiisme84/CyberLab"
 Repository = "https://github.com/guiisme84/CyberLab"
 
 [project.entry-points."cyberlab.plugins"]
-"podman" = "cyberlab_plugin_podman.plugin:Podman"
+"podman" = "cyberlab_plugin_podman.plugin:PodmanPlugin"

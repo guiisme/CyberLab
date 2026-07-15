@@ -9,6 +9,7 @@ class LaboratoryState(StrEnum):
 
     RUNNING = "running"
     STOPPED = "stopped"
+    UNKNOWN = "unkonow"
 
 
 @dataclass(
@@ -38,6 +39,11 @@ class LaboratoryStatus:
     def is_stopped(self) -> bool:
         """Return whether the laboratory is stopped."""
         return self.state is LaboratoryState.STOPPED
+
+    @property
+    def is_unknown(self) -> bool:
+        """Return whether the laboratory is stopped."""
+        return self.state is LaboratoryState.UNKNOWN
 
     def __str__(self) -> str:
         """Return a human-readable representation of the status."""

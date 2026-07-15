@@ -2,6 +2,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from src.cyberlab_plugin_podman.infrastructure.podman_compose import PodmanComposeLabLifecycle
+from src.cyberlab_plugin_podman.plugin import Podman
 
 
 def test_run_executes_podman_compose_up():
@@ -66,3 +67,17 @@ def test_logs_with_follow_and_tail_flags():
         mock_run.assert_called_once_with(
             ["podman-compose", "logs", "--follow", "--tail=all"], cwd=lab_path, check=True
         )
+
+
+def test_plugin_manifest_contains_correct_metadata():
+    plugin = Podman()
+    manifest = plugin.manifest
+
+    assert manifest.id == "podman"
+    assert manifest.name == "Podman Execution Adapter"
+    assert manifest.version == "0.1.0"
+
+
+def test_plugin_instantiates_lifecycle_adapter():
+    plugin = Podman()
+    assert isinstance(plugin._lifecycle, PodmanComposeLabLifecycle)
