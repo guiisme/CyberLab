@@ -20,6 +20,15 @@ class PluginRegistry(PluginRegistryProtocol):
 
         self._plugins[plugin_id] = plugin
 
+    def list(
+        self,
+    ) -> list[PluginProtocol]:
+        """Return all registered plugins."""
+
+        return list(
+            self._plugins.values(),
+        )
+
     def all(self) -> Sequence[PluginProtocol]:
         return tuple(self._plugins.values())
 

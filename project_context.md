@@ -1,6 +1,6 @@
 # CyberLab — Project Context
 
-Last updated: July 2026 (PR #015)
+Last updated: July 2026
 
 ---
 
@@ -43,10 +43,13 @@ Implemented capabilities:
     - Restart
     - Logs
 - Plugin architecture
+    - Public SDK
     - Plugin discovery
     - Plugin loading
     - Plugin registry
+    - Plugin scaffolding
     - Plugin CLI
+    - Standardized plugin template
 - Environment diagnostics
 - Version management
 
@@ -144,6 +147,7 @@ Infrastructure components include:
 - Filesystem repositories
 - YAML manifest loader
 - Filesystem laboratory scaffolding
+- Filesystem plugin scaffolding
 - Python Entry Point provider
 - Plugin loader
 - Plugin registry
@@ -154,6 +158,70 @@ Future execution adapters may include:
 - Kubernetes
 - Remote execution
 - Cloud-native orchestration
+
+---
+
+# Plugin Architecture
+
+CyberLab plugins are independent Python distributions discovered through the
+`cyberlab.plugins` Python Entry Point group. At application startup,
+`EntryPointProvider` discovers entry points, `PluginLoader` instantiates them,
+and `PluginRegistry` makes the loaded plugins available to application use
+cases and the CLI.
+
+The public plugin API is `cyberlab.sdk`. Plugins should import only public SDK
+symbols, such as `Plugin`, `PluginManifest`, and `PluginProtocol`; they must
+not depend on internal `application`, `infrastructure`, `cli`, or `domain`
+modules.
+
+The canonical template is `templates/plugin`. Create a plugin from the
+repository root with:
+
+```bash
+uv run cyberlab plugin create my-plugin
+```
+
+For an ID of `my-plugin`, the generated distribution, Python package, and
+entry point are:
+
+| Concern | Value |
+| --- | --- |
+| Distribution ID | `my-plugin` |
+| Python package | `cyberlab_plugin_my_plugin` |
+| Plugin class | `MyPlugin` |
+| Entry point group | `cyberlab.plugins` |
+| Entry point name | `my-plugin` |
+
+The generated `pyproject.toml` uses `uv_build` and must explicitly set:
+
+```toml
+[tool.uv.build-backend]
+module-name = "cyberlab_plugin_my_plugin"
+```
+
+This is necessary because the distribution ID can contain hyphens while the
+Python package uses underscores. The template also configures the local Core
+as an editable `uv` source using `path = ".."`; therefore plugins created by
+the CLI are expected to be direct children of the CyberLab checkout.
+
+For local plugin development, `uv sync` inside the plugin creates that
+plugin's own virtual environment. To make a generated plugin discoverable by
+the CyberLab command executed from the repository root, install it into the
+Core environment instead:
+
+```bash
+uv pip install --no-deps -e ./my-plugin
+uv run cyberlab plugin list
+```
+
+`--no-deps` is used because the Core environment already provides CyberLab and
+its dependencies. Installing from inside the plugin directory does not make
+the plugin visible to the root project's `uv run cyberlab` command.
+
+The template contains no `.venv` or `uv.lock`; each generated plugin creates
+and owns those artifacts. See `docs/plugins/template.md` for the complete
+template reference and `docs/adr/0012 - Plugin Architecture` for the
+architectural decision.
 
 ---
 
@@ -374,21 +442,9 @@ src/
     │
     ├── cli/
     │   ├── app.py
-    │   ├── commands/
-    │   │   ├── registry.py
-    │   │   ├── plugin/
-    │   │   └── lab/
-    │   │       ├── registry.py
-    │   │       ├── list.py
-    │   │       ├── info.py
-    │   │       ├── validate.py
-    │   │       ├── run.py
-    │   │       ├── stop.py
-    |   |       ├── restart.py
-    │   │       └── status.py
-    |   |
-    │   │
-    │   └── rendering/
+    │   └── commands/
+    │       ├── lab/
+    │       └── plugin/
     │
     ├── domain/
     │   ├── models/
@@ -397,10 +453,11 @@ src/
     ├── infrastructure/
     │   ├── docker/
     │   ├── filesystem/
+    │   ├── plugins/
     │   ├── process/
     │   └── runner/
     │
-    └── shared/
+    └── sdk/
 
 docs/
 ├── adr/
@@ -408,10 +465,10 @@ docs/
 ├── reviews/
 └── roadmap/
 
-scaffolds/
-└── default/
-
 labs/
+
+templates/
+└── plugin/
 
 tests/
 ├── fakes/
@@ -455,15 +512,25 @@ This laboratory serves as the reference implementation for future laboratories.
 
 ---
 
+# Current Plugin Commands
+
+```bash
+cyberlab plugin list
+
+cyberlab plugin create <plugin-id>
+```
+
+---
+
 # Next Development Priorities
 
 Current priorities:
 
-1. Additional official laboratories
-2. Multiple laboratory scaffolds
-3. New execution adapters
-4. Plugin SDK
-5. Official plugins
+1. Official plugins
+2. Multiple plugin templates
+3. Additional official laboratories
+4. Multiple laboratory scaffolds
+5. New execution adapters
 
 The architecture is prepared for these capabilities.
 
@@ -471,11 +538,17 @@ The architecture is prepared for these capabilities.
 
 # Plugin Architecture
 
-CyberLab now supports a native plugin architecture based on Python Entry Points.
+CyberLab now provides a complete plugin platform.
 
-The architecture follows a simple discovery pipeline:
+Plugins are developed as standalone Python packages that depend exclusively on the public SDK.
+
+The discovery pipeline is:
 
 ```text
+Python Entry Points
+
+↓
+
 EntryPointProvider
 
 ↓
@@ -488,11 +561,28 @@ PluginRegistry
 
 ↓
 
-CLI / Future Capabilities
+Application Use Cases
+
+↓
+
+CLI
 ```
 
-This architecture enables the platform to evolve through extension instead of
-modification, allowing new plugins to be installed without changing the Core.
+CyberLab provides:
+
+- Public SDK (`cyberlab.sdk`)
+- Dynamic plugin discovery
+- Plugin Registry
+- Official plugin scaffold
+- Plugin CLI
+
+Plugins are created using:
+
+```bash
+cyberlab plugin create <plugin-id>
+```
+
+Installed plugins are discovered automatically through Python Entry Points.
 
 ---
 
@@ -541,16 +631,17 @@ Implementation should only begin after the planning stages have been completed.
 ---
 # Architecture Status
 
-Current architectural capabilities:
+CCurrent architectural capabilities:
 
 - Laboratory Discovery
 - Laboratory Validation
 - Laboratory Scaffolding
 - Laboratory Lifecycle
+- Plugin SDK
 - Plugin Architecture
+- Plugin Scaffolding
 - Environment Diagnostics
 
 The architecture is considered stable.
 
-Future development should evolve these capabilities before introducing new
-architectural abstractions.
+Future development should extend existing capabilities before introducing new architectural abstractions.

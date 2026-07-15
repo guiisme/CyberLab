@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import typer
 
-from cyberlab.application.interfaces import lab_scaffolding_protocol
 from cyberlab.application.interfaces.command_runner_protocol import (
     CommandRunnerProtocol,
 )
@@ -15,8 +14,17 @@ from cyberlab.application.interfaces.lab_manifest_loader_protocol import (
 from cyberlab.application.interfaces.lab_repository_protocol import (
     LabRepositoryProtocol,
 )
+from cyberlab.application.interfaces.lab_scaffolding_protocol import (
+    LabScaffoldingProtocol,
+)
 from cyberlab.application.interfaces.lab_validator_protocol import (
     LabValidatorProtocol,
+)
+from cyberlab.application.use_cases.create_plugin_use_case import (
+    CreatePluginUseCase,
+)
+from cyberlab.application.use_cases.list_plugins_use_case import (
+    ListPluginsUseCase,
 )
 from cyberlab.cli.commands.doctor import (
     register_doctor,
@@ -30,7 +38,6 @@ from cyberlab.cli.commands.plugin.registry import (
 from cyberlab.cli.commands.version import (
     register_version,
 )
-from cyberlab.infrastructure.plugins import plugin_registry
 
 
 def register_commands(
@@ -40,8 +47,9 @@ def register_commands(
     manifest_loader: LabManifestLoaderProtocol,
     validator: LabValidatorProtocol,
     lab_runner: LabLifeCycleProtocol,
-    lab_scaffolding: lab_scaffolding_protocol.LabScaffoldingProtocol,
-    plugin_registry: plugin_registry.PluginRegistry,
+    lab_scaffolding: LabScaffoldingProtocol,
+    list_plugins: ListPluginsUseCase,
+    create_plugin: CreatePluginUseCase,
 ) -> None:
     """Register all CLI commands."""
 
@@ -64,5 +72,6 @@ def register_commands(
 
     register_plugin_commands(
         app=app,
-        registry=plugin_registry,
+        list_plugins=list_plugins,
+        create_plugin=create_plugin,
     )

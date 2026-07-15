@@ -20,6 +20,13 @@ from cyberlab.application.interfaces.lab_scaffolding_protocol import LabScaffold
 from cyberlab.application.interfaces.lab_validator_protocol import (
     LabValidatorProtocol,
 )
+from cyberlab.application.interfaces.plugin_scaffolding_protocol import PluginScaffoldingProtocol
+from cyberlab.application.use_cases.create_plugin_use_case import (
+    CreatePluginUseCase,
+)
+from cyberlab.application.use_cases.list_plugins_use_case import (
+    ListPluginsUseCase,
+)
 from cyberlab.cli.commands.registry import (
     register_commands,
 )
@@ -37,6 +44,9 @@ from cyberlab.infrastructure.filesystem.filesystem_lab_scaffolding import (
 )
 from cyberlab.infrastructure.filesystem.filesystem_lab_validator import (
     FilesystemLabValidator,
+)
+from cyberlab.infrastructure.filesystem.filesystem_plugin_scaffolding import (
+    FilesystemPluginScaffolding,
 )
 from cyberlab.infrastructure.filesystem.yaml_lab_manifest_loader import (
     YamlLabManifestLoader,
@@ -78,6 +88,7 @@ def create_app(
     validator: LabValidatorProtocol | None = None,
     lab_runner: LabLifeCycleProtocol | None = None,
     lab_scaffolding: LabScaffoldingProtocol | None = None,
+    plugin_scaffolding: PluginScaffoldingProtocol | None = None,
     plugin_registry: PluginRegistry | None = None,
 ) -> typer.Typer:
     """Create the CyberLab CLI application."""
@@ -88,6 +99,8 @@ def create_app(
 
     labs_root = Path("labs")
     scaffolds_root = Path("scaffolds")
+    plugin_templates_root = Path("templates/plugin")
+    plugins_root = Path(".")
 
     command_runner = command_runner or CommandRunner()
 
@@ -117,7 +130,20 @@ def create_app(
         scaffolds_root=scaffolds_root,
     )
 
+    plugin_scaffolding = plugin_scaffolding or FilesystemPluginScaffolding(
+        plugins_root=plugins_root,
+        plugin_scaffolds_root=plugin_templates_root,
+    )
+
     plugin_registry = plugin_registry or _create_plugin_registry()
+
+    list_plugins = ListPluginsUseCase(
+        plugin_registry,
+    )
+
+    create_plugin = CreatePluginUseCase(
+        plugin_scaffolding,
+    )
 
     register_commands(
         app=app,
@@ -127,7 +153,8 @@ def create_app(
         validator=validator,
         lab_runner=lab_runner,
         lab_scaffolding=lab_scaffolding,
-        plugin_registry=plugin_registry,
+        list_plugins=list_plugins,
+        create_plugin=create_plugin,
     )
 
     return app

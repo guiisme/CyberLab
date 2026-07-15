@@ -15,7 +15,7 @@ From the CyberLab repository root, install the generated plugin into the same
 environment as CyberLab:
 
 ```bash
-uv pip install --no-deps -e ./{{PLUGIN_ID}}
+uv pip install --no-deps -e ./demo-plugin
 ```
 
 ## Validate

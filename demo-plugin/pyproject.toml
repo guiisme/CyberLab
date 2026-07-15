@@ -3,12 +3,12 @@ requires = ["uv_build>=0.11.21,<0.12.0"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
-module-name = "{{PLUGIN_PACKAGE}}"
+module-name = "cyberlab_plugin_demo_plugin"
 
 [project]
-name = "{{PLUGIN_ID}}"
+name = "demo-plugin"
 version = "0.1.0"
-description = "{{PLUGIN_NAME}}"
+description = "Demo Plugin"
 readme = "README.md"
 requires-python = ">=3.12"
 
@@ -24,4 +24,4 @@ Homepage = "https://github.com/guiisme84/CyberLab"
 Repository = "https://github.com/guiisme84/CyberLab"
 
 [project.entry-points."cyberlab.plugins"]
-hello = "{{PLUGIN_PACKAGE}}.plugin:{{PLUGIN_CLASS}}"
+"demo-plugin" = "cyberlab_plugin_demo_plugin.plugin:DemoPlugin"

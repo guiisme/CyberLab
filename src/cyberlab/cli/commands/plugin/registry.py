@@ -2,27 +2,46 @@ from __future__ import annotations
 
 import typer
 
-from cyberlab.application.interfaces.plugin_registry_protocol import (
-    PluginRegistryProtocol,
+from cyberlab.application.use_cases.create_plugin_use_case import (
+    CreatePluginUseCase,
 )
-
-from .list import plugin_list as list_plugins
+from cyberlab.application.use_cases.list_plugins_use_case import (
+    ListPluginsUseCase,
+)
+from cyberlab.cli.commands.plugin.create import (
+    create_command,
+)
+from cyberlab.cli.commands.plugin.plugin_list import (
+    list_command,
+)
 
 
 def register_plugin_commands(
     app: typer.Typer,
-    registry: PluginRegistryProtocol,
+    list_plugins: ListPluginsUseCase,
+    create_plugin: CreatePluginUseCase,
 ) -> None:
-    """Register plugin CLI commands."""
+    """Register plugin commands."""
 
     plugin_app = typer.Typer(
-        help="Manage CyberLab plugins.",
+        help="Plugin management commands.",
     )
 
-    @plugin_app.command("list")
-    def list_command() -> None:
-        """List installed plugins."""
-        list_plugins(registry)
+    plugin_app.command(
+        "list",
+    )(
+        list_command(
+            list_plugins,
+        )
+    )
+
+    plugin_app.command(
+        "create",
+    )(
+        create_command(
+            create_plugin,
+        )
+    )
 
     app.add_typer(
         plugin_app,

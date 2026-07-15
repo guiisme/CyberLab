@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
 from typing import Protocol
 
 from cyberlab.application.interfaces.plugin_protocol import PluginProtocol
@@ -12,8 +11,6 @@ class PluginRegistryProtocol(Protocol):
         plugin: PluginProtocol,
     ) -> None: ...
 
-    def plugins(self) -> Sequence[PluginProtocol]: ...
-
     def get(
         self,
         plugin_id: str,
@@ -24,4 +21,6 @@ class PluginRegistryProtocol(Protocol):
         plugin_id: str,
     ) -> bool: ...
 
-    def all(self) -> Sequence[PluginProtocol]: ...
+    def list(
+        self,
+    ) -> list[PluginProtocol]: ...

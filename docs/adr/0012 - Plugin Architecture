@@ -1,0 +1,229 @@
+# ADR 0012 — Plugin Architecture
+
+## Status
+
+Accepted
+
+---
+
+## Context
+
+CyberLab was originally designed as a standalone framework where all functionality lived inside the Core.
+
+As the project evolved, it became desirable to allow third-party developers to extend CyberLab without modifying its source code.
+
+The solution needed to satisfy the following goals:
+
+- preserve Clean Architecture principles;
+- keep the Core independent from external extensions;
+- provide a stable public API for plugin development;
+- support independent plugin distribution;
+- avoid manual plugin registration;
+- allow future evolution without breaking existing plugins.
+
+---
+
+## Decision
+
+CyberLab adopts a plugin architecture based on three main concepts:
+
+- Public SDK
+- Python Entry Points
+- Dynamic Plugin Registry
+
+Plugins are developed as independent Python packages.
+
+Each plugin depends exclusively on the public SDK.
+
+The Core never imports plugin implementations directly.
+
+Instead, plugins are discovered dynamically using Python Entry Points during application startup.
+
+The discovery process is:
+
+```
+Application Startup
+        │
+        ▼
+EntryPointProvider
+        │
+        ▼
+PluginLoader
+        │
+        ▼
+PluginRegistry
+        │
+        ▼
+Application Use Cases
+        │
+        ▼
+CLI
+```
+
+The Plugin Registry is implemented in the Infrastructure layer and exposed through the `PluginRegistryProtocol` defined in the Application layer.
+
+This preserves Dependency Inversion and prevents the Core from depending on plugin implementations.
+
+---
+
+## Public SDK
+
+The package:
+
+```
+cyberlab.sdk
+```
+
+is the only supported public API for plugin development.
+
+Plugins may import:
+
+- Plugin
+- PluginManifest
+- PluginProtocol
+
+Plugins must not import internal modules from:
+
+- application
+- infrastructure
+- cli
+- domain
+
+This guarantees long-term compatibility between the Core and external plugins.
+
+---
+
+## Plugin Discovery
+
+Plugins register themselves using Python Entry Points.
+
+Example:
+
+```toml
+[project.entry-points."cyberlab.plugins"]
+"example-plugin" = "cyberlab_plugin_example_plugin.plugin:ExamplePlugin"
+```
+
+CyberLab discovers all registered plugins automatically during startup.
+
+No manual registration is required.
+
+---
+
+## Plugin Scaffold
+
+CyberLab provides an official scaffold generator.
+
+```
+cyberlab plugin create my-plugin
+```
+
+The generated project includes:
+
+- Python package structure
+- pyproject.toml
+- Plugin manifest
+- tests
+- README
+- LICENSE
+
+The scaffold follows modern Python packaging conventions and is immediately installable.
+
+The generated `pyproject.toml` explicitly maps the distribution name to its
+source package, which is required when the plugin ID contains hyphens:
+
+```toml
+[tool.uv.build-backend]
+module-name = "cyberlab_plugin_example_plugin"
+```
+
+For plugins created inside a CyberLab checkout, the scaffold also resolves the
+Core from the parent directory during local development:
+
+```toml
+[tool.uv.sources]
+cyberlab = { path = "..", editable = true }
+```
+
+## Local Development Workflow
+
+`cyberlab plugin create my-plugin` creates a project alongside the Core. To
+make it discoverable by the CyberLab command run from that checkout, install
+the plugin into the Core environment:
+
+```bash
+uv pip install --no-deps -e ./my-plugin
+uv run cyberlab plugin list
+```
+
+`--no-deps` is appropriate in this workflow because the Core and its
+dependencies are already installed in that environment. Running `uv sync` or
+`uv pip install -e .` from inside the plugin project uses that project's own
+virtual environment; it does not register the plugin in the Core environment.
+
+---
+
+## Consequences
+
+### Positive
+
+- Extensible platform architecture.
+- Stable public SDK.
+- Independent plugin development.
+- Loose coupling.
+- Dynamic discovery.
+- Simple installation using Python packaging.
+- Clean separation between Core and extensions.
+
+### Negative
+
+- Plugin discovery depends on Python Entry Points.
+- Plugins must be installed in the same Python environment as CyberLab.
+- The local scaffold assumes the generated project is a direct child of the
+  CyberLab checkout; independently distributed plugins must declare a suitable
+  Core dependency source for their own environment.
+- The SDK becomes a long-term compatibility commitment.
+
+---
+
+## Alternatives Considered
+
+### Manual registration
+
+Rejected.
+
+Manual registration requires modifying the Core whenever a new plugin is introduced.
+
+### Plugin configuration file
+
+Rejected.
+
+Maintaining a registry file introduces unnecessary operational overhead.
+
+### Direct imports
+
+Rejected.
+
+Direct imports create compile-time coupling between the Core and plugins.
+
+---
+
+## Future Evolution
+
+The current architecture enables future capabilities without breaking the public SDK, including:
+
+- multiple plugin templates;
+- plugin marketplace;
+- plugin enable/disable;
+- dependency resolution;
+- compatibility validation;
+- plugin configuration;
+- capability discovery.
+
+---
+
+## Rationale
+
+Python Entry Points provide a mature, standard mechanism for runtime extension discovery.
+
+Combined with a stable SDK and Dependency Inversion, they allow CyberLab to evolve from a standalone framework into an extensible platform while preserving architectural boundaries and long-term maintainability.
