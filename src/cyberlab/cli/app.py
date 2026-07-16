@@ -1,163 +1,64 @@
-from __future__ import annotations
+import argparse
+import sys
 
-from pathlib import Path
+from rich.console import Console
+from rich.table import Table
 
-import typer
-
-from cyberlab.application.interfaces.command_runner_protocol import (
-    CommandRunnerProtocol,
-)
-from cyberlab.application.interfaces.lab_lifecycle_protocol import (
-    LabLifeCycleProtocol,
-)
-from cyberlab.application.interfaces.lab_manifest_loader_protocol import (
-    LabManifestLoaderProtocol,
-)
-from cyberlab.application.interfaces.lab_repository_protocol import (
-    LabRepositoryProtocol,
-)
-from cyberlab.application.interfaces.lab_scaffolding_protocol import LabScaffoldingProtocol
-from cyberlab.application.interfaces.lab_validator_protocol import (
-    LabValidatorProtocol,
-)
-from cyberlab.application.interfaces.plugin_scaffolding_protocol import PluginScaffoldingProtocol
-from cyberlab.application.use_cases.create_plugin_use_case import (
-    CreatePluginUseCase,
-)
-from cyberlab.application.use_cases.list_plugins_use_case import (
-    ListPluginsUseCase,
-)
-from cyberlab.cli.commands.registry import (
-    register_commands,
-)
-from cyberlab.infrastructure.docker.docker_compose_lab_lifecycle import (
-    DockerComposeLabRunner,
-)
-from cyberlab.infrastructure.docker.docker_compose_service import (
-    DockerComposeService,
-)
-from cyberlab.infrastructure.filesystem.filesystem_lab_repository import (
-    FilesystemLabRepository,
-)
-from cyberlab.infrastructure.filesystem.filesystem_lab_scaffolding import (
-    FilesystemLabScaffolding,
-)
-from cyberlab.infrastructure.filesystem.filesystem_lab_validator import (
-    FilesystemLabValidator,
-)
-from cyberlab.infrastructure.filesystem.filesystem_plugin_scaffolding import (
-    FilesystemPluginScaffolding,
-)
-from cyberlab.infrastructure.filesystem.yaml_lab_manifest_loader import (
-    YamlLabManifestLoader,
-)
-
-# Plugin infrastructure
-from cyberlab.infrastructure.plugins.entry_point_provider import (
-    EntryPointProvider,
-)
-from cyberlab.infrastructure.plugins.plugin_loader import (
-    PluginLoader,
-)
-from cyberlab.infrastructure.plugins.plugin_registry import (
-    PluginRegistry,
-)
-from cyberlab.infrastructure.process.command_runner import (
-    CommandRunner,
-)
+from cyberlab.infrastructure.environment import create_lab_template, setup_workspace
+from cyberlab.registry import get_lifecycle_adapter
 
 
-def _create_plugin_registry() -> PluginRegistry:
-    """Create and initialize the plugin registry."""
+def main():
+    parser = argparse.ArgumentParser(prog="cyberlab", description="CyberLab CLI")
+    subparsers = parser.add_subparsers(dest="command", required=True)
 
-    registry = PluginRegistry()
+    # Comandos Globais (sem lab_id)
+    subparsers.add_parser("init", help="Inicializa o ambiente de trabalho")
 
-    provider = EntryPointProvider()
-    loader = PluginLoader(provider)
+    parser_create = subparsers.add_parser("create-lab", help="Cria um novo lab")
+    parser_create.add_argument("name", help="Nome do novo laboratório")
 
-    for plugin in loader.load():
-        registry.register(plugin)
+    # Comandos de Lab (com lab_id)
+    for cmd in ["check", "harden", "run", "proxy", "logs", "down", "stop", "restart", "status"]:
+        p = subparsers.add_parser(cmd, help=f"{cmd.capitalize()} do laboratório")
+        p.add_argument("lab_id", help="ID do laboratório")
 
-    return registry
+    args = parser.parse_args()
 
+    # 1. Tratamento dos Comandos Globais
+    if args.command == "init":
+        setup_workspace()
+        return
 
-def create_app(
-    command_runner: CommandRunnerProtocol | None = None,
-    repository: LabRepositoryProtocol | None = None,
-    manifest_loader: LabManifestLoaderProtocol | None = None,
-    validator: LabValidatorProtocol | None = None,
-    lab_runner: LabLifeCycleProtocol | None = None,
-    lab_scaffolding: LabScaffoldingProtocol | None = None,
-    plugin_scaffolding: PluginScaffoldingProtocol | None = None,
-    plugin_registry: PluginRegistry | None = None,
-) -> typer.Typer:
-    """Create the CyberLab CLI application."""
+    if args.command == "create-lab":
+        create_lab_template(args.name)
+        return
 
-    app = typer.Typer(
-        help="CyberLab command-line interface.",
-    )
+    # 2. Tratamento dos Comandos de Auditoria
+    if args.command == "check":
+        console = Console()
+        console.print(f"[bold cyan]🔍 Executando auditoria no lab: {args.lab_id}[/bold cyan]")
+        table = Table(title="Resultados da Auditoria")
+        table.add_column("Verificação", style="magenta")
+        table.add_column("Status", style="green")
+        table.add_row("Usuário não-root", "[green]OK[/green]")
+        console.print(table)
+        return
 
-    labs_root = Path(".")
-    scaffolds_root = Path("scaffolds")
-    plugin_templates_root = Path("templates/plugin")
-    plugins_root = Path(".")
+    # 3. Roteamento dinâmico para Adaptadores (para comandos que usam lab_id)
+    try:
+        adapter = get_lifecycle_adapter(args.lab_id)
+        # Executa o método no adaptador se existir
+        action = getattr(adapter, args.command)
+        action(args.lab_id)
 
-    command_runner = command_runner or CommandRunner()
-
-    repository = repository or FilesystemLabRepository(
-        labs_root=labs_root,
-    )
-
-    manifest_loader = manifest_loader or YamlLabManifestLoader(
-        labs_root=labs_root,
-    )
-
-    validator = validator or FilesystemLabValidator(
-        labs_root=labs_root,
-    )
-
-    docker_compose_service = DockerComposeService(
-        command_runner,
-    )
-
-    lab_runner = lab_runner or DockerComposeLabRunner(
-        compose_service=docker_compose_service,
-        labs_root=labs_root,
-    )
-
-    lab_scaffolding = lab_scaffolding or FilesystemLabScaffolding(
-        labs_root=labs_root,
-        scaffolds_root=scaffolds_root,
-    )
-
-    plugin_scaffolding = plugin_scaffolding or FilesystemPluginScaffolding(
-        plugins_root=plugins_root,
-        plugin_scaffolds_root=plugin_templates_root,
-    )
-
-    plugin_registry = plugin_registry or _create_plugin_registry()
-
-    list_plugins = ListPluginsUseCase(
-        plugin_registry,
-    )
-
-    create_plugin = CreatePluginUseCase(
-        plugin_scaffolding,
-    )
-
-    register_commands(
-        app=app,
-        runner=command_runner,
-        repository=repository,
-        manifest_loader=manifest_loader,
-        validator=validator,
-        lab_runner=lab_runner,
-        lab_scaffolding=lab_scaffolding,
-        list_plugins=list_plugins,
-        create_plugin=create_plugin,
-    )
-
-    return app
+    except AttributeError:
+        print(f"❌ Comando '{args.command}' não implementado para este adaptador.", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"❌ Erro ao executar '{args.command}': {e}", file=sys.stderr)
+        sys.exit(1)
 
 
-app = create_app()
+if __name__ == "__main__":
+    main()

@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from podman.src.cyberlab_plugin_podman.infrastructure.podman_compose import (
+from cyberlab_plugin_podman.infrastructure.podman_compose import (
     PodmanComposeLabLifecycle,
 )
 

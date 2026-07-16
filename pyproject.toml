@@ -35,7 +35,7 @@ dependencies = [
 ]
 
 [project.scripts]
-cyberlab = "cyberlab.__main__:main"
+cyberlab = "cyberlab.cli.app:main"
 
 [build-system]
 requires = ["uv_build>=0.11.21,<0.12.0"]
@@ -83,8 +83,10 @@ show_missing = true
 python_version = "3.12"
 strict = true
 pretty = true
-warn_unused_configs = true
-files = ["src"]
+# REMOVA o files = ["src"] se for rodar via --package
+# Ou use isto para forçar a estrutura correta:
+mypy_path = "src"
+explicit_package_bases = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

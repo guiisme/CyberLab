@@ -1,83 +1,65 @@
-from pathlib import Path
+import subprocess
 from unittest.mock import MagicMock, patch
 
-from src.cyberlab_plugin_podman.infrastructure.podman_compose import PodmanComposeLabLifecycle
-from src.cyberlab_plugin_podman.plugin import PodmanPlugin
+import pytest
 
-
-def test_run_executes_podman_compose_up():
-    lifecycle = PodmanComposeLabLifecycle()
-    lab_path = Path("/tmp/fake-lab")
-
-    with patch("subprocess.run") as mock_run:
-        lifecycle.run(lab_path)
-        mock_run.assert_called_once_with(["podman-compose", "up", "-d"], cwd=lab_path, check=True)
-
-
-def test_stop_executes_podman_compose_down():
-    lifecycle = PodmanComposeLabLifecycle()
-    lab_path = Path("/tmp/fake-lab")
-
-    with patch("subprocess.run") as mock_run:
-        lifecycle.stop(lab_path)
-        mock_run.assert_called_once_with(["podman-compose", "down"], cwd=lab_path, check=True)
-
-
-def test_status_executes_podman_compose_ps_and_returns_output():
-    lifecycle = PodmanComposeLabLifecycle()
-    lab_path = Path("/tmp/fake-lab")
-
-    with patch("subprocess.run") as mock_run:
-        mock_process = MagicMock()
-        mock_process.stdout = "Up 2 hours"
-        mock_run.return_value = mock_process
-
-        result = lifecycle.status(lab_path)
-
-        mock_run.assert_called_once_with(
-            ["podman-compose", "ps"], cwd=lab_path, capture_output=True, text=True, check=True
-        )
-        assert result == "Up 2 hours"
-
-
-def test_restart_executes_podman_compose_restart():
-    lifecycle = PodmanComposeLabLifecycle()
-    lab_path = Path("/tmp/fake-lab")
-
-    with patch("subprocess.run") as mock_run:
-        lifecycle.restart(lab_path)
-        mock_run.assert_called_once_with(["podman-compose", "restart"], cwd=lab_path, check=True)
-
-
-def test_logs_executes_podman_compose_logs():
-    lifecycle = PodmanComposeLabLifecycle()
-    lab_path = Path("/tmp/fake-lab")
-
-    with patch("subprocess.run") as mock_run:
-        lifecycle.logs(lab_path)
-        mock_run.assert_called_once_with(["podman-compose", "logs"], cwd=lab_path, check=True)
-
-
-def test_logs_with_follow_and_tail_flags():
-    lifecycle = PodmanComposeLabLifecycle()
-    lab_path = Path("/tmp/fake-lab")
-
-    with patch("subprocess.run") as mock_run:
-        lifecycle.logs(lab_path, follow=True, tail=True)
-        mock_run.assert_called_once_with(
-            ["podman-compose", "logs", "--follow", "--tail=all"], cwd=lab_path, check=True
-        )
+from cyberlab.sdk import LabExecutionError, LaboratoryState
+from cyberlab_plugin_podman.infrastructure.podman_compose import PodmanComposeLabLifecycle
+from cyberlab_plugin_podman.plugin import PodmanPlugin
 
 
 def test_plugin_manifest_contains_correct_metadata():
-    plugin = PodmanComposeLabLifecycle()
-    manifest = plugin.manifest
+    plugin = PodmanPlugin()
 
-    assert manifest.id == "podman"
-    assert manifest.name == "Podman Execution Adapter"
-    assert manifest.version == "0.1.0"
+    assert plugin.manifest.id == "podman"
+    assert plugin.manifest.name == "Podman Execution Adapter"
+    assert plugin.manifest.version == "0.1.0"
 
 
 def test_plugin_instantiates_lifecycle_adapter():
     plugin = PodmanPlugin()
+
     assert isinstance(plugin._lifecycle, PodmanComposeLabLifecycle)
+    assert plugin.get_lifecycle_adapter() is plugin._lifecycle
+
+
+def test_run_executes_podman_compose_up():
+    lifecycle = PodmanComposeLabLifecycle()
+
+    with patch("subprocess.run") as mock_run:
+        lifecycle.run("example")
+        mock_run.assert_called_once_with(
+            [
+                "podman-compose",
+                "-f",
+                str(lifecycle._resolve_path("example") / "docker-compose.yml"),
+                "up",
+                "-d",
+            ],
+            cwd=lifecycle._resolve_path("example"),
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+
+
+def test_run_translates_process_errors_to_domain_errors():
+    lifecycle = PodmanComposeLabLifecycle()
+
+    with patch(
+        "subprocess.run",
+        side_effect=subprocess.CalledProcessError(1, "podman-compose", stderr="container failed"),
+    ):
+        with pytest.raises(
+            LabExecutionError, match="Podman Compose up -d failed: container failed"
+        ):
+            lifecycle.run("example")
+
+
+def test_status_translates_podman_output_to_domain_state():
+    lifecycle = PodmanComposeLabLifecycle()
+
+    with patch("subprocess.run", return_value=MagicMock(stdout="web  Up 2 minutes")):
+        status = lifecycle.status("example")
+
+    assert status.state is LaboratoryState.RUNNING

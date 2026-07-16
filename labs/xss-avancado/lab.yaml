@@ -1,0 +1,10 @@
+id: xss-avancado
+name: "Cross-Site Scripting Avançado"
+version: "1.0.0"
+category: "Web Security"
+engine: "k8s"  # ou "podman"
+description: "Laboratório focado em bypass de filtros WAF."
+author: "Gui"
+dependencies:
+  - "browser"
+  - "burpsuite"

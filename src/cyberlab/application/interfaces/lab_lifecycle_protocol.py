@@ -2,7 +2,6 @@ from typing import Protocol
 
 from cyberlab.domain.models.lab_execution_report import (
     LabExecutionReport,
-    LaboratoryStatus,
 )
 from cyberlab.domain.models.lab_logs import LabLogs
 
@@ -17,24 +16,22 @@ class LabLifeCycleProtocol(Protocol):
         """Run a laboratory."""
         ...
 
-    def stop(
-        self,
-        lab_id: str,
-    ) -> LabExecutionReport:
-        """Stop a laboratory."""
+    def stop(self, lab_id: str) -> None:
+        """Para os recursos do laboratório (mantém dados/volume)."""
         ...
 
-    def status(
-        self,
-        lab_id: str,
-    ) -> LaboratoryStatus:
-        """Return the current status of a laboratory."""
+    def down(self, lab_id: str) -> None:
+        """Remove completamente os recursos do laboratório."""
+        ...
+
+    def status(self, lab_id: str) -> str:
+        """Retorna o estado do laboratório (ex: 'running', 'stopped', 'not found')."""
         ...
 
     def restart(
         self,
         lab_id: str,
-    ) -> LabExecutionReport:
+    ) -> None:
         """Restart a laboratory."""
         ...
 
@@ -43,4 +40,9 @@ class LabLifeCycleProtocol(Protocol):
         lab_id: str,
     ) -> LabLogs:
         """View logs for a laboratory."""
+        ...
+
+    # Adicione ao LabLifeCycleProtocol
+    def check_requirements(self) -> bool:
+        """Verifica se as ferramentas necessárias estão instaladas."""
         ...

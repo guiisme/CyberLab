@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xss-avancado
+  labels:
+    app: xss-avancado
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: xss-avancado
+  template:
+    metadata:
+      labels:
+        app: xss-avancado
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+      - name: web-vulneravel
+        image: nginx:alpine
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: html-content
+          mountPath: /usr/share/nginx/html
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+      volumes:
+      - name: html-content
+        configMap:
+          name: xss-config
+      - name: nginx-config
+        configMap:
+          name: xss-config

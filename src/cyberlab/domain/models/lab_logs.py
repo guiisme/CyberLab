@@ -5,5 +5,5 @@ from dataclasses import dataclass
 class LabLogs:
     """Laboratory logs."""
 
-    lab_id: str
     content: str
+    lab_id: str

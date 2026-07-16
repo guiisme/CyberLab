@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: xss-avancado-service
+spec:
+  selector:
+    app: xss-avancado
+  ports:
+    - protocol: TCP
+      port: 80        # Porta que você acessa no navegador (pode manter 80)
+      targetPort: 8080 # Porta que o Nginx está escutando agora
+  type: ClusterIP

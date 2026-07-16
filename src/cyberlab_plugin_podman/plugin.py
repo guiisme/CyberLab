@@ -1,3 +1,5 @@
+from typing import Any
+
 from cyberlab.sdk import Plugin, PluginManifest
 from cyberlab_plugin_podman.infrastructure.podman_compose import PodmanComposeLabLifecycle
 
@@ -7,7 +9,7 @@ class PodmanPlugin(Plugin):
     Plugin oficial do CyberLab para execução de laboratórios via Podman.
     """
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         # 1. Instanciamos o manifesto estrito
         manifest = PluginManifest(
             id="podman",

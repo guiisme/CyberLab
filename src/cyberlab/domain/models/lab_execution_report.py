@@ -17,11 +17,9 @@ class LaboratoryState(StrEnum):
     slots=True,
 )
 class LabExecutionReport:
-    """Result of a laboratory lifecycle operation."""
-
     lab_id: str
-    success: bool
-    message: str
+    success: bool = True  # Valor padrão aqui
+    message: str = ""
 
 
 @dataclass(frozen=True, slots=True)

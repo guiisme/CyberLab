@@ -1,0 +1,6 @@
+id: "hello-world"
+name: "Hello CyberLab"
+description: "Laboratório de validação inicial."
+category: "basic"
+difficulty: "easy"
+version: "1.0.0"

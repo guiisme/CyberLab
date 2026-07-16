@@ -1,3 +1,5 @@
-"""CyberLab Framework."""
+"""Commands."""
 
-from __future__ import annotations
+from .registry import get_lifecycle_adapter
+
+__all__ = ["get_lifecycle_adapter"]

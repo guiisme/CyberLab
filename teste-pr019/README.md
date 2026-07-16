@@ -1,4 +1,4 @@
-# Lab de Teste Hexagonal
+# Novo Laboratório
 
 **Autor:** CyberLab User
 **Dificuldade:** beginner
