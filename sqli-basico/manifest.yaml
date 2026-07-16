@@ -1,0 +1,6 @@
+id: sqli-basico
+name: "Novo Laboratório"
+author: "CyberLab User"
+difficulty: "intermediate"
+description: |
+  Um laboratório interativo de segurança.

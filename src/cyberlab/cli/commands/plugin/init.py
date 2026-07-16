@@ -6,7 +6,7 @@ from typing import Annotated
 
 import typer
 
-from cyberlab.cli.generator import PluginGenerator
+from cyberlab.cli.generator import TemplateGenerator
 
 
 def init_plugin_command() -> Callable[..., None]:
@@ -40,7 +40,7 @@ def init_plugin_command() -> Callable[..., None]:
         # Resolução de caminho partindo deste arquivo de comando até a pasta templates
         # Ajuste a quantidade de '.parent' dependendo da estrutura exata
         cli_root_dir = Path(__file__).resolve().parent.parent.parent
-        templates_dir = cli_root_dir / "templates"
+        templates_dir = cli_root_dir / "templates" / "plugins"
 
         target_dir = Path.cwd() / plugin_id
 
@@ -48,10 +48,10 @@ def init_plugin_command() -> Callable[..., None]:
         typer.secho(f"Utilizando o template: {template}\n", fg=typer.colors.CYAN)
 
         try:
-            # Nota: Em um futuro refatoramento para DDD estrito, o PluginGenerator
+            # Nota: Em um futuro refatoramento para DDD estrito, o TemplateGenerator
             # poderia ser encapsulado em um InitPluginUseCase e injetado via parâmetro
             # na função init_plugin_command(), assim como você faz no list_command.
-            generator = PluginGenerator(templates_dir=templates_dir)
+            generator = TemplateGenerator(templates_dir=templates_dir)
             generator.generate(template_name=template, target_dir=target_dir, context=context)
 
             typer.secho(

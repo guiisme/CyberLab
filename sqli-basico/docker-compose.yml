@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  vulnerable-nginx:
+    image: nginx:alpine
+    container_name: sqli-basico_vulnerable-nginx
+    ports:
+      - "8080:80"
+    networks:
+      - sqli-basico_network
+
+networks:
+  sqli-basico_network:
+    driver: bridge

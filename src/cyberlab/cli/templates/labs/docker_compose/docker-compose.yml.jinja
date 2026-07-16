@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  {{service_name}}:
+    image: nginx:alpine
+    container_name: {{lab_id}}_{{service_name}}
+    ports:
+      - "8080:80"
+    networks:
+      - {{lab_id}}_network
+
+networks:
+  {{lab_id}}_network:
+    driver: bridge

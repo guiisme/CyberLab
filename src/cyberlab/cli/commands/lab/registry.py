@@ -15,6 +15,7 @@ from cyberlab.application.interfaces.lab_scaffolding_protocol import LabScaffold
 from cyberlab.application.interfaces.lab_validator_protocol import (
     LabValidatorProtocol,
 )
+from cyberlab.cli.commands.lab.init import register_init_command
 
 from .create import (
     register_create_command,
@@ -103,6 +104,8 @@ def register_lab_commands(
         lab_app,
         lab_scaffolding,
     )
+
+    register_init_command(app=lab_app)
 
     app.add_typer(
         lab_app,
