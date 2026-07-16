@@ -16,6 +16,9 @@ from cyberlab.application.interfaces.lab_validator_protocol import (
     LabValidatorProtocol,
 )
 from cyberlab.cli.commands.lab.init import register_init_command
+from podman.src.cyberlab_plugin_podman.infrastructure.podman_compose import (
+    PodmanComposeLabLifecycle,
+)
 
 from .create import (
     register_create_command,
@@ -51,63 +54,28 @@ def register_lab_commands(
     repository: LabRepositoryProtocol,
     manifest_loader: LabManifestLoaderProtocol,
     validator: LabValidatorProtocol,
+    # O lab_runner aqui é o padrão do Core, mas vamos sobrescrevê-lo pelo seu adaptador
     lab_runner: LabLifeCycleProtocol,
     lab_scaffolding: LabScaffoldingProtocol,
 ) -> None:
-    """Register laboratory commands."""
+    lab_app = typer.Typer(help="Manage CyberLab laboratories.")
 
-    lab_app = typer.Typer(
-        help="Manage CyberLab laboratories.",
-    )
+    # Instanciamos o adaptador uma única vez aqui dentro
+    # Isso garante que todos os comandos usem o MESMO comportamento de caminho
+    runner = PodmanComposeLabLifecycle()
 
-    register_list_command(
-        lab_app,
-        repository,
-    )
+    # Registramos TODOS os comandos usando o mesmo 'runner' (o adaptador corrigido)
+    register_run_command(lab_app, runner)
+    register_stop_command(lab_app, runner)
+    register_status_command(lab_app, runner)
+    register_logs_command(lab_app, runner)
+    register_restart_command(lab_app, runner)
 
-    register_info_command(
-        lab_app,
-        manifest_loader,
-    )
-
-    register_logs_command(
-        lab_app,
-        lab_runner,
-    )
-
-    register_validate_command(
-        lab_app,
-        validator,
-    )
-
-    register_run_command(
-        lab_app,
-        lab_runner,
-    )
-
-    register_stop_command(
-        lab_app,
-        lab_runner,
-    )
-
-    register_status_command(
-        lab_app,
-        lab_runner,
-    )
-
-    register_restart_command(
-        lab_app,
-        lab_runner,
-    )
-
-    register_create_command(
-        lab_app,
-        lab_scaffolding,
-    )
-
+    # Comandos que não dependem do runner continuam com seus protocolos originais
+    register_list_command(lab_app, repository)
+    register_info_command(lab_app, manifest_loader)
+    register_validate_command(lab_app, validator)
+    register_create_command(lab_app, lab_scaffolding)
     register_init_command(app=lab_app)
 
-    app.add_typer(
-        lab_app,
-        name="lab",
-    )
+    app.add_typer(lab_app, name="lab")

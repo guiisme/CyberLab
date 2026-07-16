@@ -38,6 +38,11 @@ from cyberlab.cli.commands.plugin.registry import (
 from cyberlab.cli.commands.version import (
     register_version,
 )
+from podman.src.cyberlab_plugin_podman.infrastructure.podman_compose import (
+    PodmanComposeLabLifecycle,
+)
+
+lifecycle_adapter = PodmanComposeLabLifecycle()
 
 
 def register_commands(

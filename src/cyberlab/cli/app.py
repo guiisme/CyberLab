@@ -97,7 +97,7 @@ def create_app(
         help="CyberLab command-line interface.",
     )
 
-    labs_root = Path("labs")
+    labs_root = Path(".")
     scaffolds_root = Path("scaffolds")
     plugin_templates_root = Path("templates/plugin")
     plugins_root = Path(".")

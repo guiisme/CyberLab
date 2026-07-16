@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  target_app:
+    image: nginx:alpine
+    container_name: teste-pr019_target_app
+    ports:
+      - "8080:80"
+    networks:
+      - teste-pr019_network
+
+networks:
+  teste-pr019_network:
+    driver: bridge

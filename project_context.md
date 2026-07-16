@@ -1,647 +1,364 @@
-# CyberLab — Project Context
+# CyberLab - Project Context
 
-Last updated: July 2026
+## Visão Geral
+O CyberLab é uma plataforma modular e extensível para gerenciamento, orquestração e execução de laboratórios práticos. O núcleo do projeto é projetado para ser agnóstico em relação à infraestrutura, delegando a execução real para plugins (como Docker, Podman, etc.) através de uma forte adesão à Arquitetura Hexagonal.
 
----
+## Arquitetura
+O projeto segue estritamente a **Arquitetura Hexagonal (Ports and Adapters)**, garantindo que o Domínio e as Regras de Negócio fiquem isolados das ferramentas de infraestrutura e da interface de linha de comando.
 
-# Project Overview
+* **Domain:** Entidades centrais e contratos (Ports) do sistema.
+* **Application:** Casos de uso (Use Cases) que orquestram as regras de negócio.
+* **Infrastructure:** Adaptadores que implementam os contratos do Domínio (ex: `PodmanComposeLabLifecycle`).
+* **CLI:** Interface de linha de comando construída com Typer, injetando dependências nos Casos de Uso.
 
-CyberLab is an open-source framework for creating, building, executing, learning and distributing reproducible cybersecurity laboratories.
+## Tech Stack
+* **Linguagem:** Python >= 3.12
+* **CLI Framework:** Typer
+* **Scaffolding Engine:** Jinja2
+* **Linting & Formatting:** Ruff
+* **Type Checking:** MyPy
 
-The project combines:
+## Funcionalidades Principais (Atuais)
 
-- Clean Architecture
-- Hexagonal Architecture
-- Test-Driven Development (TDD)
-- Protocol-Oriented Design
-- Dependency Injection
+### 1. Sistema de Plugins
+O Core descobre e carrega plugins dinamicamente utilizando *entry points* do Python (`project.entry-points."cyberlab.plugins"`). Cada plugin declara suas "capabilities" (capacidades), como gerenciar o ciclo de vida de laboratórios (`lab_lifecycle`).
 
-The primary objective is to provide a highly maintainable platform where new laboratory capabilities can be added with minimal coupling, maximum testability and long-term architectural stability.
+### 2. Motor Universal de Scaffolding (`TemplateGenerator`)
+Um motor agnóstico baseado em Jinja2 responsável por gerar estruturas de diretórios e arquivos.
+* **Templates de Plugins:** Localizados em `templates/plugins/`.
+    * `empty`: Estrutura básica de um plugin.
+    * `lab_lifecycle`: Estrutura avançada com base na Arquitetura Hexagonal (Portos e Adaptadores de infraestrutura).
+* **Templates de Laboratórios:** Localizados em `templates/labs/`.
+    * `docker_compose`: Gera manifesto, infraestrutura via Docker Compose e instruções em Markdown.
 
-CyberLab is designed as a long-term extensible platform rather than a Docker-specific tool.
+## Comandos da CLI
 
----
+### Ecossistema de Plugins (`cyberlab plugin`)
+* `init [PLUGIN_ID]`: Realiza o scaffolding de um novo plugin. Suporta injeção de parâmetros como `--author`, `--description` e seleção de `--template`.
 
-# Current Development Status
+### Ecossistema de Laboratórios (`cyberlab lab`)
+* `init [LAB_ID]`: Inicializa a base estrutural de um novo laboratório (scaffolding). Aceita parâmetros como `--difficulty`, `--service-name` e `--template`.
+* `create [LAB_ID]`: Mapeia a criação do laboratório através do `LabCreateUseCase`, acionando o protocolo de scaffolding no core da aplicação.
 
-Current milestone:
+## Padrões de Desenvolvimento
+* **Injeção de Dependências (CLI):** O registro de comandos Typer é feito via passagem do app (`register_init_command(app: typer.Typer)`), garantindo escopo seguro e facilidade em testes.
+* **
 
+## Estrutura de Diretórios
 ```text
-Core Laboratory Platform
+.
+├── CHANGELOG.md
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── demo-plugin
+│   ├── LICENSE
+│   ├── pyproject.toml
+│   ├── README.md
+│   ├── src
+│   │   └── cyberlab_plugin_demo_plugin
+│   │       ├── __init__.py
+│   │       └── plugin.py
+│   └── tests
+│       └── test_plugin.py
+├── docker-adapter
+│   ├── pyproject.toml
+│   └── src
+│       └── cyberlab_plugin_docker_adapter
+│           ├── infrastructure
+│           │   ├── adapter.py
+│           │   └── __init__.py
+│           ├── __init__.py
+│           └── plugin.py
+├── docs
+│   ├── adr
+│   │   ├── 0001 - Project Conventions.md
+│   │   ├── 0002 - Value-objects.md
+│   │   ├── 0003 - Environment Doctor.md
+│   │   ├── 0004 - Laboratory Discovery.md
+│   │   ├── 0005 - Laboratory Metadata Model.md
+│   │   ├── 0006 - Validation Architecture.md
+│   │   ├── 0007 - Docker Compose Laboratory Runner.md
+│   │   ├── 0008 - Plugin Architecture
+│   │   ├── 0010 - Domain Return Models
+│   │   ├── 0011 - Laboratory Scaffolding.md
+│   │   └── 0012 - Plugin Architecture
+│   ├── AI_CONTEXT.md
+│   ├── architecture
+│   │   ├── development-workflow.md
+│   │   ├── overview.md
+│   │   ├── plugins.md
+│   │   ├── principles.md
+│   │   └── testing.md
+│   ├── plugins
+│   │   ├── development-guide.md
+│   │   └── template.md
+│   ├── reviews
+│   │   ├── 2026-07-07-codex-architecture-review.md
+│   │   └── PR #015.md
+│   └── roadmap
+│       └── Roadmap.md
+├── infrastructure
+│   └── system
+├── labs
+│   ├── sqli-basic
+│   │   ├── application
+│   │   ├── compose.yaml
+│   │   ├── lab.yaml
+│   │   ├── README.md
+│   │   ├── scripts
+│   │   └── seed
+│   └── xss-basic
+│       ├── application
+│       ├── compose.yaml
+│       ├── lab.yaml
+│       ├── README.md
+│       ├── scripts
+│       └── seed
+├── LICENSE
+├── Makefile
+├── podman
+│   ├── cyberlab_plugin_podman
+│   ├── LICENSE
+│   ├── pyproject.toml
+│   ├── README.md
+│   ├── src
+│   │   └── cyberlab_plugin_podman
+│   │       ├── infrastructure
+│   │       │   └── podman_compose.py
+│   │       ├── __init__.py
+│   │       └── plugin.py
+│   ├── tests
+│   │   └── test_plugin.py
+│   └── uv.lock
+├── project_context.md
+├── project_tree.txt
+├── pyproject.toml
+├── README.md
+├── scaffolds
+│   └── default
+│       ├── application
+│       ├── compose.yaml
+│       ├── lab.yaml
+│       ├── README.md
+│       ├── scripts
+│       └── seed
+├── scripts
+│   └── create_lab_templates.sh
+├── SECURITY.md
+├── sqli-basico
+│   ├── docker-compose.yml
+│   ├── manifest.yaml
+│   └── README.md
+├── src
+│   └── cyberlab
+│       ├── application
+│       │   ├── __init__.py
+│       │   ├── interfaces
+│       │   │   ├── command_runner_protocol.py
+│       │   │   ├── __init__.py
+│       │   │   ├── lab_lifecycle_protocol.py
+│       │   │   ├── lab_manifest_loader_protocol.py
+│       │   │   ├── lab_repository_protocol.py
+│       │   │   ├── lab_scaffolding_protocol.py
+│       │   │   ├── lab_validator_protocol.py
+│       │   │   ├── plugin_loader_protocol.py
+│       │   │   ├── plugin_protocol.py
+│       │   │   ├── plugin_registry_protocol.py
+│       │   │   └── plugin_scaffolding_protocol.py
+│       │   └── use_cases
+│       │       ├── create_plugin_use_case.py
+│       │       ├── doctor_use_case.py
+│       │       ├── get_lab_status_use_case.py
+│       │       ├── __init__.py
+│       │       ├── lab_create_use_case.py
+│       │       ├── lab_info_use_case.py
+│       │       ├── lab_logs_use_case.py
+│       │       ├── lab_restart_use_case.py
+│       │       ├── lab_run_use_case.py
+│       │       ├── lab_validation_use_case.py
+│       │       ├── list_labs_use_case.py
+│       │       ├── list_plugins_use_case.py
+│       │       ├── stop_lab_use_case.py
+│       │       └── version_use_case.py
+│       ├── cli
+│       │   ├── app.py
+│       │   ├── commands
+│       │   │   ├── doctor.py
+│       │   │   ├── lab
+│       │   │   │   ├── create.py
+│       │   │   │   ├── info.py
+│       │   │   │   ├── __init__.py
+│       │   │   │   ├── init.py
+│       │   │   │   ├── list.py
+│       │   │   │   ├── logs.py
+│       │   │   │   ├── registry.py
+│       │   │   │   ├── restart.py
+│       │   │   │   ├── run.py
+│       │   │   │   ├── status.py
+│       │   │   │   ├── stop.py
+│       │   │   │   └── validate.py
+│       │   │   ├── plugin
+│       │   │   │   ├── create.py
+│       │   │   │   ├── __init__.py
+│       │   │   │   ├── init.py
+│       │   │   │   ├── plugin_list.py
+│       │   │   │   └── registry.py
+│       │   │   ├── registry.py
+│       │   │   └── version.py
+│       │   ├── generator.py
+│       │   ├── __init__.py
+│       │   ├── rendering
+│       │   │   └── checks.py
+│       │   └── templates
+│       │       └── labs
+│       │           └── docker_compose
+│       │               ├── docker-compose.yml.jinja
+│       │               ├── manifest.yaml.jinja
+│       │               └── README.md.jinja
+│       ├── domain
+│       │   ├── __init__.py
+│       │   ├── interfaces
+│       │   │   └── __init__.py
+│       │   ├── models
+│       │   │   ├── check_result.py
+│       │   │   ├── doctor_report.py
+│       │   │   ├── __init__.py
+│       │   │   ├── lab_execution_report.py
+│       │   │   ├── lab_execution_result.py
+│       │   │   ├──  lab_list_report.py
+│       │   │   ├── lab_logs.py
+│       │   │   ├── lab_manifest.py
+│       │   │   ├── lab.py
+│       │   │   ├── lab_validation_report.py
+│       │   │   ├── plugin_manifest.py
+│       │   │   ├── plugin.py
+│       │   │   └── process_result.py
+│       │   ├── reports
+│       │   └── value_objects
+│       │       ├── __init__.py
+│       │       └── version.py
+│       ├── infrastructure
+│       │   ├── configuration
+│       │   │   └── __init__.py
+│       │   ├── docker
+│       │   │   ├── docker_compose_lab_lifecycle.py
+│       │   │   ├── docker_compose_service.py
+│       │   │   └── __init__.py
+│       │   ├── filesystem
+│       │   │   ├── filesystem_lab_repository.py
+│       │   │   ├── filesystem_lab_scaffolding.py
+│       │   │   ├── filesystem_lab_validator.py
+│       │   │   ├── filesystem_plugin_scaffolding.py
+│       │   │   ├── __init__.py
+│       │   │   └── yaml_lab_manifest_loader.py
+│       │   ├── __init__.py
+│       │   ├── plugins
+│       │   │   ├── entry_point_provider.py
+│       │   │   ├── __init__.py
+│       │   │   ├── plugin_loader.py
+│       │   │   └── plugin_registry.py
+│       │   ├── process
+│       │   │   ├── command_runner.py
+│       │   │   └── __init__.py
+│       │   └── runner
+│       │       └── noop_lab_runner.py
+│       ├── __init__.py
+│       ├── __main__.py
+│       ├── plugins
+│       │   └── __init__.py
+│       ├── sdk
+│       │   └── __init__.py
+│       └── shared
+│           ├── __init__.py
+│           └── version.py
+├── templates
+│   └── plugin
+│       ├── LICENSE
+│       ├── pyproject.toml
+│       ├── README.md
+│       ├── src
+│       │   └── cyberlab_plugin_hello
+│       │       ├── __init__.py
+│       │       └── plugin.py
+│       └── tests
+│           └── test_plugin.py
+├── tests
+│   ├── fakes
+│   │   ├── fake_command_runner.py
+│   │   ├── fake_docker_compose_service.py
+│   │   ├── fake_entry_point_provider.py
+│   │   ├── fake_entry_point.py
+│   │   ├── fake_lab_lifecycle.py
+│   │   ├── fake_lab_manifest_loader.py
+│   │   ├── fake_lab_repository.py
+│   │   ├── fake_lab_scaffolding.py
+│   │   ├── fake_lab_validator.py
+│   │   └── fake_plugin.py
+│   ├── fixtures
+│   ├── integration
+│   └── unit
+│       ├── application
+│       │   ├── test_lab_create_use_case.py
+│       │   └── use_cases
+│       │       ├── test_create_plugin_use_case.py
+│       │       ├── test_get_lab_status_use_case.py
+│       │       ├── test_lab_run_use_case.py
+│       │       ├── test_lab_validation_use_case.py
+│       │       ├── test_logs_lab.py
+│       │       ├── test_stop_lab_use_case.py
+│       │       └── use_cases
+│       │           ├── test_doctor.py
+│       │           ├── test_lab_info_use_case.py
+│       │           ├── test_list_labs_use_case.py
+│       │           └── test_version.py
+│       ├── cli
+│       │   ├── commands
+│       │   │   └── plugin
+│       │   │       └── test_list.py
+│       │   ├── test_app.py
+│       │   ├── test_doctor.py
+│       │   ├── test_lab.py
+│       │   └── test_version.py
+│       ├── domain
+│       │   ├── models
+│       │   │   ├── test_check_result.py
+│       │   │   ├── test_doctor_report.py
+│       │   │   ├── test_lab_execution_report.py
+│       │   │   ├── test_lab_execution_result.py
+│       │   │   ├── test_lab_manifest.py
+│       │   │   ├── test_lab.py
+│       │   │   ├── test_lab_validation_report.py
+│       │   │   ├── test_plugin_manifest.py
+│       │   │   └── test_plugin.py
+│       │   └── test_laboratory_status.py
+│       ├── fakes
+│       │   ├── test_fake_command_runner.py
+│       │   ├── test_fake_lab_manifest_loader.py
+│       │   ├── test_fake_lab_runner.py
+│       │   └── test_fake_lab_validator.py
+│       ├── infrastructure
+│       │   ├── docker
+│       │   │   ├── test_docker_compose_lab_lifecycle.py
+│       │   │   ├── test_docker_compose_lab_status.py
+│       │   │   └── test_docker_compose_service.py
+│       │   ├── filesystem
+│       │   │   ├── test_filesystem_lab_scaffolding.py
+│       │   │   ├── test_filesystem_lab_validator.py
+│       │   │   └── test_filesystem_plugin_scaffolding.py
+│       │   ├── process
+│       │   │   ├── filesystem
+│       │   │   │   ├── test_filesystem_lab_repository.py
+│       │   │   │   └── test_yaml_lab_manifest_loader.py
+│       │   │   ├── test_command_runner.py
+│       │   │   └── test_process_result.py
+│       │   └── runner
+│       │       └── test_noop_lab_runner.py
+│       ├── plugins
+│       │   └── test_plugin_registry.py
+│       ├── sdk
+│       │   └── test_sdk_exports.py
+│       └── shared
+└── uv.lock
+
+95 directories, 218 files
 ```
-
-Implemented capabilities:
-
-- Laboratory discovery
-- Laboratory information
-- Laboratory validation
-- Laboratory scaffolding
-- Laboratory lifecycle
-    - Run
-    - Stop
-    - Status
-    - Restart
-    - Logs
-- Plugin architecture
-    - Public SDK
-    - Plugin discovery
-    - Plugin loading
-    - Plugin registry
-    - Plugin scaffolding
-    - Plugin CLI
-    - Standardized plugin template
-- Environment diagnostics
-- Version management
-
-The project architecture is considered stable.
-
-Recent development has confirmed that new capabilities can be introduced by extending the existing architecture rather than modifying established layers.
-
-Future work is expected to expand the platform incrementally while preserving architectural consistency.
-
----
-
-# Architectural Layers
-
-```text
-CLI
-
-↓
-
-Application
-
-↓
-
-Protocols
-
-↓
-
-Infrastructure
-```
-
-Dependencies always point downward.
-
----
-
-# Architectural Principles
-
-The project follows these architectural principles:
-
-- Clean Architecture
-- Hexagonal Architecture
-- Dependency Inversion
-- Protocol-Oriented Design
-- Composition Root
-- Explicit Dependency Injection
-- Small Use Cases
-- Replaceable Infrastructure
-- Capability Consolidation
-
-Architecture is considered a first-class concern.
-Model capabilities around domain concepts rather than individual operations.
----
-
-# Design Philosophy
-
-CyberLab favors simplicity over premature abstraction.
-
-Whenever possible:
-
-- prefer extension over modification;
-- prefer explicit code over hidden magic;
-- prefer small duplication over unnecessary abstraction;
-- prefer Protocols over inheritance;
-- prefer Fakes over mocks;
-- keep commits small and independently releasable.
-
-Architectural consistency is valued more than implementation cleverness.
-
----
-
-# Composition Root
-
-Dependency creation is centralized inside the Composition Root.
-
-Responsibilities include:
-
-- infrastructure creation;
-- protocol wiring;
-- dependency injection;
-- CLI composition.
-
-Business logic never creates infrastructure objects directly.
-
----
-
-# Current Infrastructure
-
-Current execution backend:
-
-- Docker Compose
-
-Infrastructure components include:
-
-- DockerComposeService
-- DockerComposeLabLifecycle
-- CommandRunner
-- Filesystem repositories
-- YAML manifest loader
-- Filesystem laboratory scaffolding
-- Filesystem plugin scaffolding
-- Python Entry Point provider
-- Plugin loader
-- Plugin registry
-
-Future execution adapters may include:
-
-- Podman
-- Kubernetes
-- Remote execution
-- Cloud-native orchestration
-
----
-
-# Plugin Architecture
-
-CyberLab plugins are independent Python distributions discovered through the
-`cyberlab.plugins` Python Entry Point group. At application startup,
-`EntryPointProvider` discovers entry points, `PluginLoader` instantiates them,
-and `PluginRegistry` makes the loaded plugins available to application use
-cases and the CLI.
-
-The public plugin API is `cyberlab.sdk`. Plugins should import only public SDK
-symbols, such as `Plugin`, `PluginManifest`, and `PluginProtocol`; they must
-not depend on internal `application`, `infrastructure`, `cli`, or `domain`
-modules.
-
-The canonical template is `templates/plugin`. Create a plugin from the
-repository root with:
-
-```bash
-uv run cyberlab plugin create my-plugin
-```
-
-For an ID of `my-plugin`, the generated distribution, Python package, and
-entry point are:
-
-| Concern | Value |
-| --- | --- |
-| Distribution ID | `my-plugin` |
-| Python package | `cyberlab_plugin_my_plugin` |
-| Plugin class | `MyPlugin` |
-| Entry point group | `cyberlab.plugins` |
-| Entry point name | `my-plugin` |
-
-The generated `pyproject.toml` uses `uv_build` and must explicitly set:
-
-```toml
-[tool.uv.build-backend]
-module-name = "cyberlab_plugin_my_plugin"
-```
-
-This is necessary because the distribution ID can contain hyphens while the
-Python package uses underscores. The template also configures the local Core
-as an editable `uv` source using `path = ".."`; therefore plugins created by
-the CLI are expected to be direct children of the CyberLab checkout.
-
-For local plugin development, `uv sync` inside the plugin creates that
-plugin's own virtual environment. To make a generated plugin discoverable by
-the CyberLab command executed from the repository root, install it into the
-Core environment instead:
-
-```bash
-uv pip install --no-deps -e ./my-plugin
-uv run cyberlab plugin list
-```
-
-`--no-deps` is used because the Core environment already provides CyberLab and
-its dependencies. Installing from inside the plugin directory does not make
-the plugin visible to the root project's `uv run cyberlab` command.
-
-The template contains no `.venv` or `uv.lock`; each generated plugin creates
-and owns those artifacts. See `docs/plugins/template.md` for the complete
-template reference and `docs/adr/0012 - Plugin Architecture` for the
-architectural decision.
-
----
-
-# Laboratory Lifecycle
-
-Current lifecycle operations:
-
-```text
-Run
-
-Status
-
-Restart
-
-Stop
-```
-
-Planned operations:
-
-Logs
-```
-
-Lifecycle operations are exposed through Application Use Cases and implemented through Infrastructure adapters.
-
----
-
-# Testing Strategy
-
-Testing mirrors the architecture.
-
-```text
-CLI
-
-↓
-
-Application
-
-↓
-
-Domain
-
-↓
-
-Infrastructure
-```
-
-Current testing principles:
-
-- TDD whenever practical
-- Fakes instead of mocks
-- One canonical Fake per Protocol
-- Deterministic unit tests
-- Fast feedback
-- Layer isolation
-
-Every architectural layer owns its own test suite.
-
----
-
-# Development Workflow
-
-Every Pull Request follows the official workflow.
-
-```text
-Capability Proposal
-
-↓
-
-Architecture Brief
-
-↓
-
-Architecture Review
-
-↓
-
-Impact Analysis
-
-↓
-
-Dependency Graph
-
-↓
-
-Contract Design
-
-↓
-
-Commit Plan
-
-↓
-
-Implementation
-
-↓
-
-Code Review
-
-↓
-
-Architecture Audit
-
-↓
-
-Documentation
-
-↓
-
-Sprint Review
-
-↓
-
-Retrospective
-```
-
-This workflow is considered part of the project's architecture.
-
----
-
-# Quality Gates
-
-Every commit must successfully execute:
-
-```bash
-make format
-
-make verify
-```
-
-The verification pipeline includes:
-
-- Ruff
-- MyPy
-- Pytest
-
-No commit is considered complete before passing every quality gate.
-
----
-
-# Commit Strategy
-
-Every Pull Request is divided into small architectural increments.
-
-General evolution order:
-
-```text
-Contracts
-
-↓
-
-Infrastructure
-
-↓
-
-Consumer
-
-↓
-
-Composition Root
-
-↓
-
-Documentation
-```
-
-Each commit introduces a single architectural responsibility.
-
-Every commit should leave the repository in a releasable state.
-
----
-
-# Project Conventions
-
-The project follows these conventions.
-
-## Architecture
-
-- One responsibility per layer.
-- One architectural concern per commit.
-- Business rules independent from infrastructure.
-- Explicit dependency injection.
-- Protocols define architectural contracts.
-- Group related operations around a single domain capability whenever they belong to the same lifecycle or business concept.
-
----
-
-## Testing
-
-- One canonical Fake per Protocol.
-- Test behavior rather than implementation.
-- Infrastructure tested independently.
-- CLI tested independently.
-
----
-
-## Documentation
-
-Documentation evolves together with implementation.
-
-Documentation explains decisions rather than code.
-
-Architecture documents remain timeless whenever possible.
-
----
-
-# Project Structure (Permanent)
-
-CyberLab follows a stable directory organization based on Clean Architecture and
-Hexagonal Architecture. New capabilities should integrate into this structure
-instead of introducing new top-level modules.
-
-```text
-src/
-└── cyberlab/
-    ├── application/
-    │   ├── interfaces/
-    │   └── use_cases/
-    │
-    ├── cli/
-    │   ├── app.py
-    │   └── commands/
-    │       ├── lab/
-    │       └── plugin/
-    │
-    ├── domain/
-    │   ├── models/
-    │   └── value_objects/
-    │
-    ├── infrastructure/
-    │   ├── docker/
-    │   ├── filesystem/
-    │   ├── plugins/
-    │   ├── process/
-    │   └── runner/
-    │
-    └── sdk/
-
-docs/
-├── adr/
-├── architecture/
-├── reviews/
-└── roadmap/
-
-labs/
-
-templates/
-└── plugin/
-
-tests/
-├── fakes/
-├── integration/
-└── unit/
-```
-
-The directory organization is considered stable and should evolve incrementally.
-Individual files may change over time, but the architectural organization should
-remain consistent.
-
----
-
-# Current Laboratory
-
-Reference laboratory:
-
-```text
-labs/xss-basic
-
-labs/sqli-basic
-```
-
-Current lifecycle:
-
-```bash
-cyberlab lab run xss-basic
-
-cyberlab lab restart xss-basic
-
-cyberlab lab stop xss-basic
-
-cyberlab lab status xss-basic
-
-cyberlab lab logs xss-basic
-
-cyberlab lab create <lab-id>
-```
-
-This laboratory serves as the reference implementation for future laboratories.
-
----
-
-# Current Plugin Commands
-
-```bash
-cyberlab plugin list
-
-cyberlab plugin create <plugin-id>
-```
-
----
-
-# Next Development Priorities
-
-Current priorities:
-
-1. Official plugins
-2. Multiple plugin templates
-3. Additional official laboratories
-4. Multiple laboratory scaffolds
-5. New execution adapters
-
-The architecture is prepared for these capabilities.
-
----
-
-# Plugin Architecture
-
-CyberLab now provides a complete plugin platform.
-
-Plugins are developed as standalone Python packages that depend exclusively on the public SDK.
-
-The discovery pipeline is:
-
-```text
-Python Entry Points
-
-↓
-
-EntryPointProvider
-
-↓
-
-PluginLoader
-
-↓
-
-PluginRegistry
-
-↓
-
-Application Use Cases
-
-↓
-
-CLI
-```
-
-CyberLab provides:
-
-- Public SDK (`cyberlab.sdk`)
-- Dynamic plugin discovery
-- Plugin Registry
-- Official plugin scaffold
-- Plugin CLI
-
-Plugins are created using:
-
-```bash
-cyberlab plugin create <plugin-id>
-```
-
-Installed plugins are discovered automatically through Python Entry Points.
-
----
-
-# Long-Term Vision
-
-CyberLab aims to become a reference implementation for:
-
-- cybersecurity laboratory automation;
-- Clean Architecture in Python;
-- Protocol-Oriented Design;
-- reproducible offensive security laboratories.
-
-The long-term objective is to evolve the platform without requiring architectural redesign.
-
-Every new capability should integrate naturally into the existing architecture while preserving simplicity, maintainability and testability.
-
-Official laboratory scaffolds provide a standardized foundation for future
-laboratories, ensuring architectural consistency while allowing individual
-laboratories to evolve independently.
-
-# Starting a New Development Session
-
-To continue CyberLab development in a new conversation:
-
-1. Share this document (`project_context.md`).
-
-2. Describe the objective of the next Pull Request.
-
-3. Follow the official development workflow:
-
-- Capability Review
-- Architecture Brief
-- Architecture Review
-- Impact Analysis
-- Dependency Graph
-- Contract Review
-- Commit Plan
-- Implementation
-- Verification
-- Quality Audit
-- Sprint Review
-- Retrospective
-
-Implementation should only begin after the planning stages have been completed.
-
----
-# Architecture Status
-
-CCurrent architectural capabilities:
-
-- Laboratory Discovery
-- Laboratory Validation
-- Laboratory Scaffolding
-- Laboratory Lifecycle
-- Plugin SDK
-- Plugin Architecture
-- Plugin Scaffolding
-- Environment Diagnostics
-
-The architecture is considered stable.
-
-Future development should extend existing capabilities before introducing new architectural abstractions.

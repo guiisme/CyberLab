@@ -7,6 +7,7 @@ Internal modules should not be imported directly by external plugins.
 
 from cyberlab.application.interfaces.lab_lifecycle_protocol import LabLifeCycleProtocol
 from cyberlab.application.interfaces.plugin_protocol import PluginProtocol
+from cyberlab.domain.exceptions import LabExecutionError
 from cyberlab.domain.models.lab_execution_report import (
     LabExecutionReport,
     LaboratoryState,
@@ -25,4 +26,5 @@ __all__ = [
     "LaboratoryStatus",
     "LaboratoryState",
     "LabLogs",
+    "LabExecutionError",
 ]
