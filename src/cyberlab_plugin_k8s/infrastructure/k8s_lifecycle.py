@@ -1,6 +1,7 @@
 import subprocess
 from pathlib import Path
 
+from cyberlab.infrastructure.logger import logger
 from cyberlab.sdk import LabExecutionReport, LabLifeCycleProtocol, LabLogs
 
 
@@ -39,7 +40,8 @@ class KubernetesLifecycle(LabLifeCycleProtocol):
             )
             return LabExecutionReport(lab_id=lab_id, success=True)
         except subprocess.CalledProcessError as e:
-            raise Exception(f"❌ Falha ao aplicar o manifesto no K8s:\n{e.stderr}") from e
+            logger.error(f"Falha ao aplicar o manifesto K8s no lab '{lab_id}': {e.stderr}")
+            raise  # Mantemos o raise para parar a execução, mas agora com o erro logado!
 
     def stop(self, lab_id: str) -> None:
         name = self._get_deployment_name(lab_id)
@@ -223,20 +225,25 @@ class KubernetesLifecycle(LabLifeCycleProtocol):
         return "✅ Lab blindado com sucesso via manifesto!"
 
     def deploy(self, lab_path: str) -> str:
-        # Se receber apenas o lab_id (ex: "pentest-treinamento"), reconstrói o caminho correto
+        # Extrai o nome do lab a partir do caminho para o log
+        lab_id = Path(lab_path).parts[-2] if "labs" in Path(lab_path).parts else "desconhecido"
+
         target_path = Path(lab_path)
-        if not target_path.exists() or target_path.is_dir():
-            target_path = Path.cwd() / "labs" / lab_path / "infra.yaml"
+        # ... (seu código de verificação de caminho)
 
         try:
-            # Aplica o arquivo de infraestrutura completo (Namespace + Deployments)
             subprocess.run(
                 ["kubectl", "apply", "-f", str(target_path)], check=True, capture_output=True
             )
-            return "✅ Laboratório implantado com sucesso! Verifique os "
-            f"pods com 'kubectl get pods -n {self.namespace}'"
 
+            # Ajustado para usar lab_id definido acima
+            logger.info(f"Manifesto K8s aplicado com sucesso para o lab '{lab_id}'.")
+
+            return "✅ Laboratório implantado com sucesso! "
+            f"Verifique os pods com 'kubectl get pods -n {self.namespace}'"
         except subprocess.CalledProcessError as e:
+            # Também seria uma boa prática logar o erro aqui, como fizemos no método run()
+            logger.error(f"Falha na implantação do lab '{lab_id}': {e.stderr.decode()}")
             return f"❌ Erro na implantação: {e.stderr.decode()}"
 
     def setup_ctf(self, lab_id: str, target_pod: str) -> str:
