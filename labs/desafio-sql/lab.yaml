@@ -1,0 +1,7 @@
+name: desafio-sql
+created_at: 2026-07-16
+description: "Laboratório de segurança para testes de desafio-sql"
+engine: k8s
+tags:
+  - security
+  - training

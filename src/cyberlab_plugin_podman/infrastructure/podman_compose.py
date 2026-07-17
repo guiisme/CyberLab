@@ -113,3 +113,39 @@ class PodmanComposeLabLifecycle(LabLifeCycleProtocol):
             print(f"⚠️ [ALERTA]: O container possui capacidades adicionais: {cap}")
         else:
             print("✅ [OK]: Nenhuma capacidade de privilégio adicional encontrada.")
+
+    def deploy(self, lab_path: str) -> str:
+        """Executa a implantação do lab."""
+        import subprocess
+
+        try:
+            result = subprocess.run(
+                ["kubectl", "apply", "-f", lab_path], check=True, capture_output=True, text=True
+            )
+            return result.stdout
+        except subprocess.CalledProcessError as e:
+            raise Exception(f"Erro no deploy: {e.stderr}") from e
+
+    def setup_ctf(self, lab_id: str, target_pod: str = "default_target") -> str:
+        # Script que cria as flags no container alvo (exemplo)
+        # Ajuste o nome do container se necessário
+        setup_script = """
+        echo "FLAG_1_RECON_COMPLETE" > /var/www/html/dica.txt
+        echo "Olá, Well! A senha do cofre é 123456" > /var/www/html/email_secreto.txt
+        """
+        # Usamos o método exec que você já criou para injetar o setup
+        return self.exec(lab_id, f"bash -c '{setup_script}'")
+
+    def exec(self, lab_id: str, command: str) -> str:
+        """Executa um comando dentro de um lab."""
+        # Se for Podman, aqui vai sua lógica de subprocesso
+        # Se for K8s, aqui vai o 'kubectl exec'
+        import subprocess
+
+        # Exemplo simplificado:
+        result = subprocess.run(
+            ["kubectl", "exec", lab_id, "--", "/bin/sh", "-c", command],
+            capture_output=True,
+            text=True,
+        )
+        return result.stdout

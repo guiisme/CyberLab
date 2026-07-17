@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: desafio-sql
+  labels:
+    app: desafio-sql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: desafio-sql
+  template:
+    metadata:
+      labels:
+        app: desafio-sql
+    spec:
+      containers:
+      - name: db-test
+        image: mysql:5.7
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "password"

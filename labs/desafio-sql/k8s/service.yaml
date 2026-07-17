@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: desafio-sql-svc
+  labels:
+    app: desafio-sql
+spec:
+  selector:
+    app: desafio-sql
+  ports:
+    - port: 3306

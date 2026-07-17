@@ -35,6 +35,8 @@ class LabLifeCycleProtocol(Protocol):
         """Restart a laboratory."""
         ...
 
+    def exec(self, lab_id: str, command: str) -> str: ...
+
     def logs(
         self,
         lab_id: str,
@@ -46,3 +48,5 @@ class LabLifeCycleProtocol(Protocol):
     def check_requirements(self) -> bool:
         """Verifica se as ferramentas necessárias estão instaladas."""
         ...
+
+    def setup_ctf(self, lab_id: str, target_pod: str) -> str: ...

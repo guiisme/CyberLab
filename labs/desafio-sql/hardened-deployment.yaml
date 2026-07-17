@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: desafio-sql
+spec:
+  selector:
+    matchLabels:
+      app: desafio-sql
+  template:
+    metadata:
+      labels:
+        app: desafio-sql
+    spec:
+      securityContext:
+        runAsUser: 999
+        fsGroup: 999
+      containers:
+      - name: mysql
+        image: mysql:5.7
+        # Mantemos o ReadOnly, mas adicionamos os volumes necessários abaixo
+        securityContext:
+          readOnlyRootFilesystem: true
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "senha_forte_e_segura"
+        volumeMounts:
+        - name: mysql-data
+          mountPath: /var/lib/mysql
+        - name: mysql-run
+          mountPath: /var/run/mysqld
+        - name: tmp-dir
+          mountPath: /tmp
+      volumes:
+      - name: mysql-data
+        emptyDir: {}
+      - name: mysql-run
+        emptyDir: {}
+      - name: tmp-dir
+        emptyDir: {}

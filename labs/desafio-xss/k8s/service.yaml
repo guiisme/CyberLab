@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: desafio-xss-svc
+  labels:           # <--- ADICIONE ESTA LINHA E A ABAIXO
+    app: desafio-xss
+spec:
+  selector:
+    app: desafio-xss
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP

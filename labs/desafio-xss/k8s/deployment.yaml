@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xss-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: desafio-xss  # <--- Ajustado
+  template:
+    metadata:
+      labels:
+        app: desafio-xss  # <--- Ajustado
+    spec:
+      containers:
+      - name: web-server
+        image: php:7.4-apache
+        ports:
+        - containerPort: 80
+        command: ["bash", "-c"]
+        args:
+          - |
+            echo '<?php $c = $_GET["comment"]; echo "Comentário: " . $c; ?>' > /var/www/html/index.php
+            apache2-foreground

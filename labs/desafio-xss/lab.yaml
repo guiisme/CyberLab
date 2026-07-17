@@ -1,0 +1,7 @@
+name: desafio-xss
+created_at: 2026-07-16
+description: "Laboratório de segurança para testes de desafio-xss"
+engine: k8s  # <--- Adicione esta linha!
+tags:
+  - security
+  - training
