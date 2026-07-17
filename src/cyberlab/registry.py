@@ -2,6 +2,7 @@ from pathlib import Path
 
 import yaml
 
+from cyberlab.infrastructure.environment import CYBERLAB_HOME
 from cyberlab_plugin_k8s.infrastructure.k8s_lifecycle import KubernetesLifecycle
 from cyberlab_plugin_podman.infrastructure.podman_compose import PodmanComposeLabLifecycle
 
@@ -35,3 +36,17 @@ def get_lifecycle_adapter(lab_id: str):
         return PodmanComposeLabLifecycle()
     else:
         raise ValueError(f"Engine '{engine}' não suportada para o lab {lab_id}.")
+
+
+def validate_flag(lab_id: str, submitted_flag: str) -> bool:
+    lab_yaml_path = CYBERLAB_HOME / "labs" / lab_id / "lab.yaml"
+
+    if not lab_yaml_path.exists():
+        return False
+
+    with open(lab_yaml_path) as f:
+        config = yaml.safe_load(f)
+        # Supondo que a flag esteja salva no campo 'flag' do lab.yaml
+        expected_flag = config.get("flag")
+
+    return submitted_flag == expected_flag

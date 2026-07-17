@@ -24,6 +24,11 @@ def main():
     parser_create = subparsers.add_parser("create-lab", help="Cria um novo lab")
     parser_create.add_argument("name", help="Nome do novo laboratório")
 
+    # No local onde você define o subparser para 'submit':
+    parser_submit = subparsers.add_parser("submit", help="Envia flag para validação")
+    parser_submit.add_argument("lab_id", help="ID do laboratório")
+    parser_submit.add_argument("--flag", required=True, help="A flag do desafio")
+
     parser_deploy = subparsers.add_parser("deploy", help="Implanta um lab completo")
     parser_deploy.add_argument("lab_id", help="ID/Nome do laboratório (pasta dentro de labs/)")
 
@@ -75,6 +80,17 @@ def main():
         table.add_row("Usuário não-root", "[green]OK[/green]")
         console.print(table)
         return
+
+    if args.command == "submit":
+        from cyberlab.registry import validate_flag
+
+        is_valid = validate_flag(args.lab_id, args.flag)
+        if is_valid:
+            console.print("[bold green]🎉 Flag correta! Lab concluído.[/bold green]")
+            return  # Sai da função main com sucesso
+        else:
+            console.print("[bold red]❌ Flag incorreta, tente novamente.[/bold red]")
+            sys.exit(1)  # Sai com erro de validação
 
     # --- 2. Roteamento de Comandos de Infraestrutura ---
     try:
