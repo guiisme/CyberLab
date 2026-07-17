@@ -13,11 +13,33 @@ class KubernetesLifecycle(LabLifeCycleProtocol):
         return lab_id
 
     def run(self, lab_id: str) -> LabExecutionReport:
-        manifest_path = Path.cwd() / "labs" / lab_id / "k8s" / "deployment.yaml"
-        subprocess.run(
-            ["kubectl", "apply", "-f", str(manifest_path), "-n", self.namespace], check=True
-        )
-        return LabExecutionReport(lab_id=lab_id, success=True)
+        from cyberlab.infrastructure.environment import CYBERLAB_HOME
+
+        # 1. Monta o caminho dinâmico para a pasta k8s padrão
+        lab_dir = CYBERLAB_HOME / "labs" / lab_id
+        manifest_path = lab_dir / "k8s" / "deployment.yaml"
+
+        # 2. Fallback caso o laboratório use infra.yaml diretamente na raiz do lab
+        if not manifest_path.exists():
+            manifest_path = lab_dir / "infra.yaml"
+
+        if not manifest_path.exists():
+            raise FileNotFoundError(
+                f"❌ Nenhum manifesto Kubernetes (deployment.yaml ou infra.yaml) "
+                f"encontrado para o laboratório '{lab_id}'."
+            )
+
+        # 3. Executa o deploy real no cluster
+        try:
+            subprocess.run(
+                ["kubectl", "apply", "-f", str(manifest_path), "-n", self.namespace],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            return LabExecutionReport(lab_id=lab_id, success=True)
+        except subprocess.CalledProcessError as e:
+            raise Exception(f"❌ Falha ao aplicar o manifesto no K8s:\n{e.stderr}") from e
 
     def stop(self, lab_id: str) -> None:
         name = self._get_deployment_name(lab_id)
