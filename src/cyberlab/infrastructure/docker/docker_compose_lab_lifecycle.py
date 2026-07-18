@@ -163,6 +163,42 @@ class DockerComposeLabRunner(LabLifeCycleProtocol):
             return f"Erro ao executar: {result.stderr}"
         return result.stdout or "(comando executado sem saída)"
 
+    def proxy(self, lab_id: str) -> str:
+        """Show host endpoints already published by the Compose laboratory."""
+
+        containers = self._compose_service.container_ids(self._compose_file(lab_id))
+        if containers.exit_code != 0:
+            return f"Erro ao localizar container: {containers.stderr.strip()}"
+
+        container_ids = containers.stdout.splitlines()
+        if not container_ids:
+            return f"Nenhum container ativo para '{lab_id}'. Execute 'lab run {lab_id}' primeiro."
+
+        result = self._compose_service.ports(container_ids[0])
+        if result.exit_code != 0:
+            return f"Erro ao consultar portas: {result.stderr.strip()}"
+
+        ports = result.stdout.strip()
+        if not ports:
+            return f"O laboratório '{lab_id}' não publica portas no host."
+        return f"Endpoint(s) publicado(s) para '{lab_id}':\n{ports}"
+
+    def console(self, lab_id: str, shell: str = "/bin/bash") -> str:
+        """Open an interactive Docker console in the first Compose container."""
+
+        containers = self._compose_service.container_ids(self._compose_file(lab_id))
+        if containers.exit_code != 0:
+            return f"Erro ao localizar container: {containers.stderr.strip()}"
+
+        container_ids = containers.stdout.splitlines()
+        if not container_ids:
+            return f"Nenhum container ativo para '{lab_id}'. Execute 'lab run {lab_id}' primeiro."
+
+        exit_code = self._compose_service.interactive_shell(container_ids[0], shell)
+        if exit_code != 0:
+            return f"Console encerrado com código {exit_code}."
+        return "Console encerrado."
+
     def _compose_file(
         self,
         lab_id: str,

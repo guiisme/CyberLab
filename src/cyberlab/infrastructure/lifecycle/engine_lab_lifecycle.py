@@ -51,11 +51,14 @@ class EngineLabLifecycle:
     def exec(self, lab_id: str, command: str) -> str:
         return self._operation(lab_id, "exec", lab_id, command)
 
+    def console(self, lab_id: str, shell: str) -> str:
+        return self._operation(lab_id, "console", lab_id, shell)
+
     def submit(self, lab_id: str, flag: str) -> bool:
         return self._operation(lab_id, "validate_flag", lab_id, flag)
 
-    def proxy(self, lab_id: str) -> None:
-        self._operation(lab_id, "proxy", lab_id)
+    def proxy(self, lab_id: str) -> str | None:
+        return self._operation(lab_id, "proxy", lab_id)
 
     def harden(self, lab_id: str) -> str:
         return self._operation(lab_id, "harden", lab_id)

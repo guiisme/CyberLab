@@ -34,3 +34,11 @@ class CommandRunner:
             stdout=completed.stdout.strip(),
             stderr=completed.stderr.strip(),
         )
+
+    def run_interactive(self, command: list[str]) -> int:
+        """Run a command attached to the current terminal."""
+
+        try:
+            return subprocess.run(command, check=False).returncode
+        except FileNotFoundError:
+            return 127

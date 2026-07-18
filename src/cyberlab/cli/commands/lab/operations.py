@@ -29,11 +29,15 @@ def register_operations_commands(app: typer.Typer, operations: LabOperationsProt
     @app.command("exec")
     def execute(
         lab_id: str,
-        command: str = typer.Option("/bin/bash", "--command", "-c"),
+        command: str | None = typer.Option(None, "--command", "-c"),
+        shell: str = typer.Option("/bin/bash", "--shell"),
     ) -> None:
-        """Execute a command in a laboratory."""
+        """Open a console, or execute a command with --command."""
 
-        typer.echo(_invoke(lambda: operations.exec(lab_id, command)))
+        if command is not None:
+            typer.echo(_invoke(lambda: operations.exec(lab_id, command)))
+            return
+        typer.echo(_invoke(lambda: operations.console(lab_id, shell)))
 
     @app.command("submit")
     def submit(
@@ -52,7 +56,9 @@ def register_operations_commands(app: typer.Typer, operations: LabOperationsProt
     def proxy(lab_id: str) -> None:
         """Forward the laboratory service to the local machine."""
 
-        _invoke(lambda: operations.proxy(lab_id))
+        endpoint = _invoke(lambda: operations.proxy(lab_id))
+        if endpoint is not None:
+            typer.echo(endpoint)
 
     @app.command("harden")
     def harden(lab_id: str) -> None:

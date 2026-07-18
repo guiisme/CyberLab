@@ -347,3 +347,48 @@ def test_exec_reports_missing_compose_container() -> None:
     assert runner.exec("xss-basic", "id") == (
         "Erro ao executar: nenhum container ativo para 'xss-basic'."
     )
+
+
+def test_proxy_reports_published_compose_ports() -> None:
+    compose_file = "labs/xss-basic/compose.yaml"
+    command_runner = FakeCommandRunner(
+        responses={
+            ("docker", "compose", "-f", compose_file, "ps", "-q"): ProcessResult(
+                exit_code=0,
+                stdout="container-123\n",
+                stderr="",
+            ),
+            ("docker", "port", "container-123"): ProcessResult(
+                exit_code=0,
+                stdout="80/tcp -> 127.0.0.1:8080\n",
+                stderr="",
+            ),
+        }
+    )
+    runner = DockerComposeLabRunner(DockerComposeService(command_runner), Path("labs"))
+
+    assert runner.proxy("xss-basic") == (
+        "Endpoint(s) publicado(s) para 'xss-basic':\n80/tcp -> 127.0.0.1:8080"
+    )
+
+
+def test_console_opens_interactive_shell_in_first_compose_container() -> None:
+    compose_file = "labs/xss-basic/compose.yaml"
+    command_runner = FakeCommandRunner(
+        responses={
+            ("docker", "compose", "-f", compose_file, "ps", "-q"): ProcessResult(
+                exit_code=0,
+                stdout="container-123\n",
+                stderr="",
+            ),
+            ("docker", "exec", "-it", "container-123", "/bin/bash"): ProcessResult(
+                exit_code=0,
+                stdout="",
+                stderr="",
+            ),
+        }
+    )
+    runner = DockerComposeLabRunner(DockerComposeService(command_runner), Path("labs"))
+
+    assert runner.console("xss-basic") == "Console encerrado."
+    assert command_runner.commands[-1] == ("docker", "exec", "-it", "container-123", "/bin/bash")

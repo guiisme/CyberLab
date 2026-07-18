@@ -118,3 +118,13 @@ class DockerComposeService:
         """Execute a non-interactive shell command in a Docker container."""
 
         return self._command_runner.run(["docker", "exec", container_id, "sh", "-c", command])
+
+    def ports(self, container_id: str) -> ProcessResult:
+        """Return the host port mappings of a Docker container."""
+
+        return self._command_runner.run(["docker", "port", container_id])
+
+    def interactive_shell(self, container_id: str, shell: str) -> int:
+        """Open an interactive shell attached to a Docker container."""
+
+        return self._command_runner.run_interactive(["docker", "exec", "-it", container_id, shell])
