@@ -198,8 +198,36 @@ For Docker Compose and Podman, `lab proxy` displays the host ports already
 published by the running containers. For Kubernetes, it starts a local
 `kubectl port-forward` session.
 
-The pre-migration command surface remains available temporarily through
-`uv run cyberlab legacy …`. New automation should use `cyberlab lab …`.
+## Comando `legacy`
+
+`legacy` é uma ponte de compatibilidade para a CLI baseada em `argparse` que
+existia antes da migração para Typer. Ele mantém scripts e procedimentos
+antigos funcionando enquanto são migrados; não é a interface recomendada para
+novas automações e pode ser removido em uma release futura de breaking change.
+
+Use o prefixo explicitamente:
+
+```bash
+uv run cyberlab legacy init
+uv run cyberlab legacy create-lab meu-lab
+uv run cyberlab legacy run meu-lab
+uv run cyberlab legacy exec meu-lab /bin/bash
+uv run cyberlab legacy submit meu-lab --flag 'FLAG{exemplo}'
+```
+
+O fluxo novo equivalente usa comandos Typer e deve ser preferido:
+
+```bash
+uv run cyberlab lab create meu-lab
+uv run cyberlab lab run meu-lab
+uv run cyberlab lab exec meu-lab
+uv run cyberlab lab submit meu-lab --flag 'FLAG{exemplo}'
+```
+
+Use `legacy` quando um script existente ainda depende de nomes como
+`create-lab`, do formato posicional antigo ou de comportamentos da CLI
+anterior. Para recursos recentes, como templates Kali, perfis e console
+interativa Docker, use sempre `cyberlab lab …`.
 
 ---
 
