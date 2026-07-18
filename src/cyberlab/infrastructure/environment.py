@@ -81,14 +81,15 @@ def is_docker_running() -> bool:
         return False
 
 
-def is_kind_cluster_running(cluster_name: str = "kind") -> bool:
+def is_kind_cluster_running(cluster_name: str = "cyberlab") -> bool:  # Altere o padrão aqui
     """Verifica se o cluster KIND específico está de pé."""
     try:
         result = subprocess.run(
             ["kind", "get", "clusters"], capture_output=True, text=True, check=True
         )
-        # Verifica se o nome do cluster (ex: 'kind' ou 'cyberlab') aparece na lista
-        return cluster_name in result.stdout
+        # Verifica se o nome do cluster aparece na lista
+        clusters = result.stdout.splitlines()
+        return cluster_name in clusters
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
@@ -108,7 +109,7 @@ def pre_flight_check(require_cluster: bool = False):
             sys.exit(1)
 
         # 2. Checa o Kind (apenas para comandos que exigem o cluster ativo, como deploy)
-        if require_cluster and not is_kind_cluster_running():
+        if require_cluster and not is_kind_cluster_running(cluster_name="cyberlab"):
             console.print(
                 "[bold red]❌ Erro Crítico:[/bold red] "
                 "O cluster Kubernetes (KIND) não está rodando. "

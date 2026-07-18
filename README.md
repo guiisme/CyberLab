@@ -15,7 +15,8 @@ The project is designed to keep business rules independent from infrastructure, 
 * Dependency Injection
 * Protocol-based design (PEP 544)
 * Test-Driven Development
-* Docker Compose laboratory execution
+* Docker Compose, Podman and Kubernetes laboratory execution
+* Engine selection through the laboratory manifest
 * YAML laboratory manifests
 * Modular CLI
 * Infrastructure-independent Application layer
@@ -40,12 +41,12 @@ The project is designed to keep business rules independent from infrastructure, 
       Repository Protocol             Runner Protocol
              |                               |
              v                               v
- Filesystem Repository         Docker Compose Runner
+ Filesystem Repository         Engine Lifecycle Resolver
              |                               |
              +---------------+---------------+
                              |
                              v
-                     Docker Compose
+         Docker Compose / Podman / Kubernetes
 ```
 
 The Application layer never depends on Infrastructure.
@@ -97,6 +98,13 @@ Install dependencies:
 uv sync
 ```
 
+For commands that use the laboratories in this checkout, point CyberLab at the
+repository root:
+
+```bash
+export CYBERLAB_HOME="$PWD"
+```
+
 ---
 
 # Verify the Environment
@@ -143,12 +151,40 @@ Stop a laboratory
 
 ```bash
 uv run cyberlab lab stop xss-basic
+```
+
+Show a laboratory status or its logs:
+
+```bash
+uv run cyberlab lab status xss-basic
+uv run cyberlab lab logs xss-basic
+```
+
+Engine-specific commands are exposed under `lab` as well:
+
+```bash
+uv run cyberlab lab deploy <lab-id>
+uv run cyberlab lab exec <lab-id> -c "id"
+uv run cyberlab lab submit <lab-id> --flag '<flag>'
+uv run cyberlab lab proxy <lab-id>
+uv run cyberlab lab harden <lab-id>
+uv run cyberlab lab setup-ctf <lab-id> <target>
+```
+
+The pre-migration command surface remains available temporarily through
+`uv run cyberlab legacy …`. New automation should use `cyberlab lab …`.
 
 ---
 
 # Running Laboratories
 
-CyberLab executes laboratories through Docker Compose.
+CyberLab selects an execution engine from `lab.yaml`:
+
+| `engine` value | Adapter |
+| --- | --- |
+| omitted, `docker`, or `compose` | Docker Compose |
+| `podman` | Podman Compose |
+| `k8s` | Kubernetes |
 
 Each laboratory contains its own infrastructure definition.
 
@@ -159,6 +195,7 @@ labs/
 └── xss-basic/
     ├── lab.yaml
     ├── compose.yaml
+    ├── web/
     └── README.md
 ```
 
@@ -176,6 +213,21 @@ docker compose \
     up -d
 ```
 
+## XSS Basics example
+
+`xss-basic` is a runnable DOM XSS training lab. It starts an Nginx target on
+`http://localhost:8080` and deliberately renders the `q` query parameter with
+`innerHTML`.
+
+```bash
+uv run cyberlab lab run xss-basic
+uv run cyberlab lab status xss-basic
+uv run cyberlab lab exec xss-basic -c "id"
+```
+
+Open `http://localhost:8080/?q=hello` in a browser to use the target. Stop it
+after the exercise with `uv run cyberlab lab stop xss-basic`.
+
 ---
 
 # Laboratory Manifest
@@ -190,6 +242,7 @@ name: Basic Cross-Site Scripting
 category: web
 difficulty: beginner
 version: "1.0.0"
+engine: docker
 ```
 
 ---
@@ -242,18 +295,14 @@ Implemented:
 * Laboratory metadata
 * Laboratory validation
 * Laboratory runner abstraction
-* Docker Compose runner
+* Docker Compose runner and shell execution
+* Podman and Kubernetes engine adapters
+* Manifest-driven engine resolver
 * Modular CLI
 
 Planned:
 
-* Stop laboratories
-* Laboratory logs
-* Laboratory status
-* Shell access
 * Multi-container laboratories
-* Podman support
-* Kubernetes runner
 * Remote execution
 * Laboratory marketplace
 

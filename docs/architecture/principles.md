@@ -65,6 +65,7 @@ Each component should have a single, clearly defined responsibility.
 Examples:
 
 * DockerComposeService executes Docker Compose commands.
+* EngineLabLifecycle selects an adapter from the laboratory manifest.
 * DockerComposeLabRunner adapts laboratory execution to Docker Compose.
 * FilesystemLabRepository discovers available laboratories.
 * YamlLabManifestLoader loads laboratory metadata.
@@ -115,23 +116,19 @@ LabRunUseCase
 LabLifeCycleProtocol
         │
         ▼
-DockerComposeLabRunner
+EngineLabLifecycle
         │
         ▼
-DockerComposeService
-        │
-        ▼
-CommandRunnerProtocol
-        │
-        ▼
-Docker Compose
+DockerComposeLabRunner / PodmanComposeLabLifecycle / KubernetesLifecycle
 ```
 
 The Application layer defines the execution contract through `LabLifeCycleProtocol`.
 
 The Infrastructure layer provides the execution mechanism.
 
-Replacing Docker Compose with another technology should require changes only inside the Infrastructure layer.
+The `engine` field in `lab.yaml` selects the concrete adapter. Adding another
+engine should require changes only in the Infrastructure layer and composition
+root.
 
 ---
 

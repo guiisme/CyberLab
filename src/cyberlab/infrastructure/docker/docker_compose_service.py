@@ -99,3 +99,22 @@ class DockerComposeService:
                 "logs",
             ]
         )
+
+    def container_ids(self, compose_file: Path) -> ProcessResult:
+        """Return running container IDs for a Compose project."""
+
+        return self._command_runner.run(
+            [
+                "docker",
+                "compose",
+                "-f",
+                str(compose_file),
+                "ps",
+                "-q",
+            ]
+        )
+
+    def exec(self, container_id: str, command: str) -> ProcessResult:
+        """Execute a non-interactive shell command in a Docker container."""
+
+        return self._command_runner.run(["docker", "exec", container_id, "sh", "-c", command])

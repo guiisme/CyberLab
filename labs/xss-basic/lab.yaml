@@ -6,6 +6,8 @@ description: Learn the fundamentals of Cross-Site Scripting attacks.
 category: Web Security
 
 difficulty: Beginner
+version: "1.0.0"
+engine: docker
 
 tags:
   - xss

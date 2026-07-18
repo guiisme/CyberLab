@@ -1,0 +1,19 @@
+"""Contract for engine-specific laboratory operations."""
+
+from typing import Protocol
+
+
+class LabOperationsProtocol(Protocol):
+    """Operations that are not part of the portable lifecycle contract."""
+
+    def deploy(self, lab_id: str) -> str: ...
+
+    def exec(self, lab_id: str, command: str) -> str: ...
+
+    def submit(self, lab_id: str, flag: str) -> bool: ...
+
+    def proxy(self, lab_id: str) -> None: ...
+
+    def harden(self, lab_id: str) -> str: ...
+
+    def setup_ctf(self, lab_id: str, target: str) -> str: ...

@@ -1,0 +1,11 @@
+services:
+  target:
+    image: nginx:1.27-alpine
+    container_name: cyberlab-xss-basic-target
+    ports:
+      - "8080:80"
+    volumes:
+      - ./web:/usr/share/nginx/html:ro
+    labels:
+      cyberlab.lab: xss-basic
+      cyberlab.category: xss

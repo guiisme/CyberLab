@@ -71,3 +71,27 @@ def test_status_returns_running_state(mock_run):
     from cyberlab.domain.models.lab_execution_report import LaboratoryState
 
     assert status.state == LaboratoryState.RUNNING
+
+
+def test_deploy_starts_the_lab_from_the_manifest_path() -> None:
+    adapter = PodmanComposeLabLifecycle()
+
+    with patch.object(adapter, "run", return_value=MagicMock(message="started")) as run:
+        result = adapter.deploy("/workspace/labs/demo/lab.yaml")
+
+    assert result == "started"
+    run.assert_called_once_with("demo")
+
+
+@patch("subprocess.run")
+def test_exec_uses_podman_container(mock_run) -> None:
+    adapter = PodmanComposeLabLifecycle()
+    mock_run.side_effect = [
+        MagicMock(stdout="demo-web-1\n"),
+        MagicMock(returncode=0, stdout="uid=0\n", stderr=""),
+    ]
+
+    result = adapter.exec("demo", "id")
+
+    assert result == "uid=0"
+    assert mock_run.call_args_list[1].args[0] == ["podman", "exec", "demo-web-1", "sh", "-c", "id"]
