@@ -15,6 +15,7 @@ from cyberlab.cli.commands.lab.info import register_info_command
 from cyberlab.cli.commands.lab.init import register_init_command
 from cyberlab.cli.commands.lab.list import register_list_command
 from cyberlab.cli.commands.lab.logs import register_logs_command
+from cyberlab.cli.commands.lab.operations import register_operations_commands
 from cyberlab.cli.commands.lab.restart import register_restart_command
 from cyberlab.cli.commands.lab.run import register_run_command
 from cyberlab.cli.commands.lab.status import register_status_command
@@ -97,6 +98,7 @@ def create_app(
     register_init_command(lab_app)
     register_list_command(lab_app, lab_repository)
     register_logs_command(lab_app, lifecycle)
+    register_operations_commands(lab_app, lifecycle)
     register_restart_command(lab_app, lifecycle)
     register_run_command(lab_app, lifecycle)
     register_status_command(lab_app, lifecycle)

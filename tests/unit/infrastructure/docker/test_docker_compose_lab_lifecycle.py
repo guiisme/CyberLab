@@ -308,3 +308,42 @@ def test_logs_returns_failure_report() -> None:
 
     assert report.lab_id == "xss-basic"
     assert report.content == "Docker failed"
+
+
+def test_exec_runs_command_in_first_compose_container() -> None:
+    compose_file = "labs/xss-basic/compose.yaml"
+    command_runner = FakeCommandRunner(
+        responses={
+            ("docker", "compose", "-f", compose_file, "ps", "-q"): ProcessResult(
+                exit_code=0,
+                stdout="container-123\n",
+                stderr="",
+            ),
+            ("docker", "exec", "container-123", "sh", "-c", "id"): ProcessResult(
+                exit_code=0,
+                stdout="uid=0",
+                stderr="",
+            ),
+        }
+    )
+    runner = DockerComposeLabRunner(DockerComposeService(command_runner), Path("labs"))
+
+    assert runner.exec("xss-basic", "id") == "uid=0"
+
+
+def test_exec_reports_missing_compose_container() -> None:
+    compose_file = "labs/xss-basic/compose.yaml"
+    command_runner = FakeCommandRunner(
+        responses={
+            ("docker", "compose", "-f", compose_file, "ps", "-q"): ProcessResult(
+                exit_code=0,
+                stdout="",
+                stderr="",
+            )
+        }
+    )
+    runner = DockerComposeLabRunner(DockerComposeService(command_runner), Path("labs"))
+
+    assert runner.exec("xss-basic", "id") == (
+        "Erro ao executar: nenhum container ativo para 'xss-basic'."
+    )

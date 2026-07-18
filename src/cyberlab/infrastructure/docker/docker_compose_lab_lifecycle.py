@@ -147,6 +147,22 @@ class DockerComposeLabRunner(LabLifeCycleProtocol):
             content=(result.stdout if result.exit_code == 0 else result.stderr),
         )
 
+    def exec(self, lab_id: str, command: str) -> str:
+        """Execute a command in the first running Compose container."""
+
+        containers = self._compose_service.container_ids(self._compose_file(lab_id))
+        if containers.exit_code != 0:
+            return f"Erro ao localizar container: {containers.stderr}"
+
+        container_ids = containers.stdout.splitlines()
+        if not container_ids:
+            return f"Erro ao executar: nenhum container ativo para '{lab_id}'."
+
+        result = self._compose_service.exec(container_ids[0], command)
+        if result.exit_code != 0:
+            return f"Erro ao executar: {result.stderr}"
+        return result.stdout or "(comando executado sem saída)"
+
     def _compose_file(
         self,
         lab_id: str,

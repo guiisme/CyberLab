@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CyberLab — XSS Basics</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 3rem auto; max-width: 44rem; padding: 0 1rem; }
+      input, button { font: inherit; padding: .55rem; }
+      #results { margin-top: 1.5rem; border: 1px solid #ddd; padding: 1rem; }
+      code { background: #f5f5f5; padding: .15rem .3rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Product search</h1>
+    <p>Search results are rendered from the <code>q</code> query parameter.</p>
+    <form id="search-form">
+      <label for="query">Search</label>
+      <input id="query" name="q" autocomplete="off" />
+      <button type="submit">Search</button>
+    </form>
+    <section id="results" aria-live="polite">Enter a search term to begin.</section>
+
+    <script>
+      const query = new URLSearchParams(window.location.search).get("q");
+      const input = document.querySelector("#query");
+      const results = document.querySelector("#results");
+
+      if (query) {
+        input.value = query;
+        // Intentionally vulnerable: untrusted input is inserted as HTML for the lab exercise.
+        results.innerHTML = `Showing results for: <strong>${query}</strong>`;
+      }
+    </script>
+  </body>
+</html>

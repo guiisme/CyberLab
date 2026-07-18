@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.0.0] - 2026-07-17
+
+### Added
+
+* Typer composition root with the `cyberlab lab` command group.
+* Manifest-driven engine selection for Docker Compose, Podman, and Kubernetes.
+* `lab deploy`, `exec`, `submit`, `proxy`, `harden`, and `setup-ctf` commands.
+* Docker Compose shell execution through container discovery and `docker exec`.
+* A runnable `xss-basic` DOM XSS laboratory served by Nginx.
+
+### Changed
+
+* Standardized lifecycle routing through `EngineLabLifecycle`.
+* Aligned the Podman adapter with the lifecycle contract.
+* Made the package registry export lazy to prevent import-time cycles.
+* Updated CLI, architecture, and laboratory documentation for the new runtime.
+
+### Compatibility
+
+* The pre-migration command surface remains available temporarily through
+  `cyberlab legacy`.
+
 ## [0.3.0] - Unreleased
 
 ### Added

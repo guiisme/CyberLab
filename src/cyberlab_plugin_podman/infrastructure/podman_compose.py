@@ -106,16 +106,10 @@ class PodmanComposeLabLifecycle(LabLifeCycleProtocol):
             logger.info("✅ [OK]: Nenhuma capacidade de privilégio adicional encontrada.")
 
     def deploy(self, lab_path: str) -> str:
-        """Executa a implantação do lab."""
-        import subprocess
+        """Start the Podman Compose laboratory declared by a manifest path."""
 
-        try:
-            result = subprocess.run(
-                ["kubectl", "apply", "-f", lab_path], check=True, capture_output=True, text=True
-            )
-            return result.stdout
-        except subprocess.CalledProcessError as e:
-            raise Exception(f"Erro no deploy: {e.stderr}") from e
+        lab_id = Path(lab_path).parent.name
+        return self.run(lab_id).message
 
     def setup_ctf(self, lab_id: str, target_pod: str = "default_target") -> str:
         # Script que cria as flags no container alvo (exemplo)
@@ -126,18 +120,25 @@ class PodmanComposeLabLifecycle(LabLifeCycleProtocol):
         return self.exec(lab_id, f"bash -c '{setup_script}'")
 
     def exec(self, lab_id: str, command: str) -> str:
-        """Executa um comando dentro de um lab."""
-        # Se for Podman, aqui vai sua lógica de subprocesso
-        # Se for K8s, aqui vai o 'kubectl exec'
-        import subprocess
+        """Execute a non-interactive command in the laboratory container."""
 
-        # Exemplo simplificado:
-        result = subprocess.run(
-            ["kubectl", "exec", lab_id, "--", "/bin/sh", "-c", command],
+        containers = subprocess.run(
+            ["podman", "ps", "--filter", f"name={lab_id}", "--format", "{{.Names}}"],
             capture_output=True,
             text=True,
         )
-        return result.stdout
+        container_names = containers.stdout.splitlines()
+        if not container_names:
+            return f"Erro ao executar: nenhum container encontrado para '{lab_id}'."
+
+        result = subprocess.run(
+            ["podman", "exec", container_names[0], "sh", "-c", command],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            return f"Erro ao executar: {result.stderr.strip()}"
+        return result.stdout.strip() or "(comando executado sem saída)"
 
     def exec_in_pod(self, lab_id: str, command: str = "/bin/bash"):
         """Acessa um shell interativo dentro do container do Podman Compose."""

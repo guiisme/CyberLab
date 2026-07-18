@@ -327,9 +327,9 @@ CyberLab follows the Ports and Adapters pattern.
                          |
         +----------------+----------------+
         |                                 |
-DockerComposeLabLifecycle        Future Adapters
-                                 (Podman, Kubernetes,
-                                 Remote Runner, ...)
+EngineLabLifecycle               Engine Adapters
+                                 (Docker Compose, Podman,
+                                 Kubernetes, ...)
 ```
 
 Application depends only on Protocols.
@@ -391,12 +391,9 @@ These principles guide every architectural decision in the project.
 CyberLab is designed as an extensible platform rather than a Docker-specific
 tool.
 
-Future execution adapters may include:
-
-- Podman
-- Kubernetes
-- Remote execution environments
-- Cloud-native laboratory orchestration
+The current resolver selects Docker Compose, Podman, or Kubernetes from the
+`engine` field in `lab.yaml`. Future adapters may include remote execution
+environments and cloud-native laboratory orchestration.
 
 Because the Application layer depends only on Protocols, these capabilities can
 be introduced without changing existing business workflows.

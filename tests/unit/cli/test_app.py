@@ -15,3 +15,16 @@ def test_root_help_displays_available_commands() -> None:
     assert "doctor" in result.stdout
     assert "version" in result.stdout
     assert "lab" in result.stdout
+
+
+def test_lab_help_displays_engine_operations() -> None:
+    app = create_app(FakeCommandRunner({}))
+
+    result = runner.invoke(app, ["lab", "--help"])
+
+    assert result.exit_code == 0
+    assert "deploy" in result.stdout
+    assert "exec" in result.stdout
+    assert "submit" in result.stdout
+    assert "proxy" in result.stdout
+    assert "harden" in result.stdout

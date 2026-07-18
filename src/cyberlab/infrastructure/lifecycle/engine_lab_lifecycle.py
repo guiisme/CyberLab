@@ -44,6 +44,25 @@ class EngineLabLifecycle:
     def logs(self, lab_id: str) -> LabLogs:
         return self._lifecycle(lab_id).logs(lab_id)
 
+    def deploy(self, lab_id: str) -> str:
+        manifest_path = self._labs_root / lab_id / "lab.yaml"
+        return self._operation(lab_id, "deploy", str(manifest_path))
+
+    def exec(self, lab_id: str, command: str) -> str:
+        return self._operation(lab_id, "exec", lab_id, command)
+
+    def submit(self, lab_id: str, flag: str) -> bool:
+        return self._operation(lab_id, "validate_flag", lab_id, flag)
+
+    def proxy(self, lab_id: str) -> None:
+        self._operation(lab_id, "proxy", lab_id)
+
+    def harden(self, lab_id: str) -> str:
+        return self._operation(lab_id, "harden", lab_id)
+
+    def setup_ctf(self, lab_id: str, target: str) -> str:
+        return self._operation(lab_id, "setup_ctf", lab_id, target)
+
     def _lifecycle(self, lab_id: str) -> LabLifeCycleProtocol:
         engine = self._engine(lab_id)
         try:
@@ -55,6 +74,17 @@ class EngineLabLifecycle:
                 f"Available engines: {available}."
             ) from error
         return factory(lab_id)
+
+    def _operation(self, lab_id: str, name: str, *args: str) -> Any:
+        lifecycle = self._lifecycle(lab_id)
+        operation = type(lifecycle).__dict__.get(name)
+        if not callable(operation):
+            engine = self._engine(lab_id)
+            raise NotImplementedError(
+                f"Engine '{engine}' does not support the '{name}' operation "
+                f"for laboratory '{lab_id}'."
+            )
+        return operation(lifecycle, *args)
 
     def _engine(self, lab_id: str) -> str:
         manifest_path = self._labs_root / lab_id / "lab.yaml"
