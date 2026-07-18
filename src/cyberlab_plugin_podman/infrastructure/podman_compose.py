@@ -140,6 +140,31 @@ class PodmanComposeLabLifecycle(LabLifeCycleProtocol):
             return f"Erro ao executar: {result.stderr.strip()}"
         return result.stdout.strip() or "(comando executado sem saída)"
 
+    def proxy(self, lab_id: str) -> str:
+        """Show host endpoints already published by the Podman laboratory."""
+
+        containers = subprocess.run(
+            ["podman", "ps", "--filter", f"name={lab_id}", "--format", "{{.Names}}"],
+            capture_output=True,
+            text=True,
+        )
+        container_names = containers.stdout.splitlines()
+        if not container_names:
+            return f"Nenhum container ativo para '{lab_id}'. Execute 'lab run {lab_id}' primeiro."
+
+        result = subprocess.run(
+            ["podman", "port", container_names[0]],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            return f"Erro ao consultar portas: {result.stderr.strip()}"
+
+        ports = result.stdout.strip()
+        if not ports:
+            return f"O laboratório '{lab_id}' não publica portas no host."
+        return f"Endpoint(s) publicado(s) para '{lab_id}':\n{ports}"
+
     def exec_in_pod(self, lab_id: str, command: str = "/bin/bash"):
         """Acessa um shell interativo dentro do container do Podman Compose."""
         try:

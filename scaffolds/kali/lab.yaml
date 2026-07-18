@@ -1,0 +1,11 @@
+id: "{{LAB_ID}}"
+name: "{{LAB_NAME}}"
+description: Isolated Kali Linux workspace for authorized security assessment labs.
+category: pentesting
+difficulty: intermediate
+version: "0.1.0"
+engine: docker
+tags:
+  - kali
+  - pentesting
+  - authorized-lab

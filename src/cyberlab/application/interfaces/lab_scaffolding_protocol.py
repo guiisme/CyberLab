@@ -10,5 +10,6 @@ class LabScaffoldingProtocol(Protocol):
         self,
         lab_id: str,
         scaffold: str = "default",
+        profile: str = "web",
     ) -> None:
         """Create a new laboratory from a scaffold."""

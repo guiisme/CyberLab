@@ -30,3 +30,12 @@ class FakeCommandRunner(CommandRunnerProtocol):
             raise AssertionError(f"Unexpected command: {command}")
 
         return self._responses[key]
+
+    def run_interactive(self, command: list[str]) -> int:
+        key = tuple(command)
+        self.commands.append(key)
+
+        if key not in self._responses:
+            raise AssertionError(f"Unexpected command: {command}")
+
+        return self._responses[key].exit_code

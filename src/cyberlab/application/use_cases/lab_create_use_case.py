@@ -18,10 +18,12 @@ class LabCreateUseCase:
         self,
         lab_id: str,
         scaffold: str = "default",
+        profile: str = "web",
     ) -> None:
         """Create a laboratory."""
 
         self._scaffolding.create(
             lab_id=lab_id,
             scaffold=scaffold,
+            profile=profile,
         )

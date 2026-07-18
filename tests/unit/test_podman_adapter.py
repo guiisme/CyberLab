@@ -95,3 +95,17 @@ def test_exec_uses_podman_container(mock_run) -> None:
 
     assert result == "uid=0"
     assert mock_run.call_args_list[1].args[0] == ["podman", "exec", "demo-web-1", "sh", "-c", "id"]
+
+
+@patch("subprocess.run")
+def test_proxy_reports_published_podman_ports(mock_run) -> None:
+    adapter = PodmanComposeLabLifecycle()
+    mock_run.side_effect = [
+        MagicMock(stdout="demo-web-1\n"),
+        MagicMock(returncode=0, stdout="80/tcp -> 127.0.0.1:8080\n", stderr=""),
+    ]
+
+    result = adapter.proxy("demo")
+
+    assert result == "Endpoint(s) publicado(s) para 'demo':\n80/tcp -> 127.0.0.1:8080"
+    assert mock_run.call_args_list[1].args[0] == ["podman", "port", "demo-web-1"]

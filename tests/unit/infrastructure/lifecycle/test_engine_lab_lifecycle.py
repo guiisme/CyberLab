@@ -46,9 +46,17 @@ class OperationsSpy(SpyLifecycle):
         self.calls.append(("exec", f"{lab_id}:{command}"))
         return "executed"
 
+    def console(self, lab_id: str, shell: str) -> str:
+        self.calls.append(("console", f"{lab_id}:{shell}"))
+        return "closed"
+
     def validate_flag(self, lab_id: str, flag: str) -> bool:
         self.calls.append(("validate_flag", f"{lab_id}:{flag}"))
         return True
+
+    def proxy(self, lab_id: str) -> str:
+        self.calls.append(("proxy", lab_id))
+        return "http://127.0.0.1:8080"
 
 
 def write_manifest(labs_root: Path, lab_id: str, contents: str) -> None:
@@ -96,11 +104,15 @@ def test_delegates_engine_specific_operations(tmp_path: Path) -> None:
 
     assert resolver.deploy("api") == "deployed"
     assert resolver.exec("api", "id") == "executed"
+    assert resolver.console("api", "/bin/bash") == "closed"
     assert resolver.submit("api", "flag") is True
+    assert resolver.proxy("api") == "http://127.0.0.1:8080"
     assert lifecycle.calls == [
         ("deploy", str(tmp_path / "api" / "lab.yaml")),
         ("exec", "api:id"),
+        ("console", "api:/bin/bash"),
         ("validate_flag", "api:flag"),
+        ("proxy", "api"),
     ]
 
 

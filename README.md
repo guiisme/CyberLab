@@ -129,6 +129,28 @@ List laboratories:
 uv run cyberlab lab list
 ```
 
+Create a lab from the default scaffold:
+
+```bash
+uv run cyberlab lab create jwt-basic
+```
+
+This creates `labs/jwt-basic/` with a valid starter manifest, documentation,
+and `application/`, `scripts/`, and `seed/` directories. Add services to its
+`compose.yaml` before running it.
+
+For a ready-to-use Kali workspace, choose the official Kali scaffold and a
+tool profile:
+
+```bash
+uv run cyberlab lab create kali-pentest --template kali --profile web
+uv run cyberlab lab run kali-pentest
+uv run cyberlab lab exec kali-pentest
+```
+
+Available profiles are `minimal`, `web`, and `network`. Use this workspace only
+against laboratories and systems you are authorized to assess.
+
 Show laboratory information:
 
 ```bash
@@ -164,12 +186,17 @@ Engine-specific commands are exposed under `lab` as well:
 
 ```bash
 uv run cyberlab lab deploy <lab-id>
-uv run cyberlab lab exec <lab-id> -c "id"
+uv run cyberlab lab exec <lab-id>             # abre uma console interativa
+uv run cyberlab lab exec <lab-id> -c "id"     # executa um comando
 uv run cyberlab lab submit <lab-id> --flag '<flag>'
 uv run cyberlab lab proxy <lab-id>
 uv run cyberlab lab harden <lab-id>
 uv run cyberlab lab setup-ctf <lab-id> <target>
 ```
+
+For Docker Compose and Podman, `lab proxy` displays the host ports already
+published by the running containers. For Kubernetes, it starts a local
+`kubectl port-forward` session.
 
 The pre-migration command surface remains available temporarily through
 `uv run cyberlab legacy …`. New automation should use `cyberlab lab …`.

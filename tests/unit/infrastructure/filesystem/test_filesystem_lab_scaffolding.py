@@ -214,3 +214,19 @@ def test_create_fails_when_scaffold_does_not_exist(
             "jwt-basic",
             scaffold="default",
         )
+
+
+def test_create_replaces_kali_profile_placeholder(tmp_path: Path) -> None:
+    labs_root = tmp_path / "labs"
+    scaffolds_root = tmp_path / "scaffolds"
+    scaffold = scaffolds_root / "kali"
+    labs_root.mkdir()
+    scaffold.mkdir(parents=True)
+    (scaffold / "Dockerfile").write_text("ARG KALI_PROFILE={{KALI_PROFILE}}\n", encoding="utf-8")
+
+    scaffolding = FilesystemLabScaffolding(labs_root=labs_root, scaffolds_root=scaffolds_root)
+    scaffolding.create("kali-pentest", scaffold="kali", profile="web")
+
+    assert (labs_root / "kali-pentest" / "Dockerfile").read_text(encoding="utf-8") == (
+        "ARG KALI_PROFILE=web\n"
+    )

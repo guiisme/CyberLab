@@ -1,0 +1,21 @@
+services:
+  kali:
+    build:
+      context: .
+      args:
+        KALI_PROFILE: "{{KALI_PROFILE}}"
+    container_name: cyberlab-{{LAB_ID}}
+    command: ["sleep", "infinity"]
+    stdin_open: true
+    tty: true
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - kali-network
+    labels:
+      cyberlab.lab: "{{LAB_ID}}"
+      cyberlab.category: pentesting
+
+networks:
+  kali-network:
+    driver: bridge

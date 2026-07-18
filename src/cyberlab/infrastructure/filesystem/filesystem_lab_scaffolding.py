@@ -23,6 +23,7 @@ class FilesystemLabScaffolding(LabScaffoldingProtocol):
         self,
         lab_id: str,
         scaffold: str = "default",
+        profile: str = "web",
     ) -> None:
         """Create a laboratory from a scaffold."""
 
@@ -43,7 +44,7 @@ class FilesystemLabScaffolding(LabScaffoldingProtocol):
 
         self._replace_placeholders(
             destination,
-            self._placeholders(lab_id),
+            self._placeholders(lab_id, profile),
         )
 
     def _scaffold_path(
@@ -104,10 +105,12 @@ class FilesystemLabScaffolding(LabScaffoldingProtocol):
     def _placeholders(
         self,
         lab_id: str,
+        profile: str,
     ) -> dict[str, str]:
         return {
             "{{LAB_ID}}": lab_id,
             "{{LAB_NAME}}": self._lab_name(lab_id),
+            "{{KALI_PROFILE}}": profile,
         }
 
     @staticmethod

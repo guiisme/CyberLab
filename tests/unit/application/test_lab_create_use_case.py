@@ -21,5 +21,6 @@ def test_create_lab_executes_scaffolding() -> None:
         (
             "jwt-basic",
             "default",
+            "web",
         ),
     ]
